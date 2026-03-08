@@ -77,6 +77,28 @@ function clearEditors() {
   rightText.value = ''
 }
 
+// File input refs
+const leftFileInput = ref<HTMLInputElement | null>(null)
+const rightFileInput = ref<HTMLInputElement | null>(null)
+
+function triggerFileInput(side: 'left' | 'right') {
+  if (side === 'left') leftFileInput.value?.click()
+  else rightFileInput.value?.click()
+}
+
+function handleFileInput(side: 'left' | 'right', e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = () => {
+    if (side === 'left') leftText.value = reader.result as string
+    else rightText.value = reader.result as string
+  }
+  reader.readAsText(file)
+  // Reset so the same file can be re-selected
+  ;(e.target as HTMLInputElement).value = ''
+}
+
 function handleDrop(side: 'left' | 'right', e: DragEvent) {
   e.preventDefault()
   isDraggingFile.value = false
@@ -170,13 +192,23 @@ function handleDrop(side: 'left' | 'right', e: DragEvent) {
     <div class="grid grid-cols-1 md:grid-cols-2">
       <!-- Left: Original -->
       <div class="flex flex-col border-r border-[var(--color-border)] md:border-r">
-        <div class="px-3 py-1.5 border-b border-[var(--color-border)]">
+        <div class="flex items-center justify-between px-3 py-1.5 border-b border-[var(--color-border)]">
           <span
             class="text-[10px] uppercase tracking-widest"
             style="font-family: var(--font-mono); color: var(--color-muted)"
           >
             Original
           </span>
+          <input ref="leftFileInput" type="file" class="hidden" @change="handleFileInput('left', $event)">
+          <button
+            class="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] transition-colors hover:bg-white/5 cursor-pointer"
+            style="font-family: var(--font-mono); color: var(--color-muted)"
+            title="Upload file"
+            @click="triggerFileInput('left')"
+          >
+            <Upload :size="10" />
+            <span class="hidden sm:inline">Upload</span>
+          </button>
         </div>
         <div class="relative">
           <DiffEditor
@@ -201,13 +233,23 @@ function handleDrop(side: 'left' | 'right', e: DragEvent) {
 
       <!-- Right: Modified -->
       <div class="flex flex-col">
-        <div class="px-3 py-1.5 border-b border-[var(--color-border)]">
+        <div class="flex items-center justify-between px-3 py-1.5 border-b border-[var(--color-border)]">
           <span
             class="text-[10px] uppercase tracking-widest"
             style="font-family: var(--font-mono); color: var(--color-muted)"
           >
             Modified
           </span>
+          <input ref="rightFileInput" type="file" class="hidden" @change="handleFileInput('right', $event)">
+          <button
+            class="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] transition-colors hover:bg-white/5 cursor-pointer"
+            style="font-family: var(--font-mono); color: var(--color-muted)"
+            title="Upload file"
+            @click="triggerFileInput('right')"
+          >
+            <Upload :size="10" />
+            <span class="hidden sm:inline">Upload</span>
+          </button>
         </div>
         <div class="relative">
           <DiffEditor

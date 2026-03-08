@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { leftText, rightText, language } = useEditorState()
 const { precision, ignoreWhitespace, ignoreCase, options } = useDiffOptions()
-const { result, isComputing } = useDiff(leftText, rightText, options)
+const { result, isComputing, compute } = useDiff(leftText, rightText, options)
 const { saveShare, copyShareLink } = useShare()
 const { exportAsPng, exportAsPdf } = useExport()
 
@@ -9,6 +9,7 @@ const viewMode = ref<'split' | 'unified'>('split')
 const showDiff = ref(false)
 const showLoading = ref(false)
 const diffOutputRef = ref<HTMLElement | null>(null)
+const diffSectionRef = ref<HTMLElement | null>(null)
 
 // Auto-switch to unified view on small screens
 const isMobile = ref(false)
@@ -44,10 +45,13 @@ function findDifferences() {
   showLoading.value = true
   showDiff.value = true
 
-  // Brief loading indicator for visual feedback; cleared on next tick after
-  // the computed diff result has been evaluated.
   nextTick(() => {
+    compute()
     showLoading.value = false
+    // Scroll to diff results
+    nextTick(() => {
+      diffSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
   })
 }
 
@@ -215,7 +219,7 @@ function handleKeydown(e: KeyboardEvent) {
       enter-from-class="opacity-0 translate-y-4"
       enter-to-class="opacity-100 translate-y-0"
     >
-      <div v-if="hasDiff && !textsAreIdentical" class="w-full max-w-6xl animate-slide-up space-y-4">
+      <div v-if="hasDiff && !textsAreIdentical" ref="diffSectionRef" class="w-full max-w-6xl animate-slide-up space-y-4">
         <!-- Controls -->
         <DiffControls
           :view-mode="viewMode"

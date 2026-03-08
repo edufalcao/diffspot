@@ -232,12 +232,14 @@ function computeCharDiff(left: string, right: string, opts: DiffOptions): DiffLi
 // Composable
 // ---------------------------------------------------------------------------
 
+const emptyResult: DiffResult = { lines: [], additions: 0, removals: 0, unchanged: 0 }
+
 /**
  * Core diff computation composable.
  *
  * Accepts left and right text inputs (plain strings or refs) and a reactive
- * `DiffOptions` object. Returns a computed `DiffResult` and a reactive
- * `isComputing` flag.
+ * `DiffOptions` object. The diff is only computed when `compute()` is called
+ * explicitly — it does NOT react to input changes automatically.
  */
 export function useDiff(
   leftText: MaybeRef<string>,
@@ -245,8 +247,9 @@ export function useDiff(
   options: MaybeRef<DiffOptions>,
 ) {
   const isComputing = ref(false)
+  const result = ref<DiffResult>({ ...emptyResult })
 
-  const result = computed<DiffResult>(() => {
+  function compute() {
     isComputing.value = true
 
     try {
@@ -254,7 +257,6 @@ export function useDiff(
       let left = unref(leftText)
       let right = unref(rightText)
 
-      // Apply case-insensitive mode by lowering both inputs before diffing.
       if (opts.ignoreCase) {
         left = left.toLowerCase()
         right = right.toLowerCase()
@@ -279,14 +281,15 @@ export function useDiff(
       const removals = lines.filter((l) => l.type === 'removed').length
       const unchanged = lines.filter((l) => l.type === 'unchanged').length
 
-      return { lines, additions, removals, unchanged }
+      result.value = { lines, additions, removals, unchanged }
     } finally {
       isComputing.value = false
     }
-  })
+  }
 
   return {
     result,
     isComputing,
+    compute,
   }
 }
