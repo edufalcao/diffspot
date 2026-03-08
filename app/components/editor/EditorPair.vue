@@ -1,17 +1,56 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { Copy, Trash2, ChevronDown, Check } from 'lucide-vue-next'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { Copy, Trash2, ChevronDown, Check, Upload } from 'lucide-vue-next'
 import { useEditorState } from '~/composables/useEditorState'
 import DiffEditor from './DiffEditor.vue'
-import FileUpload from './FileUpload.vue'
 
 const { leftText, rightText, language, supportedLanguages } = useEditorState()
-const leftFocused = ref(false)
-const rightFocused = ref(false)
 
 // Language dropdown
 const dropdownOpen = ref(false)
 const copyFeedback = ref(false)
+
+// Drag-and-drop state: only show drop zones when a file is being dragged over the window
+const isDraggingFile = ref(false)
+let dragLeaveTimer: ReturnType<typeof setTimeout> | null = null
+
+function onWindowDragEnter(e: DragEvent) {
+  if (e.dataTransfer?.types.includes('Files')) {
+    isDraggingFile.value = true
+    if (dragLeaveTimer) clearTimeout(dragLeaveTimer)
+  }
+}
+
+function onWindowDragOver(e: DragEvent) {
+  e.preventDefault()
+}
+
+function onWindowDragLeave() {
+  // Debounce to avoid flickering when moving between elements
+  if (dragLeaveTimer) clearTimeout(dragLeaveTimer)
+  dragLeaveTimer = setTimeout(() => {
+    isDraggingFile.value = false
+  }, 100)
+}
+
+function onWindowDrop() {
+  isDraggingFile.value = false
+}
+
+onMounted(() => {
+  window.addEventListener('dragenter', onWindowDragEnter)
+  window.addEventListener('dragover', onWindowDragOver)
+  window.addEventListener('dragleave', onWindowDragLeave)
+  window.addEventListener('drop', onWindowDrop)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('dragenter', onWindowDragEnter)
+  window.removeEventListener('dragover', onWindowDragOver)
+  window.removeEventListener('dragleave', onWindowDragLeave)
+  window.removeEventListener('drop', onWindowDrop)
+  if (dragLeaveTimer) clearTimeout(dragLeaveTimer)
+})
 
 const selectedLabel = computed(() => {
   const entry = supportedLanguages.value.find((l) => l.value === language.value)
@@ -38,12 +77,17 @@ function clearEditors() {
   rightText.value = ''
 }
 
-function onLeftFileLoaded(content: string) {
-  leftText.value = content
-}
-
-function onRightFileLoaded(content: string) {
-  rightText.value = content
+function handleDrop(side: 'left' | 'right', e: DragEvent) {
+  e.preventDefault()
+  isDraggingFile.value = false
+  const file = e.dataTransfer?.files[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = () => {
+    if (side === 'left') leftText.value = reader.result as string
+    else rightText.value = reader.result as string
+  }
+  reader.readAsText(file)
 }
 </script>
 
@@ -134,18 +178,24 @@ function onRightFileLoaded(content: string) {
             Original
           </span>
         </div>
-        <div class="group relative" @focusin="leftFocused = true" @focusout="leftFocused = false">
+        <div class="relative">
           <DiffEditor
             v-model="leftText"
             :language="language"
             placeholder="Paste original text here..."
           />
-          <FileUpload
-            v-if="!leftText && !leftFocused"
-            side="left"
-            class="pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 transition-opacity duration-[var(--duration)] ease-[var(--ease)]"
-            @file-loaded="onLeftFileLoaded"
-          />
+          <!-- Drop zone: only visible when dragging a file over the window -->
+          <div
+            v-if="isDraggingFile && !leftText"
+            class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed border-[var(--color-accent)] bg-[rgba(0,229,204,0.04)]"
+            @dragover.prevent
+            @drop="handleDrop('left', $event)"
+          >
+            <Upload :size="24" style="color: var(--color-accent)" />
+            <span class="text-xs" style="font-family: var(--font-mono); color: var(--color-accent)">
+              Drop file here
+            </span>
+          </div>
         </div>
       </div>
 
@@ -159,18 +209,24 @@ function onRightFileLoaded(content: string) {
             Modified
           </span>
         </div>
-        <div class="group relative" @focusin="rightFocused = true" @focusout="rightFocused = false">
+        <div class="relative">
           <DiffEditor
             v-model="rightText"
             :language="language"
             placeholder="Paste modified text here..."
           />
-          <FileUpload
-            v-if="!rightText && !rightFocused"
-            side="right"
-            class="pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 transition-opacity duration-[var(--duration)] ease-[var(--ease)]"
-            @file-loaded="onRightFileLoaded"
-          />
+          <!-- Drop zone: only visible when dragging a file over the window -->
+          <div
+            v-if="isDraggingFile && !rightText"
+            class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed border-[var(--color-accent)] bg-[rgba(0,229,204,0.04)]"
+            @dragover.prevent
+            @drop="handleDrop('right', $event)"
+          >
+            <Upload :size="24" style="color: var(--color-accent)" />
+            <span class="text-xs" style="font-family: var(--font-mono); color: var(--color-accent)">
+              Drop file here
+            </span>
+          </div>
         </div>
       </div>
     </div>
