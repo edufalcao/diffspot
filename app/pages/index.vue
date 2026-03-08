@@ -2,12 +2,11 @@
 const { leftText, rightText, language } = useEditorState()
 const { precision, ignoreWhitespace, ignoreCase, options } = useDiffOptions()
 const { result, isComputing, compute } = useDiff(leftText, rightText, options)
-const { exportAsPng, exportAsPdf } = useExport()
+const { print } = usePrint()
 
 const viewMode = ref<'split' | 'unified'>('split')
 const showDiff = ref(false)
 const showLoading = ref(false)
-const diffOutputRef = ref<HTMLElement | null>(null)
 const diffSectionRef = ref<HTMLElement | null>(null)
 
 // Hide diff results when both inputs are cleared
@@ -59,15 +58,6 @@ function findDifferences() {
       diffSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     })
   })
-}
-
-async function handleExport(type: 'png' | 'pdf') {
-  if (!diffOutputRef.value) return
-  if (type === 'png') {
-    await exportAsPng(diffOutputRef.value)
-  } else {
-    await exportAsPdf(diffOutputRef.value)
-  }
 }
 
 const hasDiff = computed(() => showDiff.value && (result.value.additions > 0 || result.value.removals > 0 || result.value.unchanged > 0))
@@ -225,7 +215,7 @@ function handleKeydown(e: KeyboardEvent) {
           @update:precision="precision = $event"
           @update:ignore-whitespace="ignoreWhitespace = $event"
           @update:ignore-case="ignoreCase = $event"
-          @export="handleExport"
+          @print="print"
         />
 
         <!-- Stats -->
@@ -236,9 +226,7 @@ function handleKeydown(e: KeyboardEvent) {
         />
 
         <!-- Diff view -->
-        <div ref="diffOutputRef">
-          <DiffView :result="result" :view-mode="viewMode" />
-        </div>
+        <DiffView :result="result" :view-mode="viewMode" />
       </div>
     </Transition>
   </div>

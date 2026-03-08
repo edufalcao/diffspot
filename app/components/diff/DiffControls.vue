@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Download } from 'lucide-vue-next'
+import { Printer } from 'lucide-vue-next'
 import type { DiffPrecision } from '~/types/diff'
 
 const props = withDefaults(
@@ -20,7 +20,7 @@ const emit = defineEmits<{
   'update:precision': [value: DiffPrecision]
   'update:ignoreWhitespace': [value: boolean]
   'update:ignoreCase': [value: boolean]
-  'export': [type: 'png' | 'pdf']
+  'print': []
 }>()
 
 const viewModeOptions = computed(() =>
@@ -37,19 +37,10 @@ const precisionOptions = [
   { label: 'Word', value: 'word' },
   { label: 'Char', value: 'char' },
 ]
-
-const exportItems = [
-  { label: 'Export as PNG', value: 'png' },
-  { label: 'Export as PDF', value: 'pdf' },
-]
-
-function onExport(value: string) {
-  emit('export', value as 'png' | 'pdf')
-}
 </script>
 
 <template>
-  <div role="toolbar" aria-label="Diff controls" class="flex flex-wrap items-center gap-3">
+  <div role="toolbar" aria-label="Diff controls" class="flex flex-wrap items-center gap-3 print:hidden">
     <!-- View mode toggle -->
     <UiToggleGroup
       :options="viewModeOptions"
@@ -92,18 +83,10 @@ function onExport(value: string) {
     <!-- Spacer -->
     <div class="flex-1" />
 
-    <!-- Export dropdown -->
-    <UiDropdownMenu
-      :items="exportItems"
-      @update:model-value="onExport"
-    >
-      <template #trigger>
-        <UiGlowButton variant="secondary" size="sm">
-          <Download :size="16" />
-          Export
-        </UiGlowButton>
-      </template>
-    </UiDropdownMenu>
-
+    <!-- Print / Save as PDF -->
+    <UiGlowButton variant="secondary" size="sm" @click="emit('print')">
+      <Printer :size="16" />
+      Print
+    </UiGlowButton>
   </div>
 </template>

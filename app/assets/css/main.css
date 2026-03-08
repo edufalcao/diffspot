@@ -190,3 +190,42 @@ code, pre, .font-mono {
   background: var(--color-accent);
   color: var(--color-bg);
 }
+
+/* --- Print styles --- */
+@media print {
+  /* Hide everything except the diff output */
+  .noise-overlay,
+  .radial-bg,
+  header,
+  footer,
+  .animate-fade-in,
+  .animate-slide-up > .mb-6,
+  button {
+    display: none !important;
+  }
+
+  /* Reset backgrounds for print */
+  html, body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Remove scroll constraints so full content prints */
+  * {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Ensure diff views expand fully */
+  [role="log"],
+  [aria-label="Original file"],
+  [aria-label="Modified file"] {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Allow page breaks inside diff output */
+  [role="region"] {
+    break-inside: auto;
+  }
+}

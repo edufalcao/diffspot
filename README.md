@@ -11,7 +11,7 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 - Ignore whitespace and case options
 - Syntax-highlighted code editors (18+ languages)
 - Drag-and-drop file upload
-- Export as PNG or PDF
+- Print / Save as PDF via browser print dialog
 - Dark/light theme toggle
 - Keyboard shortcuts (Ctrl+Enter to diff)
 - Fully static — deploy anywhere
@@ -24,7 +24,7 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 | Styling | Tailwind CSS 4 |
 | Diff engine | jsdiff (`diff`) |
 | Code editors | CodeMirror 6 via `vue-codemirror` |
-| Export | `html-to-image` + `jsPDF` |
+| Print / Export | Browser print dialog (`window.print()`) |
 | Icons | Lucide Vue Next |
 | Fonts | Space Grotesk, DM Sans, JetBrains Mono |
 

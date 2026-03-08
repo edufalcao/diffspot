@@ -11,8 +11,7 @@ Online text diff comparison tool with a dark terminal-chic aesthetic (matching e
 | Styling | Tailwind CSS 4 | https://tailwindcss.com/docs/installation |
 | Diff engine | jsdiff (`diff`) | https://github.com/kpdecker/jsdiff |
 | Code editors | CodeMirror 6 via `vue-codemirror` | https://codemirror.net/docs/ / https://github.com/surmon-china/vue-codemirror |
-| Export (PNG) | html-to-image | https://github.com/bubkoo/html-to-image |
-| Export (PDF) | jsPDF | https://github.com/parallax/jsPDF |
+| Print / Export | Browser print dialog | Native `window.print()` with print CSS |
 | Icons | Lucide Vue Next | https://lucide.dev/guide/packages/lucide-vue-next |
 | Fonts | @nuxtjs/google-fonts | https://google-fonts.nuxtjs.org/ |
 
