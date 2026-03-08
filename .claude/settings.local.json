@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.diffchecker.com)",
+      "WebSearch",
+      "Bash(npx nuxi@latest:*)",
+      "Bash(npx giget@latest:*)",
+      "Bash(npm install:*)",
+      "Bash(npx nuxi:*)",
+      "Bash(npm run:*)",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__list_console_messages",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__click",
+      "Bash(git:*)"
+    ]
+  }
+}
