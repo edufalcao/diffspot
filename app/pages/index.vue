@@ -11,6 +11,13 @@ const showLoading = ref(false)
 const diffOutputRef = ref<HTMLElement | null>(null)
 const diffSectionRef = ref<HTMLElement | null>(null)
 
+// Hide diff results when both inputs are cleared
+watch([leftText, rightText], ([l, r]) => {
+  if (!l && !r) {
+    showDiff.value = false
+  }
+})
+
 // Auto-switch to unified view on small screens
 const isMobile = ref(false)
 
