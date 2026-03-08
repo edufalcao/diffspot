@@ -2,12 +2,18 @@
 import { Download, Share2 } from 'lucide-vue-next'
 import type { DiffPrecision } from '~/types/diff'
 
-defineProps<{
-  viewMode: 'split' | 'unified'
-  precision: DiffPrecision
-  ignoreWhitespace: boolean
-  ignoreCase: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    viewMode: 'split' | 'unified'
+    precision: DiffPrecision
+    ignoreWhitespace: boolean
+    ignoreCase: boolean
+    hideSplitOption?: boolean
+  }>(),
+  {
+    hideSplitOption: false,
+  },
+)
 
 const emit = defineEmits<{
   'update:viewMode': [value: 'split' | 'unified']
@@ -18,10 +24,14 @@ const emit = defineEmits<{
   'share': []
 }>()
 
-const viewModeOptions = [
-  { label: 'Split', value: 'split' },
-  { label: 'Unified', value: 'unified' },
-]
+const viewModeOptions = computed(() =>
+  props.hideSplitOption
+    ? [{ label: 'Unified', value: 'unified' }]
+    : [
+        { label: 'Split', value: 'split' },
+        { label: 'Unified', value: 'unified' },
+      ],
+)
 
 const precisionOptions = [
   { label: 'Line', value: 'line' },
@@ -40,7 +50,7 @@ function onExport(value: string) {
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center gap-3">
+  <div role="toolbar" aria-label="Diff controls" class="flex flex-wrap items-center gap-3">
     <!-- View mode toggle -->
     <UiToggleGroup
       :options="viewModeOptions"

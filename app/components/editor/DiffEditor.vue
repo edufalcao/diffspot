@@ -11,10 +11,12 @@ const props = withDefaults(
     language: string
     placeholder?: string
     readonly?: boolean
+    ariaLabel?: string
   }>(),
   {
     placeholder: '',
     readonly: false,
+    ariaLabel: '',
   }
 )
 
@@ -96,7 +98,7 @@ const extensions = computed(() => {
 </script>
 
 <template>
-  <div class="diff-editor-wrapper">
+  <div class="diff-editor-wrapper" :aria-label="ariaLabel || undefined">
     <Codemirror
       v-model="localValue"
       :placeholder="placeholder"

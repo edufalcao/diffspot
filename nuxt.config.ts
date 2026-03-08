@@ -33,6 +33,9 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Paste. Compare. Ship. A developer-focused online text diff comparison tool.' },
         { name: 'theme-color', content: '#0d0d0d' },
       ],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      ],
     },
   },
 })

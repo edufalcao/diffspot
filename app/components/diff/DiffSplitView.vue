@@ -56,6 +56,7 @@ onBeforeUnmount(() => {
     <!-- Left column: old file -->
     <div
       ref="leftPanelRef"
+      aria-label="Original file"
       class="max-h-[600px] overflow-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]"
     >
       <div
@@ -72,6 +73,7 @@ onBeforeUnmount(() => {
     <!-- Right column: new file -->
     <div
       ref="rightPanelRef"
+      aria-label="Modified file"
       class="max-h-[600px] overflow-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]"
     >
       <div

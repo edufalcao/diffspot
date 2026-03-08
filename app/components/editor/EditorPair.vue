@@ -27,7 +27,7 @@ function onRightFileLoaded(content: string) {
           Original
         </span>
       </div>
-      <div class="relative" @focusin="leftFocused = true" @focusout="leftFocused = false">
+      <div class="group relative" @focusin="leftFocused = true" @focusout="leftFocused = false">
         <DiffEditor
           v-model="leftText"
           :language="language"
@@ -36,6 +36,7 @@ function onRightFileLoaded(content: string) {
         <FileUpload
           v-if="!leftText && !leftFocused"
           side="left"
+          class="opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--duration)] ease-[var(--ease)]"
           @file-loaded="onLeftFileLoaded"
         />
       </div>
@@ -50,7 +51,7 @@ function onRightFileLoaded(content: string) {
           Modified
         </span>
       </div>
-      <div class="relative" @focusin="rightFocused = true" @focusout="rightFocused = false">
+      <div class="group relative" @focusin="rightFocused = true" @focusout="rightFocused = false">
         <DiffEditor
           v-model="rightText"
           :language="language"
@@ -59,6 +60,7 @@ function onRightFileLoaded(content: string) {
         <FileUpload
           v-if="!rightText && !rightFocused"
           side="right"
+          class="opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--duration)] ease-[var(--ease)]"
           @file-loaded="onRightFileLoaded"
         />
       </div>

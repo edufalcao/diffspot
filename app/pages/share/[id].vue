@@ -6,8 +6,12 @@ definePageMeta({
   layout: 'default',
 })
 
-useHead({
+useSeoMeta({
   title: 'Shared Diff — diffspot',
+  ogTitle: 'Shared Diff — diffspot',
+  ogDescription: 'View a shared text comparison on diffspot',
+  ogType: 'website',
+  twitterCard: 'summary',
 })
 
 const route = useRoute()
