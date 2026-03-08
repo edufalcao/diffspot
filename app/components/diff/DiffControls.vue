@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Download, Share2 } from 'lucide-vue-next'
+import { Download } from 'lucide-vue-next'
 import type { DiffPrecision } from '~/types/diff'
 
 const props = withDefaults(
@@ -21,7 +21,6 @@ const emit = defineEmits<{
   'update:ignoreWhitespace': [value: boolean]
   'update:ignoreCase': [value: boolean]
   'export': [type: 'png' | 'pdf']
-  'share': []
 }>()
 
 const viewModeOptions = computed(() =>
@@ -106,10 +105,5 @@ function onExport(value: string) {
       </template>
     </UiDropdownMenu>
 
-    <!-- Share button -->
-    <UiGlowButton variant="ghost" size="sm" @click="emit('share')">
-      <Share2 :size="16" />
-      Share
-    </UiGlowButton>
   </div>
 </template>

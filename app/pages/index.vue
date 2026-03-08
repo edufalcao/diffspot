@@ -2,7 +2,6 @@
 const { leftText, rightText, language } = useEditorState()
 const { precision, ignoreWhitespace, ignoreCase, options } = useDiffOptions()
 const { result, isComputing, compute } = useDiff(leftText, rightText, options)
-const { saveShare, copyShareLink } = useShare()
 const { exportAsPng, exportAsPdf } = useExport()
 
 const viewMode = ref<'split' | 'unified'>('split')
@@ -71,11 +70,6 @@ async function handleExport(type: 'png' | 'pdf') {
   }
 }
 
-async function handleShare() {
-  const url = await saveShare(leftText.value, rightText.value, language.value)
-  await copyShareLink(url)
-}
-
 const hasDiff = computed(() => showDiff.value && (result.value.additions > 0 || result.value.removals > 0 || result.value.unchanged > 0))
 
 /** True when diff was requested but both inputs are identical (no actual differences). */
@@ -99,13 +93,6 @@ function handleKeydown(e: KeyboardEvent) {
     }
   }
 
-  // Ctrl/Cmd + S — Share (prevent browser save dialog)
-  if (mod && e.key === 's') {
-    e.preventDefault()
-    if (hasDiff.value) {
-      handleShare()
-    }
-  }
 }
 </script>
 
@@ -239,7 +226,6 @@ function handleKeydown(e: KeyboardEvent) {
           @update:ignore-whitespace="ignoreWhitespace = $event"
           @update:ignore-case="ignoreCase = $event"
           @export="handleExport"
-          @share="handleShare"
         />
 
         <!-- Stats -->
