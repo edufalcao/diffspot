@@ -50,14 +50,15 @@ function findDifferences() {
   showLoading.value = true
   showDiff.value = true
 
-  nextTick(() => {
+  // Use setTimeout to yield to the browser so the loading state renders
+  // before the potentially heavy synchronous diff computation runs.
+  setTimeout(() => {
     compute()
     showLoading.value = false
-    // Scroll to diff results
     nextTick(() => {
       diffSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     })
-  })
+  }, 50)
 }
 
 const hasDiff = computed(() => showDiff.value && (result.value.additions > 0 || result.value.removals > 0 || result.value.unchanged > 0))
@@ -110,7 +111,7 @@ function handleKeydown(e: KeyboardEvent) {
       size="lg"
       class="animate-slide-up mb-10"
       style="animation-delay: 0.1s"
-      :disabled="!leftText && !rightText"
+      :disabled="(!leftText && !rightText) || showLoading || isComputing"
       @click="findDifferences"
     >
       <template v-if="showLoading || isComputing">
