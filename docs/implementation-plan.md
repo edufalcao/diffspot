@@ -2,7 +2,7 @@
 
 ## Context
 
-Build **diffspot**, a developer-focused online text diff comparison tool (like diffchecker.com) from scratch. The app must match the UI style of edufalcao.com — dark terminal-chic aesthetic with cyan/pink accents, Space Grotesk + JetBrains Mono fonts, noise overlays, and glow effects. The repository is currently empty.
+Build **diffspot**, a developer-focused online text diff comparison tool (like diffchecker.com) from scratch. The app must match the UI style of edufalcao.com — dark terminal-chic aesthetic with cyan/pink accents, Space Grotesk + JetBrains Mono fonts, noise overlays, and glow effects. The app is fully static (client-side only) and can be deployed to any static host.
 
 ---
 
@@ -10,13 +10,11 @@ Build **diffspot**, a developer-focused online text diff comparison tool (like d
 
 | Layer | Choice | Why |
 |-------|--------|-----|
-| Framework | **Nuxt 4** (Vue 3 + TypeScript) | Matches edufalcao.com stack; hybrid SSR/SPA |
+| Framework | **Nuxt 4** (Vue 3 + TypeScript) | Matches edufalcao.com stack; static site generation |
 | Styling | **Tailwind CSS 4** | Matches edufalcao.com; utility-first |
 | Diff engine | **`diff` (jsdiff)** | Mature; supports line/word/char diffs; ~15 KB |
 | Code editors | **CodeMirror 6** via `vue-codemirror` | Lightweight, extensible, 100+ languages |
-| Syntax highlighting (diff output) | **Shiki** | Accurate tokenization, SSR-compatible |
 | Export | **`html-to-image`** + **`jsPDF`** | Client-side PNG/PDF generation |
-| Persistence (sharing) | Nuxt server routes + **SQLite** (`better-sqlite3`) | Zero-infra dev; swappable to Cloudflare KV |
 | Icons | **Lucide Vue** | Minimal, tree-shakeable |
 | Fonts | **`@nuxtjs/google-fonts`** | Space Grotesk, DM Sans, JetBrains Mono |
 
@@ -28,7 +26,6 @@ Build **diffspot**, a developer-focused online text diff comparison tool (like d
 diffspot/
 ├── nuxt.config.ts
 ├── package.json
-├── tailwind.config.ts
 ├── app.vue                          # Root layout: noise overlay + radial gradient
 ├── assets/css/main.css              # CSS vars, keyframes, base styles
 ├── components/
@@ -38,9 +35,7 @@ diffspot/
 │   │   └── ThemeToggle.vue
 │   ├── editor/
 │   │   ├── DiffEditor.vue           # CodeMirror 6 wrapper
-│   │   ├── EditorPair.vue           # Two editors side-by-side
-│   │   ├── FileUpload.vue           # Drag-and-drop file picker
-│   │   └── EditorToolbar.vue        # Copy, clear, language selector
+│   │   └── EditorPair.vue           # Toolbar + two editors side-by-side
 │   ├── diff/
 │   │   ├── DiffView.vue             # Switches between split/unified
 │   │   ├── DiffSplitView.vue        # Side-by-side with synced scroll
@@ -48,7 +43,7 @@ diffspot/
 │   │   ├── DiffLine.vue             # Single line (added/removed/unchanged)
 │   │   ├── DiffGutter.vue           # Line numbers column
 │   │   ├── DiffStats.vue            # "+12 additions, -5 removals"
-│   │   └── DiffControls.vue         # View toggle, options, export, share
+│   │   └── DiffControls.vue         # View toggle, options, export
 │   └── ui/
 │       ├── GlowButton.vue           # Button with hover glow effect
 │       ├── ToggleGroup.vue          # Segmented control
@@ -59,16 +54,11 @@ diffspot/
 │   ├── useDiff.ts                   # Core diff computation (jsdiff)
 │   ├── useEditorState.ts            # Reactive state for both editors
 │   ├── useDiffOptions.ts            # Precision, ignore whitespace/case
-│   ├── useExport.ts                 # PNG/PDF export
-│   └── useShare.ts                  # Generate/load shareable links
+│   └── useExport.ts                 # PNG/PDF export
 ├── pages/
-│   ├── index.vue                    # Main diff tool
-│   └── share/[id].vue              # Read-only shared diff viewer
+│   └── index.vue                    # Main diff tool
 ├── server/
-│   ├── api/
-│   │   ├── share.post.ts            # Save diff, return short ID
-│   │   └── share/[id].get.ts        # Retrieve saved diff
-│   └── utils/db.ts                  # SQLite abstraction
+│   └── tsconfig.json
 ├── public/favicon.svg
 └── types/diff.ts                    # TypeScript interfaces
 ```
@@ -130,16 +120,14 @@ After Step 1 is committed, spawn these agents simultaneously:
 **Files owned:** `components/editor/*`, `composables/useEditorState.ts`
 - Install CodeMirror 6 packages + `vue-codemirror`
 - `DiffEditor.vue` — CodeMirror 6 wrapper with dark theme, JetBrains Mono, line numbers
-- `EditorPair.vue` — two editors side-by-side (desktop) / stacked (mobile)
-- `EditorToolbar.vue` — copy, clear, language selector
-- `FileUpload.vue` — drag-and-drop file picker via FileReader API
+- `EditorPair.vue` — toolbar (language selector, copy, clear, upload) + two editors side-by-side (desktop) / stacked (mobile)
 - `useEditorState.ts` — reactive state for both editors (leftText, rightText, language)
 
 #### Agent C — Diff Engine
 **Files owned:** `composables/useDiff.ts`, `composables/useDiffOptions.ts`, `types/diff.ts`
 - Install `diff` (jsdiff)
 - Define TypeScript interfaces in `types/diff.ts`
-- `useDiff.ts` — core diff computation:
+- `useDiff.ts` — on-demand diff computation (triggered by button, not reactive):
   - Line-level: `Diff.diffLines()`
   - Two-pass: line structure + word-level inline highlights via `Diff.diffWords()`
   - Character-level: `Diff.diffChars()`
@@ -149,7 +137,7 @@ After Step 1 is committed, spawn these agents simultaneously:
 
 ---
 
-### Step 3: Diff Views + Server API _(3 agents in parallel, worktrees)_
+### Step 3: Diff Views + Export _(2 agents in parallel, worktrees)_
 
 After Step 2 is merged, spawn these agents simultaneously:
 
@@ -160,25 +148,15 @@ After Step 2 is merged, spawn these agents simultaneously:
 - `DiffUnifiedView.vue` — single column, `+`/`-` prefixes
 - `DiffSplitView.vue` — dual column, synchronized scrolling via `requestAnimationFrame`
 - `DiffView.vue` — container that switches between split/unified
-- `DiffControls.vue` — view toggle, precision, ignore options, export/share buttons
+- `DiffControls.vue` — view toggle, precision, ignore options, export button
 - `DiffStats.vue` — `"+12 additions, -5 removals"` summary bar
-- Integrate Shiki for syntax highlighting in diff output
 
-#### Agent E — Server API + Sharing
-**Files owned:** `server/*`, `composables/useShare.ts`, `pages/share/[id].vue`
-- Install `better-sqlite3` + `nanoid`
-- `server/utils/db.ts` — SQLite abstraction
-- `server/api/share.post.ts` — save diff, return short ID
-- `server/api/share/[id].get.ts` — retrieve saved diff
-- `useShare.ts` — generate/load shareable links, clipboard toast
-- `pages/share/[id].vue` — SSR read-only shared diff viewer
-
-#### Agent F — Export Logic
+#### Agent E — Export Logic
 **Files owned:** `composables/useExport.ts`
 - Install `html-to-image` + `jsPDF`
 - `useExport.ts` — PNG export (DOM to canvas) and PDF export (image embedded in jsPDF)
 
-**Merge:** After all 3 agents complete, merge their worktree branches into main.
+**Merge:** After both agents complete, merge their worktree branches into main.
 
 ---
 
@@ -187,24 +165,26 @@ After Step 2 is merged, spawn these agents simultaneously:
 Wire everything together in `pages/index.vue`:
 - Connect `EditorPair` → `useDiff` → `DiffView` pipeline
 - Wire "Find Differences" button to trigger diff computation
-- Connect `DiffControls` to export/share composables
+- Connect `DiffControls` to export composable
+- Auto-scroll to diff results after computation
+- Clear diff results when both inputs are emptied
 - Verify full end-to-end flow works
 
 ---
 
 ### Step 5: Polish & Responsive _(2 agents in parallel, worktrees)_
 
-#### Agent G — UX Polish
+#### Agent F — UX Polish
 **Files owned:** modifications to existing components (animations, states, shortcuts)
 - Loading states + animations (fade-in diff results, slide-up)
 - Empty states with terminal placeholder text
-- Keyboard shortcuts (Ctrl+Enter to diff, Ctrl+S to share)
+- Keyboard shortcuts (Ctrl+Enter to diff)
 - Error handling (empty input, large files)
-- Virtual scrolling for diffs > 1000 lines
+- Editor height capped to viewport with internal scrolling
 
-#### Agent H — SEO + Accessibility
+#### Agent G — SEO + Accessibility
 **Files owned:** `pages/index.vue` (meta only), `nuxt.config.ts` (meta only)
-- OpenGraph meta tags for shared diffs
+- OpenGraph meta tags
 - Accessibility (ARIA labels, focus management, keyboard navigation)
 - Mobile responsive refinements (auto-unified fallback on small screens)
 - `favicon.svg`
@@ -213,25 +193,37 @@ Wire everything together in `pages/index.vue`:
 
 ---
 
+## Deployment
+
+The app is configured for static site generation:
+
+```bash
+npx nuxt generate
+```
+
+Output is in `.output/public/` and can be deployed to any static host (Vercel, Netlify, GitHub Pages, S3, Cloudflare Pages, etc.).
+
+---
+
 ## UX Flow
 
 1. User lands on page: `$ diffspot` in gradient text, subtitle "Paste. Compare. Ship.", two empty editors
-2. Paste/type text or drag files into both editors; select language
-3. Click "Find Differences" (glowing cyan button)
-4. Editors compress, diff output fades in with stats bar
-5. Toggle split/unified, adjust precision, toggle ignore options (diff recomputes reactively)
-6. Export as PNG/PDF or share via generated link
-7. Shared links open read-only pre-rendered diff view
+2. Paste/type text or drag-and-drop/upload files into both editors; select language
+3. Click "Find Differences" (glowing cyan button) or press Ctrl+Enter
+4. Page scrolls to diff output with stats bar
+5. Toggle split/unified, adjust precision, toggle ignore options; re-click button to recompute
+6. Export as PNG/PDF
+7. Clear editors or erase both inputs to dismiss diff results
 
 ---
 
 ## Verification
 
 1. **Dev server:** `npm run dev` — verify all pages render, theme matches edufalcao.com
-2. **Diff accuracy:** Paste known text pairs, verify additions/removals match expected output
-3. **View modes:** Toggle split/unified, verify layout and synced scrolling
-4. **File upload:** Drag `.txt`, `.js`, `.py` files — verify content loads into editors
-5. **Export:** Download PNG and PDF — verify diff renders correctly in both
-6. **Share:** Create shared link, open in new tab — verify read-only view loads with correct diff
+2. **Static build:** `npx nuxt generate` — verify `.output/public` is generated
+3. **Diff accuracy:** Paste known text pairs, verify additions/removals match expected output
+4. **View modes:** Toggle split/unified, verify layout and synced scrolling
+5. **File upload:** Drag `.txt`, `.js`, `.py` files or use upload button — verify content loads into editors
+6. **Export:** Download PNG and PDF — verify diff renders correctly in both
 7. **Mobile:** Resize to mobile viewport — verify stacked layout and unified fallback
 8. **Theme:** Toggle dark/light — verify all components respect theme variables

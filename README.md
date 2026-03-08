@@ -1,75 +1,59 @@
-# Nuxt 3 Minimal Starter
+# diffspot
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A developer-focused online text diff comparison tool. Paste two texts, compare them, and export the results — all client-side, no server required.
 
-## Setup
+Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://edufalcao.com).
 
-Make sure to install the dependencies:
+## Features
+
+- Side-by-side or unified diff views
+- Line, word, and character-level precision
+- Ignore whitespace and case options
+- Syntax-highlighted code editors (18+ languages)
+- Drag-and-drop file upload
+- Export as PNG or PDF
+- Dark/light theme toggle
+- Keyboard shortcuts (Ctrl+Enter to diff)
+- Fully static — deploy anywhere
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Nuxt 4 (Vue 3 + TypeScript) |
+| Styling | Tailwind CSS 4 |
+| Diff engine | jsdiff (`diff`) |
+| Code editors | CodeMirror 6 via `vue-codemirror` |
+| Export | `html-to-image` + `jsPDF` |
+| Icons | Lucide Vue Next |
+| Fonts | Space Grotesk, DM Sans, JetBrains Mono |
+
+## Getting Started
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
-
-Build the application for production:
+## Build & Deploy
 
 ```bash
-# npm
-npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+npx nuxt generate
 ```
 
-Locally preview production build:
+The static output is in `.output/public/` — deploy to any static host (Vercel, Netlify, GitHub Pages, S3, etc.).
 
-```bash
-# npm
-npm run preview
+## Project Structure
 
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+app/
+├── components/
+│   ├── layout/     # AppHeader, AppFooter, ThemeToggle
+│   ├── editor/     # DiffEditor, EditorPair
+│   ├── diff/       # DiffView, DiffSplitView, DiffUnifiedView, DiffControls, DiffStats
+│   └── ui/         # GlowButton, ToggleGroup, DropdownMenu, GradientText
+├── composables/    # useDiff, useEditorState, useDiffOptions, useExport
+├── pages/          # index.vue
+├── types/          # TypeScript interfaces
+└── assets/css/     # Design system (CSS variables, animations)
+```

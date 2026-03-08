@@ -11,11 +11,8 @@ Online text diff comparison tool with a dark terminal-chic aesthetic (matching e
 | Styling | Tailwind CSS 4 | https://tailwindcss.com/docs/installation |
 | Diff engine | jsdiff (`diff`) | https://github.com/kpdecker/jsdiff |
 | Code editors | CodeMirror 6 via `vue-codemirror` | https://codemirror.net/docs/ / https://github.com/surmon-china/vue-codemirror |
-| Syntax highlighting | Shiki | https://shiki.style/guide/ |
 | Export (PNG) | html-to-image | https://github.com/bubkoo/html-to-image |
 | Export (PDF) | jsPDF | https://github.com/parallax/jsPDF |
-| Database | better-sqlite3 | https://github.com/WiseLibs/better-sqlite3 |
-| ID generation | nanoid | https://github.com/ai/nanoid |
 | Icons | Lucide Vue Next | https://lucide.dev/guide/packages/lucide-vue-next |
 | Fonts | @nuxtjs/google-fonts | https://google-fonts.nuxtjs.org/ |
 
@@ -30,9 +27,10 @@ Online text diff comparison tool with a dark terminal-chic aesthetic (matching e
 ## Commands
 
 ```bash
-npm run dev       # Start dev server
-npm run build     # Build for production
-npm run preview   # Preview production build
+npm run dev         # Start dev server
+npm run build       # Build for production
+npx nuxt generate   # Generate static site (.output/public/)
+npm run preview     # Preview production build
 ```
 
 ## Project Structure
@@ -41,9 +39,8 @@ See `docs/implementation-plan.md` for the full project structure and implementat
 
 Key directories:
 - `components/` — Vue components (layout, editor, diff, ui)
-- `composables/` — Shared reactive logic (useDiff, useEditorState, useExport, useShare)
-- `pages/` — Nuxt file-based routing
-- `server/` — API routes and database utilities
+- `composables/` — Shared reactive logic (useDiff, useEditorState, useDiffOptions, useExport)
+- `pages/` — Nuxt file-based routing (index.vue only)
 - `types/` — TypeScript interfaces
 - `assets/css/` — Global styles and CSS variables
 
