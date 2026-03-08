@@ -4,6 +4,8 @@ import DiffEditor from './DiffEditor.vue'
 import FileUpload from './FileUpload.vue'
 
 const { leftText, rightText, language } = useEditorState()
+const leftFocused = ref(false)
+const rightFocused = ref(false)
 
 function onLeftFileLoaded(content: string) {
   leftText.value = content
@@ -25,14 +27,14 @@ function onRightFileLoaded(content: string) {
           Original
         </span>
       </div>
-      <div class="relative">
+      <div class="relative" @focusin="leftFocused = true" @focusout="leftFocused = false">
         <DiffEditor
           v-model="leftText"
           :language="language"
           placeholder="Paste original text here..."
         />
         <FileUpload
-          v-if="!leftText"
+          v-if="!leftText && !leftFocused"
           side="left"
           @file-loaded="onLeftFileLoaded"
         />
@@ -48,14 +50,14 @@ function onRightFileLoaded(content: string) {
           Modified
         </span>
       </div>
-      <div class="relative">
+      <div class="relative" @focusin="rightFocused = true" @focusout="rightFocused = false">
         <DiffEditor
           v-model="rightText"
           :language="language"
           placeholder="Paste modified text here..."
         />
         <FileUpload
-          v-if="!rightText"
+          v-if="!rightText && !rightFocused"
           side="right"
           @file-loaded="onRightFileLoaded"
         />

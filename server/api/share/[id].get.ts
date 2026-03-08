@@ -1,5 +1,4 @@
-import { defineEventHandler, getRouterParam, createError } from 'h3'
-import { getShare } from '~/server/utils/db'
+import { getShare } from '../../utils/db'
 
 export default defineEventHandler((event) => {
   const id = getRouterParam(event, 'id')

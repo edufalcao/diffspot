@@ -1,5 +1,4 @@
-import { defineEventHandler, readBody, createError } from 'h3'
-import { saveShare } from '~/server/utils/db'
+import { saveShare } from '../utils/db'
 
 const MAX_TEXT_SIZE = 100 * 1024 // 100 KB
 
