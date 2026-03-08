@@ -110,16 +110,9 @@ const extensions = computed(() => {
 
 <style scoped>
 .diff-editor-wrapper {
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
   overflow: hidden;
   background-color: var(--color-surface);
   min-height: 300px;
-  transition: border-color var(--duration) var(--ease);
-}
-
-.diff-editor-wrapper:focus-within {
-  border-color: var(--color-accent);
 }
 
 .diff-editor-wrapper :deep(.cm-editor) {

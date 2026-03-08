@@ -111,14 +111,13 @@ function handleKeydown(e: KeyboardEvent) {
       </p>
     </div>
 
-    <!-- Editor toolbar + pair -->
-    <div class="w-full max-w-6xl animate-slide-up">
-      <EditorToolbar class="mb-3" />
-      <EditorPair class="mb-6" />
+    <!-- Editor pair (toolbar integrated) -->
+    <div class="w-full max-w-7xl animate-slide-up mb-6">
+      <EditorPair />
     </div>
 
     <!-- Find Differences button -->
-    <GlowButton
+    <UiGlowButton
       variant="primary"
       size="lg"
       class="animate-slide-up mb-10"
@@ -141,7 +140,7 @@ function handleKeydown(e: KeyboardEvent) {
       <template v-else>
         Find Differences
       </template>
-    </GlowButton>
+    </UiGlowButton>
 
     <!-- Loading state -->
     <Transition
