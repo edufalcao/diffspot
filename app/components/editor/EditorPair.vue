@@ -143,7 +143,7 @@ function onRightFileLoaded(content: string) {
           <FileUpload
             v-if="!leftText && !leftFocused"
             side="left"
-            class="opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--duration)] ease-[var(--ease)]"
+            class="pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 transition-opacity duration-[var(--duration)] ease-[var(--ease)]"
             @file-loaded="onLeftFileLoaded"
           />
         </div>
@@ -168,7 +168,7 @@ function onRightFileLoaded(content: string) {
           <FileUpload
             v-if="!rightText && !rightFocused"
             side="right"
-            class="opacity-0 group-hover:opacity-100 transition-opacity duration-[var(--duration)] ease-[var(--ease)]"
+            class="pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 transition-opacity duration-[var(--duration)] ease-[var(--ease)]"
             @file-loaded="onRightFileLoaded"
           />
         </div>
