@@ -37,9 +37,21 @@ export default defineNuxtConfig({
       meta: [
         { name: 'description', content: 'Paste. Compare. Ship. A developer-focused online text diff comparison tool.' },
         { name: 'theme-color', content: '#0d0d0d' },
+        // OpenGraph
+        { property: 'og:title', content: 'diffspot — Online Text Diff Tool' },
+        { property: 'og:description', content: 'Paste. Compare. Ship. A developer-focused online text diff comparison tool.' },
+        { property: 'og:image', content: 'https://diffspot.edufalcao.com/og.png' },
+        { property: 'og:url', content: 'https://diffspot.edufalcao.com' },
+        { property: 'og:type', content: 'website' },
+        // Twitter/X
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'diffspot — Online Text Diff Tool' },
+        { name: 'twitter:description', content: 'Paste. Compare. Ship. A developer-focused online text diff comparison tool.' },
+        { name: 'twitter:image', content: 'https://diffspot.edufalcao.com/og.png' },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'canonical', href: 'https://diffspot.edufalcao.com' },
       ],
     },
   },
