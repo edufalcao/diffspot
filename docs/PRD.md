@@ -1,0 +1,200 @@
+# Diffspot — Product Requirements Document
+
+> Last updated: 2026-03-09
+
+---
+
+## 1. Product Overview
+
+**Diffspot** is a developer-focused, fully client-side text diff comparison tool. Users paste two texts, click "Find Differences", and see exactly what changed — highlighted with precision. No backend, no data sent, deployable to any static host.
+
+**Design language:** Dark terminal-chic aesthetic matching edufalcao.com — cyan/pink accents, JetBrains Mono, noise overlay, glow effects.
+
+**Live stack:** Nuxt 4 + Vue 3 + TypeScript + Tailwind CSS 4 + jsdiff + CodeMirror 6
+
+---
+
+## 2. Core User Flow
+
+1. Land on page → hero: `$ diffspot` + "Paste. Compare. Ship."
+2. Paste/type text or drag-and-drop/upload files into both editors
+3. Select language (syntax highlighting) and precision (line/word/char)
+4. Click **Find Differences** or press `Ctrl+Enter`
+5. Page auto-scrolls to diff output with stats bar
+6. Toggle split/unified view, adjust options, re-diff as needed
+7. Export via Print/Save as PDF
+8. Clear editors or erase both inputs to dismiss results
+
+---
+
+## 3. Feature Status
+
+### 3.1 Foundation & Design System
+
+| Feature | Status | Notes |
+|---|---|---|
+| Nuxt 4 + Vue 3 + TypeScript | ✅ Done | |
+| Tailwind CSS 4 | ✅ Done | |
+| CSS design tokens (colors, fonts, effects) | ✅ Done | `main.css` |
+| Noise overlay + radial gradient background | ✅ Done | `app.vue` |
+| Google Fonts (Space Grotesk, DM Sans, JetBrains Mono) | ✅ Done | |
+| Dark/light theme toggle | ✅ Done | `@nuxtjs/color-mode` |
+| AppHeader (`$ diffspot` + GitHub link + theme toggle) | ✅ Done | |
+| AppFooter (built by edufalcao.com) | ✅ Done | |
+| favicon.svg | ✅ Done | |
+
+---
+
+### 3.2 Editors
+
+| Feature | Status | Notes |
+|---|---|---|
+| CodeMirror 6 editor wrapper (`DiffEditor.vue`) | ✅ Done | |
+| Side-by-side editors (Original / Modified) | ✅ Done | |
+| Stacked layout on mobile | ✅ Done | `grid-cols-1 md:grid-cols-2` |
+| Language selector dropdown (18+ languages) | ✅ Done | `useEditorState` |
+| Syntax highlighting per language | ✅ Done | CodeMirror 6 |
+| Drag-and-drop file upload | ✅ Done | Window-level drag detection with drop zones |
+| Click-to-upload button per editor | ✅ Done | Hidden file input |
+| Copy button (copies both editors content) | ✅ Done | |
+| Clear button (clears both editors) | ✅ Done | |
+| Placeholder text in empty editors | ✅ Done | |
+| Editor height capped to viewport | ⚠️ Partial | No explicit max-height cap — editors grow freely; needs verification |
+
+---
+
+### 3.3 Diff Engine
+
+| Feature | Status | Notes |
+|---|---|---|
+| Line-level diff (`Diff.diffLines`) | ✅ Done | Default precision |
+| Word-level diff (`Diff.diffWords`) | ✅ Done | |
+| Character-level diff (`Diff.diffChars`) | ✅ Done | |
+| Inline word highlights on line diff (paired add/remove) | ✅ Done | Two-pass: line structure + word highlights |
+| Ignore whitespace option | ✅ Done | |
+| Ignore case option | ✅ Done | |
+| On-demand diff (button-triggered, not reactive) | ✅ Done | |
+| Auto-clear results when both inputs are emptied | ✅ Done | `watch([leftText, rightText])` |
+
+---
+
+### 3.4 Diff Output Views
+
+| Feature | Status | Notes |
+|---|---|---|
+| Split view (side-by-side) | ✅ Done | `DiffSplitView.vue` |
+| Unified view (single column) | ✅ Done | `DiffUnifiedView.vue` |
+| Line numbers gutter | ✅ Done | `DiffGutter.vue` |
+| Added/removed/unchanged line styling | ✅ Done | Cyan/pink per design system |
+| Inline word-level highlights | ✅ Done | `DiffLine.vue` |
+| Stats bar (`+X additions, -Y removals`) | ✅ Done | `DiffStats.vue` |
+| View mode toggle (Split / Unified) | ✅ Done | `DiffControls.vue` |
+| Precision toggle (Line / Word / Char) | ✅ Done | `DiffControls.vue` |
+| Auto-switch to Unified on mobile | ✅ Done | `index.vue` |
+| Synchronized scrolling in split view | ⚠️ To verify | Designed for it; needs manual QA |
+| "No differences found" empty state | ✅ Done | `textsAreIdentical` computed |
+| Loading state while computing | ✅ Done | Spinner in button + section |
+| Fade-in / slide-up animations for diff results | ✅ Done | `<Transition>` wrappers |
+| Auto-scroll to diff results after compute | ✅ Done | `scrollIntoView` |
+
+---
+
+### 3.5 Export
+
+| Feature | Status | Notes |
+|---|---|---|
+| Print / Save as PDF (browser print dialog) | ✅ Done | `usePrint` → `window.print()` |
+| Print CSS (hide non-diff elements) | ✅ Done | Mentioned in README; `print:hidden` in controls |
+| PNG export (DOM → canvas → image) | ❌ Not built | Originally planned with `html-to-image`; not implemented |
+| PDF export with jsPDF | ❌ Not built | Originally planned; replaced by browser print dialog |
+
+> **Decision needed:** The original plan called for `html-to-image` + `jsPDF`. The current implementation uses `window.print()` instead, which covers the PDF use case adequately. PNG export remains unimplemented. Worth doing?
+
+---
+
+### 3.6 UX & Polish
+
+| Feature | Status | Notes |
+|---|---|---|
+| Keyboard shortcut: `Ctrl/Cmd + Enter` to diff | ✅ Done | |
+| Button disabled when both inputs empty | ✅ Done | |
+| "Find Differences" button with spinner state | ✅ Done | |
+| Fade-in animations (hero, editor, button) | ✅ Done | |
+| `setTimeout` yield before diff computation | ✅ Done | Ensures loading state renders before heavy sync work |
+| Click-away to close language dropdown | ✅ Done | Fixed overlay |
+| Copy feedback ("Copied" for 2s) | ✅ Done | |
+| Error handling for large files | ❌ Not built | No file size limit or warning |
+| Keyboard navigation (ARIA / focus management) | ⚠️ Partial | `role="toolbar"` on DiffControls; no full ARIA audit |
+
+---
+
+### 3.7 SEO & Meta
+
+| Feature | Status | Notes |
+|---|---|---|
+| Page title | ✅ Done | "diffspot — Online Text Diff Tool" |
+| Meta description | ✅ Done | |
+| Theme color meta | ✅ Done | `#0d0d0d` |
+| OpenGraph tags (og:title, og:description, og:image) | ❌ Not built | No OG tags in `nuxt.config.ts` |
+| Twitter/X card meta | ❌ Not built | |
+| Canonical URL | ❌ Not built | |
+
+---
+
+### 3.8 Infrastructure & Deployment
+
+| Feature | Status | Notes |
+|---|---|---|
+| Static site generation (`nuxt generate`) | ✅ Done | `nitro.preset = 'static'` |
+| SSR disabled | ✅ Done | `ssr: false` |
+| Deploy-anywhere static output | ✅ Done | `.output/public/` |
+| CI/CD pipeline | ✅ Done | GitHub Actions → Cloudflare Pages on push to `main` — working |
+| Hosting (Cloudflare Pages) | ✅ Done | `wrangler-action` deploys `.output/public` to `diffspot` — secrets configured, build passing |
+
+---
+
+## 4. Gaps Summary
+
+### Must-Have (before launch)
+| # | Item | Priority |
+|---|---|---|
+| 1 | OG meta tags (og:title, og:image, og:description) | High |
+| 2 | Canonical URL | High |
+| 3 | Full ARIA audit (keyboard nav, focus management) | High |
+| 4 | Editor height cap (prevent unbounded growth with large files) | High |
+| 5 | Large file warning / size limit | Medium |
+
+### Nice-to-Have (post-launch)
+| # | Item | Priority |
+|---|---|---|
+| 7 | PNG export (`html-to-image`) | Low |
+| 8 | PR preview deployments (Cloudflare Pages preview URLs) | Low |
+| 9 | Twitter/X card meta | Low |
+| 10 | Shareable diff via URL (encode diff in query params or hash) | Medium |
+| 11 | Synced scrolling QA + fix if broken | Medium |
+
+---
+
+## 5. What's Not Planned (Out of Scope)
+
+- User accounts / saved diffs
+- Backend / server-side processing
+- Real-time collaborative editing
+- Diff history / sessions
+- API endpoint
+
+---
+
+## 6. Verification Checklist (pre-launch)
+
+- [ ] `npm run dev` — app renders, theme matches edufalcao.com
+- [ ] `npx nuxt generate` — static output in `.output/public/`
+- [ ] Diff accuracy: paste known pairs, verify additions/removals
+- [ ] Split view + synced scrolling QA
+- [ ] Unified view QA
+- [ ] File upload: drag `.txt`, `.js`, `.py` — verify content loads
+- [ ] Mobile: resize to 375px — unified auto-switch, stacked editors
+- [ ] Theme toggle: dark/light — all components respect CSS vars
+- [ ] `Ctrl+Enter` shortcut works
+- [ ] Print / Save as PDF — diff renders correctly
+- [ ] No console errors on fresh load
