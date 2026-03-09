@@ -14,6 +14,8 @@ Online text diff comparison tool with a dark terminal-chic aesthetic (matching e
 | Print / Export | Browser print dialog | Native `window.print()` with print CSS |
 | Icons | Lucide Vue Next | https://lucide.dev/guide/packages/lucide-vue-next |
 | Fonts | @nuxtjs/google-fonts | https://google-fonts.nuxtjs.org/ |
+| Runtime | Cloudflare Workers | `nitro.preset = 'cloudflare-pages'` |
+| Database | Cloudflare D1 (SQLite) | https://developers.cloudflare.com/d1/ |
 
 ## Design System
 
@@ -27,21 +29,52 @@ Online text diff comparison tool with a dark terminal-chic aesthetic (matching e
 
 ```bash
 npm run dev         # Start dev server
-npm run build       # Build for production
-npx nuxt generate   # Generate static site (.output/public/)
+npm run build       # Build for production (outputs to dist/)
 npm run preview     # Preview production build
 ```
+
+## Build Output
+
+With `nitro.preset = 'cloudflare-pages'`, `npm run build` outputs to `dist/`:
+- `dist/_worker.js` — Cloudflare Worker (handles server routes)
+- `dist/_nuxt/` — static client assets
+- `dist/index.html` — SPA shell
+
+Deployed via `wrangler pages deploy dist --project-name=diffspot`.
+
+## Database (D1)
+
+D1 binding is configured in `wrangler.toml` and the Cloudflare Pages dashboard (variable: `DB`).
+
+Access in server routes:
+```ts
+const DB = event.context.cloudflare.env.DB as D1Database
+```
+
+Run migrations:
+```bash
+npx wrangler d1 execute diffspot --file=./migrations/<file>.sql --remote
+```
+
+## Server Routes
+
+Located in `server/routes/`. Compiled into the Cloudflare Worker.
+
+- `GET /ping` — health check; logs request metadata to D1 `healthcheck` table and returns `total_pings`
 
 ## Project Structure
 
 See `docs/implementation-plan.md` for the full project structure and implementation phases.
 
 Key directories:
-- `components/` — Vue components (layout, editor, diff, ui)
-- `composables/` — Shared reactive logic (useDiff, useEditorState, useDiffOptions, useExport)
-- `pages/` — Nuxt file-based routing (index.vue only)
-- `types/` — TypeScript interfaces
-- `assets/css/` — Global styles and CSS variables
+- `app/components/` — Vue components (layout, editor, diff, ui)
+- `app/composables/` — Shared reactive logic (useDiff, useEditorState, useDiffOptions, useExport)
+- `app/pages/` — Nuxt file-based routing (index.vue only)
+- `app/types/` — TypeScript interfaces
+- `app/assets/css/` — Global styles and CSS variables
+- `server/routes/` — Cloudflare Workers server routes
+- `migrations/` — D1 SQL migration files
+- `docs/` — PRD and implementation plan
 
 ## Conventions
 
@@ -50,3 +83,5 @@ Key directories:
 - Use Tailwind utility classes; design tokens via CSS variables
 - Components follow PascalCase naming
 - Composables follow `use*` naming convention
+- Server routes follow `<name>.<method>.ts` naming (e.g. `ping.get.ts`)
+- D1 migrations follow `NNNN_description.sql` naming (e.g. `0001_create_healthcheck.sql`)

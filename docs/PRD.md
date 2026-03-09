@@ -132,9 +132,9 @@
 | Page title | ✅ Done | "diffspot — Online Text Diff Tool" |
 | Meta description | ✅ Done | |
 | Theme color meta | ✅ Done | `#0d0d0d` |
-| OpenGraph tags (og:title, og:description, og:image) | ❌ Not built | No OG tags in `nuxt.config.ts` |
-| Twitter/X card meta | ❌ Not built | |
-| Canonical URL | ❌ Not built | |
+| OpenGraph tags (og:title, og:description, og:image) | ✅ Done | `nuxt.config.ts` + `public/og.png` (1200×630) |
+| Twitter/X card meta | ✅ Done | `twitter:card`, `twitter:title`, `twitter:image` |
+| Canonical URL | ✅ Done | `<link rel="canonical">` in head |
 
 ---
 
@@ -157,8 +157,8 @@
 ### Must-Have (before launch)
 | # | Item | Priority |
 |---|---|---|
-| 1 | OG meta tags (og:title, og:image, og:description) | High |
-| 2 | Canonical URL | High |
+| 1 | ~~OG meta tags~~ | ✅ Done |
+| 2 | ~~Canonical URL~~ | ✅ Done |
 | 3 | Full ARIA audit (keyboard nav, focus management) | High |
 | 4 | Editor height cap (prevent unbounded growth with large files) | High |
 | 5 | Large file warning / size limit | Medium |

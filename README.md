@@ -1,8 +1,10 @@
 # diffspot
 
-A developer-focused online text diff comparison tool. Paste two texts, compare them, and export the results — all client-side, no server required.
+A developer-focused online text diff comparison tool. Paste two texts, compare them, and export the results.
 
 Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://edufalcao.com).
+
+🔗 **Live:** [diffspot.edufalcao.com](https://diffspot.edufalcao.com)
 
 ## Features
 
@@ -14,7 +16,7 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 - Print / Save as PDF via browser print dialog
 - Dark/light theme toggle
 - Keyboard shortcuts (Ctrl+Enter to diff)
-- Fully static — deploy anywhere
+- Cloudflare Workers backend with D1 database
 
 ## Tech Stack
 
@@ -27,6 +29,8 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 | Print / Export | Browser print dialog (`window.print()`) |
 | Icons | Lucide Vue Next |
 | Fonts | Space Grotesk, DM Sans, JetBrains Mono |
+| Runtime | Cloudflare Workers (via `cloudflare-pages` preset) |
+| Database | Cloudflare D1 (SQLite) |
 
 ## Getting Started
 
@@ -38,10 +42,20 @@ npm run dev
 ## Build & Deploy
 
 ```bash
-npx nuxt generate
+npm run build
 ```
 
-The static output is in `.output/public/` — deploy to any static host (Vercel, Netlify, GitHub Pages, S3, etc.).
+Output is in `dist/` — deployed automatically to Cloudflare Pages via GitHub Actions on push to `main`.
+
+## Database Migrations
+
+```bash
+# Run against remote D1
+npx wrangler d1 execute diffspot --file=./migrations/<file>.sql --remote
+
+# Run locally
+npx wrangler d1 execute diffspot --file=./migrations/<file>.sql --local
+```
 
 ## Project Structure
 
@@ -56,4 +70,10 @@ app/
 ├── pages/          # index.vue
 ├── types/          # TypeScript interfaces
 └── assets/css/     # Design system (CSS variables, animations)
+migrations/         # D1 SQL migration files
+server/
+└── routes/         # Cloudflare Workers server routes
+docs/               # PRD and implementation plan
+public/             # Static assets (favicon, og.png)
+wrangler.toml       # Cloudflare Workers + D1 binding config
 ```
