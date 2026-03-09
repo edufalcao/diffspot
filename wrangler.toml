@@ -1,0 +1,7 @@
+name = "diffspot"
+compatibility_date = "2024-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "diffspot"
+database_id = "d336ff72-af28-4a1e-ba32-2cc71398b36a"
