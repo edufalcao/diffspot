@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   ssr: false,
 
   nitro: {
-    preset: 'static',
+    preset: 'cloudflare-pages',
   },
 
   future: {
