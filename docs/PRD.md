@@ -6,11 +6,11 @@
 
 ## 1. Product Overview
 
-**Diffspot** is a developer-focused, fully client-side text diff comparison tool. Users paste two texts, click "Find Differences", and see exactly what changed — highlighted with precision. No backend, no data sent, deployable to any static host.
+**Diffspot** is a developer-focused text diff comparison tool. Users paste two texts, click "Find Differences", and see exactly what changed — highlighted with precision. Fully client-side rendering with a Cloudflare Workers backend for server routes and D1 for persistence.
 
 **Design language:** Dark terminal-chic aesthetic matching edufalcao.com — cyan/pink accents, JetBrains Mono, noise overlay, glow effects.
 
-**Live stack:** Nuxt 4 + Vue 3 + TypeScript + Tailwind CSS 4 + jsdiff + CodeMirror 6
+**Live stack:** Nuxt 4 + Vue 3 + TypeScript + Tailwind CSS 4 + jsdiff + CodeMirror 6 + Cloudflare Workers + D1
 
 ---
 
@@ -104,11 +104,8 @@
 | Feature | Status | Notes |
 |---|---|---|
 | Print / Save as PDF (browser print dialog) | ✅ Done | `usePrint` → `window.print()` |
-| Print CSS (hide non-diff elements) | ✅ Done | Mentioned in README; `print:hidden` in controls |
+| Print CSS (hide non-diff elements) | ✅ Done | `print:hidden` in controls |
 | PNG export (DOM → canvas → image) | ❌ Not built | Originally planned with `html-to-image`; not implemented |
-| PDF export with jsPDF | ❌ Not built | Originally planned; replaced by browser print dialog |
-
-> **Decision needed:** The original plan called for `html-to-image` + `jsPDF`. The current implementation uses `window.print()` instead, which covers the PDF use case adequately. PNG export remains unimplemented. Worth doing?
 
 ---
 
@@ -145,11 +142,13 @@
 
 | Feature | Status | Notes |
 |---|---|---|
-| Static site generation (`nuxt generate`) | ✅ Done | `nitro.preset = 'static'` |
-| SSR disabled | ✅ Done | `ssr: false` |
-| Deploy-anywhere static output | ✅ Done | `.output/public/` |
-| CI/CD pipeline | ✅ Done | GitHub Actions → Cloudflare Pages on push to `main` — working |
-| Hosting (Cloudflare Pages) | ✅ Done | `wrangler-action` deploys `.output/public` to `diffspot` — secrets configured, build passing |
+| Nitro preset: `cloudflare-pages` | ✅ Done | Outputs `dist/_worker.js` + static assets |
+| SSR disabled (SPA mode) | ✅ Done | `ssr: false` — pages render client-side |
+| CI/CD pipeline | ✅ Done | GitHub Actions → `npm run build` → Cloudflare Pages on push to `main` |
+| Hosting (Cloudflare Pages) | ✅ Done | `wrangler pages deploy dist` — secrets configured, build passing |
+| D1 database binding | ✅ Done | `wrangler.toml` + dashboard binding → `env.DB` available in Workers |
+| D1 schema migrations | ✅ Done | `migrations/` directory; run via `wrangler d1 execute --remote` |
+| `/ping` health check route | ✅ Done | Logs IP, country, user agent, ray ID + returns `total_pings` count from D1 |
 
 ---
 
@@ -167,28 +166,26 @@
 ### Nice-to-Have (post-launch)
 | # | Item | Priority |
 |---|---|---|
-| 7 | PNG export (`html-to-image`) | Low |
-| 8 | PR preview deployments (Cloudflare Pages preview URLs) | Low |
+| 6 | Shareable diff via URL (encode diff state in hash/query params) | Medium |
+| 7 | Synced scrolling QA + fix if broken | Medium |
+| 8 | PNG export (`html-to-image`) | Low |
 | 9 | Twitter/X card meta | Low |
-| 10 | Shareable diff via URL (encode diff in query params or hash) | Medium |
-| 11 | Synced scrolling QA + fix if broken | Medium |
+| 10 | PR preview deployments (Cloudflare Pages preview URLs) | Low |
 
 ---
 
-## 5. What's Not Planned (Out of Scope)
+## 5. Out of Scope
 
-- User accounts / saved diffs
-- Backend / server-side processing
+- User accounts / authentication
 - Real-time collaborative editing
-- Diff history / sessions
-- API endpoint
+- Diff history per user
 
 ---
 
 ## 6. Verification Checklist (pre-launch)
 
 - [ ] `npm run dev` — app renders, theme matches edufalcao.com
-- [ ] `npx nuxt generate` — static output in `.output/public/`
+- [ ] `npm run build` — `dist/` generated with `_worker.js`
 - [ ] Diff accuracy: paste known pairs, verify additions/removals
 - [ ] Split view + synced scrolling QA
 - [ ] Unified view QA
@@ -197,4 +194,5 @@
 - [ ] Theme toggle: dark/light — all components respect CSS vars
 - [ ] `Ctrl+Enter` shortcut works
 - [ ] Print / Save as PDF — diff renders correctly
+- [ ] `/ping` returns `message`, `request`, and `total_pings`
 - [ ] No console errors on fresh load
