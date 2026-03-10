@@ -37,6 +37,7 @@
     "vue-codemirror": "^6.1.1"
   },
   "devDependencies": {
-    "@types/diff": "^7.0.2"
+    "@types/diff": "^7.0.2",
+    "nitro-cloudflare-dev": "^0.2.2"
   }
 }

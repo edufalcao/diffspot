@@ -3,11 +3,19 @@ const { leftText, rightText, language } = useEditorState()
 const { precision, ignoreWhitespace, ignoreCase, options } = useDiffOptions()
 const { result, isComputing, compute } = useDiff(leftText, rightText, options)
 const { print } = usePrint()
+const { isFullscreen, toggleFullscreen, exitFullscreen } = useFullscreen()
 
 const viewMode = ref<'split' | 'unified'>('split')
 const showDiff = ref(false)
 const showLoading = ref(false)
 const diffSectionRef = ref<HTMLElement | null>(null)
+const scrollContainerRef = ref<HTMLElement | null>(null)
+
+const { changeGroups, totalChanges, currentChangeIndex, scrollRatio, viewportRatio, goToNextChange, goToPrevChange } = useDiffNavigation(result, scrollContainerRef)
+
+function onScrollContainerReady(el: HTMLElement | null) {
+  scrollContainerRef.value = el
+}
 
 // Hide diff results when both inputs are cleared
 watch([leftText, rightText], ([l, r]) => {
@@ -76,6 +84,13 @@ const textsAreIdentical = computed(() => {
 function handleKeydown(e: KeyboardEvent) {
   const mod = e.metaKey || e.ctrlKey
 
+  // Escape — exit fullscreen
+  if (e.key === 'Escape' && isFullscreen.value) {
+    e.preventDefault()
+    exitFullscreen()
+    return
+  }
+
   // Ctrl/Cmd + Enter — Find Differences
   if (mod && e.key === 'Enter') {
     e.preventDefault()
@@ -84,6 +99,17 @@ function handleKeydown(e: KeyboardEvent) {
     }
   }
 
+  // Alt + ArrowDown — Next change
+  if (e.altKey && e.key === 'ArrowDown') {
+    e.preventDefault()
+    goToNextChange()
+  }
+
+  // Alt + ArrowUp — Previous change
+  if (e.altKey && e.key === 'ArrowUp') {
+    e.preventDefault()
+    goToPrevChange()
+  }
 }
 </script>
 
@@ -204,7 +230,15 @@ function handleKeydown(e: KeyboardEvent) {
       enter-from-class="opacity-0 translate-y-4"
       enter-to-class="opacity-100 translate-y-0"
     >
-      <div v-if="hasDiff && !textsAreIdentical" ref="diffSectionRef" class="w-full max-w-6xl animate-slide-up space-y-4">
+      <div
+        v-if="hasDiff && !textsAreIdentical"
+        ref="diffSectionRef"
+        :class="[
+          isFullscreen
+            ? 'fixed inset-0 z-50 flex flex-col bg-[var(--color-bg)] p-6 overflow-hidden'
+            : 'w-full max-w-6xl animate-slide-up space-y-4',
+        ]"
+      >
         <!-- Controls -->
         <DiffControls
           :view-mode="viewMode"
@@ -212,11 +246,17 @@ function handleKeydown(e: KeyboardEvent) {
           :ignore-whitespace="ignoreWhitespace"
           :ignore-case="ignoreCase"
           :hide-split-option="isMobile"
+          :is-fullscreen="isFullscreen"
+          :current-change-index="currentChangeIndex"
+          :total-changes="totalChanges"
           @update:view-mode="viewMode = $event"
           @update:precision="precision = $event"
           @update:ignore-whitespace="ignoreWhitespace = $event"
           @update:ignore-case="ignoreCase = $event"
           @print="print"
+          @toggle-fullscreen="toggleFullscreen"
+          @prev-change="goToPrevChange"
+          @next-change="goToNextChange"
         />
 
         <!-- Stats -->
@@ -224,10 +264,20 @@ function handleKeydown(e: KeyboardEvent) {
           :additions="result.additions"
           :removals="result.removals"
           :unchanged="result.unchanged"
+          :class="isFullscreen ? 'flex-shrink-0' : ''"
         />
 
         <!-- Diff view -->
-        <DiffView :result="result" :view-mode="viewMode" />
+        <DiffView
+          :result="result"
+          :view-mode="viewMode"
+          :is-fullscreen="isFullscreen"
+          :current-change-index="currentChangeIndex"
+          :change-groups="changeGroups"
+          :scroll-ratio="scrollRatio"
+          :viewport-ratio="viewportRatio"
+          @scroll-container-ready="onScrollContainerReady"
+        />
       </div>
     </Transition>
   </div>

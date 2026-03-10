@@ -5,9 +5,11 @@ const props = withDefaults(
   defineProps<{
     line: DiffLine
     showLineNumbers?: boolean
+    isHighlighted?: boolean
   }>(),
   {
     showLineNumbers: true,
+    isHighlighted: false,
   },
 )
 
@@ -25,6 +27,8 @@ const prefixMap: Record<DiffLine['type'], string> = {
       line.type === 'added' && 'border-l-[3px] border-l-[var(--color-accent)] bg-[var(--color-added-bg)]',
       line.type === 'removed' && 'border-l-[3px] border-l-[var(--color-accent-2)] bg-[var(--color-removed-bg)]',
       line.type === 'unchanged' && 'border-l-[3px] border-l-transparent',
+      isHighlighted && line.type === 'added' && 'ring-1 ring-inset ring-[var(--color-accent)]/40',
+      isHighlighted && line.type === 'removed' && 'ring-1 ring-inset ring-[var(--color-accent-2)]/40',
     ]"
   >
     <DiffGutter

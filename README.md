@@ -13,9 +13,12 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 - Ignore whitespace and case options
 - Syntax-highlighted code editors (18+ languages)
 - Drag-and-drop file upload
+- Diff minimap sidebar with click/drag navigation
+- Fullscreen mode for diff results
+- Jump navigation between change groups (prev/next)
 - Print / Save as PDF via browser print dialog
 - Dark/light theme toggle
-- Keyboard shortcuts (Ctrl+Enter to diff)
+- Keyboard shortcuts (Ctrl+Enter to diff, Alt+Up/Down to jump, Escape to exit fullscreen)
 - Cloudflare Workers backend with D1 database
 
 ## Tech Stack
@@ -65,9 +68,9 @@ app/
 ├── components/
 │   ├── layout/     # AppHeader, AppFooter, ThemeToggle
 │   ├── editor/     # DiffEditor, EditorPair
-│   ├── diff/       # DiffView, DiffSplitView, DiffUnifiedView, DiffControls, DiffStats
+│   ├── diff/       # DiffView, DiffSplitView, DiffUnifiedView, DiffControls, DiffStats, DiffMinimap
 │   └── ui/         # GlowButton, ToggleGroup, DropdownMenu, GradientText
-├── composables/    # useDiff, useEditorState, useDiffOptions, useExport
+├── composables/    # useDiff, useEditorState, useDiffOptions, useExport, useDiffNavigation, useFullscreen, useMinimap
 ├── pages/          # index.vue
 ├── types/          # TypeScript interfaces
 └── assets/css/     # Design system (CSS variables, animations)

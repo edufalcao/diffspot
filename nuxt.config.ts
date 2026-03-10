@@ -6,6 +6,7 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: 'cloudflare-pages',
+    modules: ['nitro-cloudflare-dev'],
   },
 
   future: {

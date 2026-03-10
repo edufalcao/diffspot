@@ -1,6 +1,6 @@
 # Diffspot — Product Requirements Document
 
-> Last updated: 2026-03-09
+> Last updated: 2026-03-10
 
 ---
 
@@ -96,6 +96,10 @@
 | Loading state while computing | ✅ Done | Spinner in button + section |
 | Fade-in / slide-up animations for diff results | ✅ Done | `<Transition>` wrappers |
 | Auto-scroll to diff results after compute | ✅ Done | `scrollIntoView` |
+| Diff minimap sidebar | ✅ Done | `DiffMinimap.vue` + `useMinimap` — colored blocks, click/drag nav, hidden on mobile |
+| Fullscreen mode | ✅ Done | `useFullscreen` — toggle via toolbar button or Escape to exit |
+| Jump navigation between changes | ✅ Done | `useDiffNavigation` — prev/next buttons, `Alt+Up`/`Alt+Down` shortcuts |
+| Current change highlight | ✅ Done | Ring highlight on active change group lines |
 
 ---
 
@@ -114,6 +118,8 @@
 | Feature | Status | Notes |
 |---|---|---|
 | Keyboard shortcut: `Ctrl/Cmd + Enter` to diff | ✅ Done | |
+| Keyboard shortcut: `Alt + Up/Down` to jump between changes | ✅ Done | |
+| Keyboard shortcut: `Escape` to exit fullscreen | ✅ Done | |
 | Button disabled when both inputs empty | ✅ Done | |
 | "Find Differences" button with spinner state | ✅ Done | |
 | Fade-in animations (hero, editor, button) | ✅ Done | |

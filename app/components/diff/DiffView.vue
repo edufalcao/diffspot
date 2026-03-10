@@ -1,14 +1,27 @@
 <script setup lang="ts">
-import type { DiffResult } from '~/types/diff'
+import type { DiffResult, ChangeGroup } from '~/types/diff'
 
 defineProps<{
   result: DiffResult
   viewMode: 'split' | 'unified'
+  isFullscreen?: boolean
+  currentChangeIndex?: number
+  changeGroups?: ChangeGroup[]
+  scrollRatio?: number
+  viewportRatio?: number
 }>()
+
+const emit = defineEmits<{
+  'scroll-container-ready': [el: HTMLElement | null]
+}>()
+
+function onChildScrollContainerReady(el: HTMLElement | null) {
+  emit('scroll-container-ready', el)
+}
 </script>
 
 <template>
-  <div role="region" aria-label="Diff output">
+  <div role="region" aria-label="Diff output" :class="isFullscreen ? 'flex-1 overflow-hidden' : ''">
     <Transition
       mode="out-in"
       enter-active-class="transition-all duration-300 ease-[var(--ease)]"
@@ -22,11 +35,23 @@ defineProps<{
         v-if="viewMode === 'split'"
         :key="'split'"
         :lines="result.lines"
+        :is-fullscreen="isFullscreen"
+        :current-change-index="currentChangeIndex"
+        :change-groups="changeGroups"
+        :scroll-ratio="scrollRatio"
+        :viewport-ratio="viewportRatio"
+        @scroll-container-ready="onChildScrollContainerReady"
       />
       <DiffUnifiedView
         v-else
         :key="'unified'"
         :lines="result.lines"
+        :is-fullscreen="isFullscreen"
+        :current-change-index="currentChangeIndex"
+        :change-groups="changeGroups"
+        :scroll-ratio="scrollRatio"
+        :viewport-ratio="viewportRatio"
+        @scroll-container-ready="onChildScrollContainerReady"
       />
     </Transition>
   </div>

@@ -37,6 +37,16 @@ export interface DiffResult {
   unchanged: number
 }
 
+/** A group of consecutive changed (non-unchanged) lines in the diff output. */
+export interface ChangeGroup {
+  /** Index of the first line in this group (within the full lines array). */
+  startIndex: number
+  /** Index of the last line in this group (inclusive). */
+  endIndex: number
+  /** Whether the group contains only added, only removed, or a mix of both. */
+  type: 'added' | 'removed' | 'mixed'
+}
+
 /** Configuration options that control how the diff is computed. */
 export interface DiffOptions {
   /** The granularity of the diff comparison. */

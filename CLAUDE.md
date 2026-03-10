@@ -66,7 +66,7 @@ Located in `server/routes/`. Compiled into the Cloudflare Worker.
 
 Key directories:
 - `app/components/` — Vue components (layout, editor, diff, ui)
-- `app/composables/` — Shared reactive logic (useDiff, useEditorState, useDiffOptions, useExport)
+- `app/composables/` — Shared reactive logic (useDiff, useEditorState, useDiffOptions, useExport, useDiffNavigation, useFullscreen, useMinimap)
 - `app/pages/` — Nuxt file-based routing (index.vue only)
 - `app/types/` — TypeScript interfaces
 - `app/assets/css/` — Global styles and CSS variables

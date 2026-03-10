@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Printer } from 'lucide-vue-next'
+import { Printer, Maximize2, Minimize2, ChevronUp, ChevronDown } from 'lucide-vue-next'
 import type { DiffPrecision } from '~/types/diff'
 
 const props = withDefaults(
@@ -9,9 +9,15 @@ const props = withDefaults(
     ignoreWhitespace: boolean
     ignoreCase: boolean
     hideSplitOption?: boolean
+    isFullscreen?: boolean
+    currentChangeIndex?: number
+    totalChanges?: number
   }>(),
   {
     hideSplitOption: false,
+    isFullscreen: false,
+    currentChangeIndex: -1,
+    totalChanges: 0,
   },
 )
 
@@ -21,6 +27,9 @@ const emit = defineEmits<{
   'update:ignoreWhitespace': [value: boolean]
   'update:ignoreCase': [value: boolean]
   'print': []
+  'toggle-fullscreen': []
+  'prev-change': []
+  'next-change': []
 }>()
 
 const viewModeOptions = computed(() =>
@@ -37,6 +46,11 @@ const precisionOptions = [
   { label: 'Word', value: 'word' },
   { label: 'Char', value: 'char' },
 ]
+
+const changeDisplay = computed(() => {
+  if (props.totalChanges === 0) return '0 / 0'
+  return `${props.currentChangeIndex + 1} / ${props.totalChanges}`
+})
 </script>
 
 <template>
@@ -80,8 +94,44 @@ const precisionOptions = [
       Ignore case
     </label>
 
+    <!-- Divider -->
+    <div class="h-6 w-px bg-[var(--color-border)]" />
+
+    <!-- Jump navigation -->
+    <div class="flex items-center gap-1">
+      <button
+        :disabled="totalChanges === 0 || currentChangeIndex <= 0"
+        class="p-1 rounded text-[var(--color-muted)] hover:text-[var(--color-text)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        title="Previous change (Alt+Up)"
+        @click="emit('prev-change')"
+      >
+        <ChevronUp :size="16" />
+      </button>
+      <span
+        class="text-xs tabular-nums min-w-[3.5rem] text-center text-[var(--color-muted)]"
+        style="font-family: var(--font-mono)"
+      >
+        {{ changeDisplay }}
+      </span>
+      <button
+        :disabled="totalChanges === 0 || currentChangeIndex >= totalChanges - 1"
+        class="p-1 rounded text-[var(--color-muted)] hover:text-[var(--color-text)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        title="Next change (Alt+Down)"
+        @click="emit('next-change')"
+      >
+        <ChevronDown :size="16" />
+      </button>
+    </div>
+
     <!-- Spacer -->
     <div class="flex-1" />
+
+    <!-- Fullscreen toggle -->
+    <UiGlowButton variant="secondary" size="sm" @click="emit('toggle-fullscreen')">
+      <Minimize2 v-if="isFullscreen" :size="16" />
+      <Maximize2 v-else :size="16" />
+      {{ isFullscreen ? 'Exit' : 'Fullscreen' }}
+    </UiGlowButton>
 
     <!-- Print / Save as PDF -->
     <UiGlowButton variant="secondary" size="sm" @click="emit('print')">
