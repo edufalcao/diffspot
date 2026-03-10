@@ -64,8 +64,6 @@ Located in `server/routes/`. Compiled into the Cloudflare Worker.
 
 ## Project Structure
 
-See `docs/implementation-plan.md` for the full project structure and implementation phases.
-
 Key directories:
 - `app/components/` — Vue components (layout, editor, diff, ui)
 - `app/composables/` — Shared reactive logic (useDiff, useEditorState, useDiffOptions, useExport)
@@ -74,7 +72,7 @@ Key directories:
 - `app/assets/css/` — Global styles and CSS variables
 - `server/routes/` — Cloudflare Workers server routes
 - `migrations/` — D1 SQL migration files
-- `docs/` — PRD and implementation plan
+- `docs/` — PRD
 
 ## Conventions
 
