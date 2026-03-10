@@ -169,8 +169,7 @@
 | 6 | Shareable diff via URL (encode diff state in hash/query params) | Medium |
 | 7 | Synced scrolling QA + fix if broken | Medium |
 | 8 | PNG export (`html-to-image`) | Low |
-| 9 | Twitter/X card meta | Low |
-| 10 | PR preview deployments (Cloudflare Pages preview URLs) | Low |
+| 9 | PR preview deployments (Cloudflare Pages preview URLs) | Low |
 
 ---
 

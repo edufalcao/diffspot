@@ -37,6 +37,7 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 ```bash
 npm install
 npm run dev
+npm run preview   # preview production build
 ```
 
 ## Build & Deploy
@@ -73,7 +74,7 @@ app/
 migrations/         # D1 SQL migration files
 server/
 └── routes/         # Cloudflare Workers server routes
-docs/               # PRD and implementation plan
+docs/               # PRD
 public/             # Static assets (favicon, og.png)
 wrangler.toml       # Cloudflare Workers + D1 binding config
 ```
