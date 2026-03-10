@@ -42,6 +42,24 @@ const rightLines = computed(() =>
     .filter((l) => l.type === 'added' || l.type === 'unchanged'),
 )
 
+// Virtual scroll for left panel
+const leftTotalItems = computed(() => leftLines.value.length)
+const leftVs = useVirtualScroll(leftPanelRef, leftTotalItems)
+
+// Virtual scroll for right panel
+const rightTotalItems = computed(() => rightLines.value.length)
+const rightVs = useVirtualScroll(rightPanelRef, rightTotalItems)
+
+const leftVisibleItems = computed(() => {
+  const items = leftLines.value
+  return items.slice(leftVs.startIndex.value, leftVs.endIndex.value)
+})
+
+const rightVisibleItems = computed(() => {
+  const items = rightLines.value
+  return items.slice(rightVs.startIndex.value, rightVs.endIndex.value)
+})
+
 // Compute highlighted line indices from current change group
 const highlightedIndices = computed(() => {
   const set = new Set<number>()
@@ -58,7 +76,11 @@ function syncScroll(source: HTMLElement, target: HTMLElement) {
   if (isSyncing) return
   isSyncing = true
   requestAnimationFrame(() => {
-    target.scrollTop = source.scrollTop
+    const sourceMax = source.scrollHeight - source.clientHeight
+    const targetMax = target.scrollHeight - target.clientHeight
+    if (sourceMax > 0 && targetMax > 0) {
+      target.scrollTop = (source.scrollTop / sourceMax) * targetMax
+    }
     target.scrollLeft = source.scrollLeft
     isSyncing = false
   })
@@ -115,16 +137,33 @@ defineExpose({
           isFullscreen ? 'h-full' : 'max-h-[600px]',
         ]"
       >
-        <div
-          v-for="(line, idx) in leftLines"
-          :key="idx"
-          :data-line-index="line.originalIndex"
-        >
-          <DiffLine
-            :line="line"
-            :show-line-numbers="true"
-            :is-highlighted="highlightedIndices.has(line.originalIndex)"
-          />
+        <div v-if="leftVs.isPrinting.value">
+          <div
+            v-for="(line, idx) in leftLines"
+            :key="idx"
+            :data-line-index="line.originalIndex"
+          >
+            <DiffLine
+              :line="line"
+              :show-line-numbers="true"
+              :is-highlighted="highlightedIndices.has(line.originalIndex)"
+            />
+          </div>
+        </div>
+        <div v-else :style="{ height: leftVs.totalHeight.value + 'px', position: 'relative' }">
+          <div :style="{ position: 'absolute', top: '0', left: '0', right: '0', transform: `translateY(${leftVs.offsetY.value}px)` }">
+            <div
+              v-for="item in leftVisibleItems"
+              :key="item.originalIndex"
+              :data-line-index="item.originalIndex"
+            >
+              <DiffLine
+                :line="item"
+                :show-line-numbers="true"
+                :is-highlighted="highlightedIndices.has(item.originalIndex)"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -137,16 +176,33 @@ defineExpose({
           isFullscreen ? 'h-full' : 'max-h-[600px]',
         ]"
       >
-        <div
-          v-for="(line, idx) in rightLines"
-          :key="idx"
-          :data-line-index="line.originalIndex"
-        >
-          <DiffLine
-            :line="line"
-            :show-line-numbers="true"
-            :is-highlighted="highlightedIndices.has(line.originalIndex)"
-          />
+        <div v-if="rightVs.isPrinting.value">
+          <div
+            v-for="(line, idx) in rightLines"
+            :key="idx"
+            :data-line-index="line.originalIndex"
+          >
+            <DiffLine
+              :line="line"
+              :show-line-numbers="true"
+              :is-highlighted="highlightedIndices.has(line.originalIndex)"
+            />
+          </div>
+        </div>
+        <div v-else :style="{ height: rightVs.totalHeight.value + 'px', position: 'relative' }">
+          <div :style="{ position: 'absolute', top: '0', left: '0', right: '0', transform: `translateY(${rightVs.offsetY.value}px)` }">
+            <div
+              v-for="item in rightVisibleItems"
+              :key="item.originalIndex"
+              :data-line-index="item.originalIndex"
+            >
+              <DiffLine
+                :line="item"
+                :show-line-numbers="true"
+                :is-highlighted="highlightedIndices.has(item.originalIndex)"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

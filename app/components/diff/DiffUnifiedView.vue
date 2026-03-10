@@ -28,6 +28,22 @@ const emit = defineEmits<{
 
 const scrollContainerRef = ref<HTMLElement | null>(null)
 
+const totalItems = computed(() => props.lines.length)
+
+const { startIndex, endIndex, totalHeight, offsetY, isPrinting } = useVirtualScroll(
+  scrollContainerRef,
+  totalItems,
+)
+
+const visibleItems = computed(() => {
+  const items: { line: DiffLine; idx: number }[] = []
+  const end = Math.min(endIndex.value, props.lines.length)
+  for (let i = startIndex.value; i < end; i++) {
+    items.push({ line: props.lines[i]!, idx: i })
+  }
+  return items
+})
+
 onMounted(() => {
   nextTick(() => {
     emit('scroll-container-ready', scrollContainerRef.value)
@@ -71,16 +87,33 @@ defineExpose({
         isFullscreen ? 'h-full' : 'max-h-[600px]',
       ]"
     >
-      <div
-        v-for="(line, idx) in lines"
-        :key="idx"
-        :data-line-index="idx"
-      >
-        <DiffLine
-          :line="line"
-          :show-line-numbers="showLineNumbers"
-          :is-highlighted="highlightedIndices.has(idx)"
-        />
+      <div v-if="isPrinting">
+        <div
+          v-for="(line, idx) in lines"
+          :key="idx"
+          :data-line-index="idx"
+        >
+          <DiffLine
+            :line="line"
+            :show-line-numbers="showLineNumbers"
+            :is-highlighted="highlightedIndices.has(idx)"
+          />
+        </div>
+      </div>
+      <div v-else :style="{ height: totalHeight + 'px', position: 'relative' }">
+        <div :style="{ position: 'absolute', top: '0', left: '0', right: '0', transform: `translateY(${offsetY}px)` }">
+          <div
+            v-for="item in visibleItems"
+            :key="item.idx"
+            :data-line-index="item.idx"
+          >
+            <DiffLine
+              :line="item.line"
+              :show-line-numbers="showLineNumbers"
+              :is-highlighted="highlightedIndices.has(item.idx)"
+            />
+          </div>
+        </div>
       </div>
     </div>
 

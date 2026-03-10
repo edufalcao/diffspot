@@ -11,7 +11,7 @@ const showLoading = ref(false)
 const diffSectionRef = ref<HTMLElement | null>(null)
 const scrollContainerRef = ref<HTMLElement | null>(null)
 
-const { changeGroups, totalChanges, currentChangeIndex, scrollRatio, viewportRatio, goToNextChange, goToPrevChange } = useDiffNavigation(result, scrollContainerRef)
+const { changeGroups, totalChanges, currentChangeIndex, scrollRatio, viewportRatio, goToNextChange, goToPrevChange } = useDiffNavigation(result, scrollContainerRef, { itemHeight: VIRTUAL_SCROLL_ITEM_HEIGHT })
 
 function onScrollContainerReady(el: HTMLElement | null) {
   scrollContainerRef.value = el
@@ -52,21 +52,17 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
 })
 
-function findDifferences() {
+async function findDifferences() {
   if (!leftText.value && !rightText.value) return
 
   showLoading.value = true
   showDiff.value = true
 
-  // Use setTimeout to yield to the browser so the loading state renders
-  // before the potentially heavy synchronous diff computation runs.
-  setTimeout(() => {
-    compute()
-    showLoading.value = false
-    nextTick(() => {
-      diffSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
-  }, 50)
+  await compute()
+  showLoading.value = false
+  nextTick(() => {
+    diffSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
 }
 
 const hasDiff = computed(() => showDiff.value && (result.value.additions > 0 || result.value.removals > 0 || result.value.unchanged > 0))

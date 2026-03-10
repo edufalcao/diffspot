@@ -32,6 +32,7 @@ function computeChangeGroups(lines: DiffLine[]): ChangeGroup[] {
 export function useDiffNavigation(
   result: Ref<DiffResult> | ComputedRef<DiffResult>,
   scrollContainerRef: Ref<HTMLElement | null>,
+  options?: { itemHeight?: number },
 ) {
   const currentChangeIndex = ref(-1)
   const scrollRatio = ref(0)
@@ -70,9 +71,18 @@ export function useDiffNavigation(
     const totalLines = result.value.lines.length
     if (totalLines === 0) return
 
-    const viewportMiddle = el.scrollTop + el.clientHeight / 2
-    const lineHeight = el.scrollHeight / totalLines
-    const middleLineIndex = Math.floor(viewportMiddle / lineHeight)
+    let middleLineIndex: number
+
+    if (options?.itemHeight) {
+      // Virtual scroll mode: use proportional estimation
+      const ratio = el.scrollHeight > 0 ? (el.scrollTop + el.clientHeight / 2) / el.scrollHeight : 0
+      middleLineIndex = Math.floor(ratio * totalLines)
+    } else {
+      // DOM-based approach
+      const viewportMiddle = el.scrollTop + el.clientHeight / 2
+      const lineHeight = el.scrollHeight / totalLines
+      middleLineIndex = Math.floor(viewportMiddle / lineHeight)
+    }
 
     // Find the closest change group to the middle of the viewport
     let closestIdx = 0
@@ -96,12 +106,57 @@ export function useDiffNavigation(
     if (!el || index < 0 || index >= changeGroups.value.length) return
 
     const group = changeGroups.value[index]!
-    const lineEl = el.querySelector(`[data-line-index="${group.startIndex}"]`) as HTMLElement | null
+    programmaticScrollUntil = Date.now() + 500
+    currentChangeIndex.value = index
+
+    if (options?.itemHeight) {
+      // Virtual scroll mode: use proportional scrolling
+      const totalLines = result.value.lines.length
+      const groupCenter = (group.startIndex + group.endIndex) / 2
+      const ratio = totalLines > 0 ? groupCenter / totalLines : 0
+      const targetTop = ratio * el.scrollHeight - el.clientHeight / 2
+      el.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' })
+      return
+    }
+
+    // DOM query with fallback strategies
+    let lineEl: HTMLElement | null = null
+
+    // Strategy 1: Try exact match at startIndex
+    lineEl = el.querySelector(`[data-line-index="${group.startIndex}"]`)
+
+    // Strategy 2: Walk group lines looking for any element
+    if (!lineEl) {
+      for (let i = group.startIndex; i <= group.endIndex; i++) {
+        lineEl = el.querySelector(`[data-line-index="${i}"]`)
+        if (lineEl) break
+      }
+    }
+
+    // Strategy 3: Find nearest context line before the group
+    if (!lineEl) {
+      for (let i = group.startIndex - 1; i >= 0; i--) {
+        lineEl = el.querySelector(`[data-line-index="${i}"]`)
+        if (lineEl) break
+      }
+    }
+
+    // Strategy 4: Find nearest context line after the group
+    if (!lineEl) {
+      for (let i = group.endIndex + 1; i < result.value.lines.length; i++) {
+        lineEl = el.querySelector(`[data-line-index="${i}"]`)
+        if (lineEl) break
+      }
+    }
+
     if (lineEl) {
-      // Lock for 500ms to prevent scroll events from overriding the index
-      programmaticScrollUntil = Date.now() + 500
-      currentChangeIndex.value = index
       lineEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    } else {
+      // Last resort: proportional scroll estimation
+      const totalLines = result.value.lines.length
+      const ratio = totalLines > 0 ? group.startIndex / totalLines : 0
+      const targetTop = ratio * el.scrollHeight - el.clientHeight / 2
+      el.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' })
     }
   }
 

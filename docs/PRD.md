@@ -74,6 +74,7 @@
 | Ignore whitespace option | ✅ Done | |
 | Ignore case option | ✅ Done | |
 | On-demand diff (button-triggered, not reactive) | ✅ Done | |
+| Web Worker diff computation | ✅ Done | Off-main-thread via `diff.worker.ts`; UI stays responsive on large inputs |
 | Auto-clear results when both inputs are emptied | ✅ Done | `watch([leftText, rightText])` |
 
 ---
@@ -91,7 +92,8 @@
 | View mode toggle (Split / Unified) | ✅ Done | `DiffControls.vue` |
 | Precision toggle (Line / Word / Char) | ✅ Done | `DiffControls.vue` |
 | Auto-switch to Unified on mobile | ✅ Done | `index.vue` |
-| Synchronized scrolling in split view | ⚠️ To verify | Designed for it; needs manual QA |
+| Virtual scrolling for large files | ✅ Done | `useVirtualScroll` — fixed 26px row height, ~20-row overscan, print-aware |
+| Synchronized scrolling in split view | ✅ Done | Proportional scroll sync (handles different panel heights) |
 | "No differences found" empty state | ✅ Done | `textsAreIdentical` computed |
 | Loading state while computing | ✅ Done | Spinner in button + section |
 | Fade-in / slide-up animations for diff results | ✅ Done | `<Transition>` wrappers |
@@ -123,10 +125,10 @@
 | Button disabled when both inputs empty | ✅ Done | |
 | "Find Differences" button with spinner state | ✅ Done | |
 | Fade-in animations (hero, editor, button) | ✅ Done | |
-| `setTimeout` yield before diff computation | ✅ Done | Ensures loading state renders before heavy sync work |
+| Web Worker diff computation (non-blocking UI) | ✅ Done | Replaced `setTimeout` hack; async `compute()` via dedicated worker |
 | Click-away to close language dropdown | ✅ Done | Fixed overlay |
 | Copy feedback ("Copied" for 2s) | ✅ Done | |
-| Error handling for large files | ❌ Not built | No file size limit or warning |
+| Large file performance | ✅ Done | Virtual scrolling + Web Worker diff — handles 10k+ lines without UI freeze |
 | Keyboard navigation (ARIA / focus management) | ⚠️ Partial | `role="toolbar"` on DiffControls; no full ARIA audit |
 
 ---
@@ -166,14 +168,13 @@
 | 1 | ~~OG meta tags~~ | ✅ Done |
 | 2 | ~~Canonical URL~~ | ✅ Done |
 | 3 | Full ARIA audit (keyboard nav, focus management) | High |
-| 4 | Editor height cap (prevent unbounded growth with large files) | High |
-| 5 | Large file warning / size limit | Medium |
+| 4 | ~~Editor height cap / large file handling~~ | ✅ Done (virtual scrolling + Web Worker) |
 
 ### Nice-to-Have (post-launch)
 | # | Item | Priority |
 |---|---|---|
 | 6 | Shareable diff via URL (encode diff state in hash/query params) | Medium |
-| 7 | Synced scrolling QA + fix if broken | Medium |
+| 7 | ~~Synced scrolling QA + fix if broken~~ | ✅ Done (proportional sync) |
 | 8 | PNG export (`html-to-image`) | Low |
 | 9 | PR preview deployments (Cloudflare Pages preview URLs) | Low |
 

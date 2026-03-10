@@ -16,6 +16,8 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 - Diff minimap sidebar with click/drag navigation
 - Fullscreen mode for diff results
 - Jump navigation between change groups (prev/next)
+- Virtual scrolling for large files (handles 10k+ lines efficiently)
+- Web Worker-based diff computation (non-blocking UI)
 - Print / Save as PDF via browser print dialog
 - Dark/light theme toggle
 - Keyboard shortcuts (Ctrl+Enter to diff, Alt+Up/Down to jump, Escape to exit fullscreen)
@@ -70,7 +72,9 @@ app/
 │   ├── editor/     # DiffEditor, EditorPair
 │   ├── diff/       # DiffView, DiffSplitView, DiffUnifiedView, DiffControls, DiffStats, DiffMinimap
 │   └── ui/         # GlowButton, ToggleGroup, DropdownMenu, GradientText
-├── composables/    # useDiff, useEditorState, useDiffOptions, useExport, useDiffNavigation, useFullscreen, useMinimap
+├── composables/    # useDiff, useEditorState, useDiffOptions, useExport, useDiffNavigation, useFullscreen, useMinimap, useVirtualScroll
+├── utils/          # Pure functions (diffCompute — extracted for Web Worker)
+├── workers/        # Web Workers (diff.worker — off-main-thread diff computation)
 ├── pages/          # index.vue
 ├── types/          # TypeScript interfaces
 └── assets/css/     # Design system (CSS variables, animations)

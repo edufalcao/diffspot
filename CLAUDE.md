@@ -66,7 +66,9 @@ Located in `server/routes/`. Compiled into the Cloudflare Worker.
 
 Key directories:
 - `app/components/` — Vue components (layout, editor, diff, ui)
-- `app/composables/` — Shared reactive logic (useDiff, useEditorState, useDiffOptions, useExport, useDiffNavigation, useFullscreen, useMinimap)
+- `app/composables/` — Shared reactive logic (useDiff, useEditorState, useDiffOptions, useExport, useDiffNavigation, useFullscreen, useMinimap, useVirtualScroll)
+- `app/utils/` — Pure utility functions (diffCompute — extracted diff logic for Web Worker)
+- `app/workers/` — Web Workers (diff.worker — off-main-thread diff computation)
 - `app/pages/` — Nuxt file-based routing (index.vue only)
 - `app/types/` — TypeScript interfaces
 - `app/assets/css/` — Global styles and CSS variables
@@ -83,3 +85,5 @@ Key directories:
 - Composables follow `use*` naming convention
 - Server routes follow `<name>.<method>.ts` naming (e.g. `ping.get.ts`)
 - D1 migrations follow `NNNN_description.sql` naming (e.g. `0001_create_healthcheck.sql`)
+- Pure computation logic lives in `app/utils/` for Web Worker compatibility (no Vue/DOM imports)
+- Web Workers live in `app/workers/` and use `new URL('../workers/<name>.ts', import.meta.url)` for Vite bundling
