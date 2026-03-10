@@ -26,6 +26,7 @@ logs
 # Database
 data/
 !data/.gitkeep
+.wrangler
 
 # Claude Code local settings
 .claude/settings.local.json

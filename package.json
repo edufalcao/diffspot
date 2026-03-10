@@ -5,6 +5,8 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "db:migrate:local": "wrangler d1 execute diffspot --file=./migrations/0001_create_healthcheck.sql --local",
+    "predev": "npm run db:migrate:local",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
@@ -38,6 +40,7 @@
   },
   "devDependencies": {
     "@types/diff": "^7.0.2",
-    "nitro-cloudflare-dev": "^0.2.2"
+    "nitro-cloudflare-dev": "^0.2.2",
+    "wrangler": "^4.71.0"
   }
 }
