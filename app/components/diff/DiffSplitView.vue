@@ -126,7 +126,7 @@ defineExpose({
 </script>
 
 <template>
-  <div class="flex gap-1">
+  <div :class="['flex gap-1', isFullscreen ? 'h-full' : '']">
     <div class="grid grid-cols-2 gap-3 flex-1 min-w-0">
       <!-- Left column: old file -->
       <div

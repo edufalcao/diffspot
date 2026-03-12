@@ -77,7 +77,7 @@ defineExpose({
 </script>
 
 <template>
-  <div class="flex gap-1">
+  <div :class="['flex gap-1', isFullscreen ? 'h-full' : '']">
     <div
       ref="scrollContainerRef"
       role="log"

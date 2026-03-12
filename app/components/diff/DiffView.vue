@@ -21,7 +21,7 @@ function onChildScrollContainerReady(el: HTMLElement | null) {
 </script>
 
 <template>
-  <div role="region" aria-label="Diff output" :class="isFullscreen ? 'flex-1 overflow-hidden' : ''">
+  <div role="region" aria-label="Diff output" :class="isFullscreen ? 'flex-1 min-h-0 flex flex-col' : ''">
     <Transition
       mode="out-in"
       enter-active-class="transition-all duration-300 ease-[var(--ease)]"
