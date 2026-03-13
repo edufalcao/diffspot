@@ -33,42 +33,57 @@ watch([leftText, rightText], ([l, r]) => {
 
 // Auto-switch to unified view on small screens
 const isMobile = ref(false);
+let mobileMediaQuery: MediaQueryList | null = null;
+let mobileMediaQueryHandler: ((e: MediaQueryListEvent) => void) | null = null;
 
 onMounted(() => {
-  const mql = window.matchMedia('(max-width: 767px)');
-  isMobile.value = mql.matches;
-  if (mql.matches) {
+  mobileMediaQuery = window.matchMedia('(max-width: 767px)');
+  isMobile.value = mobileMediaQuery.matches;
+  if (mobileMediaQuery.matches) {
     viewMode.value = 'unified';
   }
-  const handler = (e: MediaQueryListEvent) => {
+  mobileMediaQueryHandler = (e: MediaQueryListEvent) => {
     isMobile.value = e.matches;
     if (e.matches) {
       viewMode.value = 'unified';
     }
   };
-  mql.addEventListener('change', handler);
-  onBeforeUnmount(() => {
-    mql.removeEventListener('change', handler);
-  });
+  mobileMediaQuery.addEventListener('change', mobileMediaQueryHandler);
 
   // Keyboard shortcuts
   window.addEventListener('keydown', handleKeydown);
 });
 
 onUnmounted(() => {
+  if (mobileMediaQuery && mobileMediaQueryHandler) {
+    mobileMediaQuery.removeEventListener('change', mobileMediaQueryHandler);
+  }
   window.removeEventListener('keydown', handleKeydown);
 });
 
-async function findDifferences() {
+async function computeDiffResult(options?: { showInitialLoading?: boolean, scrollIntoView?: boolean }) {
   if (!leftText.value && !rightText.value) return;
 
-  showLoading.value = true;
   showDiff.value = true;
+  showLoading.value = options?.showInitialLoading ?? false;
 
-  await compute();
-  showLoading.value = false;
-  nextTick(() => {
-    diffSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  try {
+    await compute();
+  } finally {
+    showLoading.value = false;
+  }
+
+  if (options?.scrollIntoView) {
+    nextTick(() => {
+      diffSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+}
+
+async function findDifferences() {
+  await computeDiffResult({
+    showInitialLoading: true,
+    scrollIntoView: true
   });
 }
 
@@ -88,6 +103,13 @@ const textsAreIdentical = computed(() => {
   if (!showDiff.value) return false;
   if (!leftText.value && !rightText.value) return false;
   return result.value.additions === 0 && result.value.removals === 0 && result.value.unchanged > 0;
+});
+
+watch([precision, ignoreWhitespace, ignoreCase], async () => {
+  if (!showDiff.value) return;
+  if (!leftText.value && !rightText.value) return;
+
+  await computeDiffResult();
 });
 
 // ---------------------------------------------------------------------------
@@ -190,7 +212,7 @@ function handleKeydown(e: KeyboardEvent) {
       leave-to-class="opacity-0"
     >
       <div
-        v-if="showLoading || isComputing"
+        v-if="showLoading"
         class="w-full max-w-6xl text-center py-12"
       >
         <svg
@@ -223,44 +245,9 @@ function handleKeydown(e: KeyboardEvent) {
       </div>
     </Transition>
 
-    <!-- Identical texts message -->
-    <Transition
-      enter-active-class="transition-all duration-300 ease-[var(--ease)]"
-      enter-from-class="opacity-0 translate-y-2"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition-all duration-200 ease-[var(--ease)]"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-2"
-    >
-      <div
-        v-if="textsAreIdentical"
-        class="w-full max-w-6xl text-center py-12 rounded-lg border border-[var(--color-border)]"
-        style="background-color: var(--color-surface)"
-      >
-        <div
-          class="text-3xl mb-3"
-          style="color: var(--color-accent)"
-        >
-          =
-        </div>
-        <p
-          class="text-lg font-semibold mb-1"
-          style="font-family: var(--font-display); color: var(--color-text)"
-        >
-          No differences found
-        </p>
-        <p
-          class="text-sm"
-          style="font-family: var(--font-mono); color: var(--color-muted)"
-        >
-          Both texts are identical.
-        </p>
-      </div>
-    </Transition>
-
     <!-- Diff output -->
     <div
-      v-if="hasDiff && !textsAreIdentical"
+      v-if="hasDiff"
       ref="diffSectionRef"
       :class="[
         isFullscreen
@@ -291,26 +278,54 @@ function handleKeydown(e: KeyboardEvent) {
         @next-change="goToNextChange"
       />
 
-      <!-- Stats -->
-      <DiffStats
-        :additions="result.additions"
-        :removals="result.removals"
-        :unchanged="result.unchanged"
-        :class="isFullscreen ? 'flex-shrink-0' : ''"
-      />
+      <template v-if="textsAreIdentical">
+        <div
+          class="text-center py-12 rounded-lg border border-[var(--color-border)]"
+          :class="isFullscreen ? 'flex-1 flex flex-col items-center justify-center' : ''"
+          style="background-color: var(--color-surface)"
+        >
+          <div
+            class="text-3xl mb-3"
+            style="color: var(--color-accent)"
+          >
+            =
+          </div>
+          <p
+            class="text-lg font-semibold mb-1"
+            style="font-family: var(--font-display); color: var(--color-text)"
+          >
+            No differences found
+          </p>
+          <p
+            class="text-sm"
+            style="font-family: var(--font-mono); color: var(--color-muted)"
+          >
+            Both texts are identical under the current diff options.
+          </p>
+        </div>
+      </template>
+      <template v-else>
+        <!-- Stats -->
+        <DiffStats
+          :additions="result.additions"
+          :removals="result.removals"
+          :unchanged="result.unchanged"
+          :class="isFullscreen ? 'flex-shrink-0' : ''"
+        />
 
-      <!-- Diff view -->
-      <DiffView
-        :result="result"
-        :view-mode="viewMode"
-        :is-fullscreen="isFullscreen"
-        :collapse-unchanged="collapseUnchanged"
-        :current-change-index="currentChangeIndex"
-        :change-groups="changeGroups"
-        :scroll-ratio="scrollRatio"
-        :viewport-ratio="viewportRatio"
-        @scroll-container-ready="onScrollContainerReady"
-      />
+        <!-- Diff view -->
+        <DiffView
+          :result="result"
+          :view-mode="viewMode"
+          :is-fullscreen="isFullscreen"
+          :collapse-unchanged="collapseUnchanged"
+          :current-change-index="currentChangeIndex"
+          :change-groups="changeGroups"
+          :scroll-ratio="scrollRatio"
+          :viewport-ratio="viewportRatio"
+          @scroll-container-ready="onScrollContainerReady"
+        />
+      </template>
     </div>
   </div>
 </template>
