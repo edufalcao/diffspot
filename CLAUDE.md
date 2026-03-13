@@ -49,6 +49,30 @@ pnpm build
 
 If one of these steps cannot be run or fails for an external reason, call that out explicitly in the handoff.
 
+## Release Workflow
+
+When cutting a release, use this order as the default standard:
+
+1. Finish the implementation.
+2. Run the full verification checklist:
+   - `pnpm test:packages`
+   - `pnpm lint`
+   - `pnpm typecheck`
+   - `pnpm build`
+3. Bump package versions if `@diffspot/core` or `@diffspot/vue` changed in a way that should be published.
+4. Commit the release-ready state, including any version bumps.
+5. Push `main`.
+6. Create the git tag from that pushed commit.
+7. Push the tag.
+8. Publish the npm packages from that tagged state, if package publishing is needed.
+9. Create the GitHub release from the same tag, with notes summarizing the changes since the previous release.
+
+Notes:
+
+- Do not publish npm packages before the release commit and tag are pushed.
+- If no package contents changed, skip the npm publish step.
+- If a publish step fails after the tag exists, fix forward with a new version instead of reusing the same published version number.
+
 ## Build Output
 
 With `nitro.preset = 'cloudflare-pages'`, `pnpm build` outputs to `dist/`:
