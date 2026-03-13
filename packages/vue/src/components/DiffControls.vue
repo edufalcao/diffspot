@@ -58,12 +58,66 @@ const changeDisplay = computed(() => {
   return `${props.currentChangeIndex + 1} / ${props.totalChanges}`;
 });
 
+type DiffOptionKey = 'ignoreWhitespace' | 'ignoreCase' | 'collapseUnchanged';
+
+const optionsOpen = ref(false);
+const optionsRef = ref<HTMLElement | null>(null);
+
+const diffOptions = computed(() => [
+  {
+    key: 'ignoreWhitespace' as const,
+    label: 'Ignore whitespace',
+    description: 'Treat whitespace-only changes as equal.',
+    checked: props.ignoreWhitespace
+  },
+  {
+    key: 'ignoreCase' as const,
+    label: 'Ignore case',
+    description: 'Compare uppercase and lowercase text equally.',
+    checked: props.ignoreCase
+  },
+  {
+    key: 'collapseUnchanged' as const,
+    label: 'Collapse unchanged',
+    description: 'Fold long unchanged sections in the diff output.',
+    checked: props.collapseUnchanged
+  }
+]);
+
+const activeOptionCount = computed(() =>
+  diffOptions.value.filter(option => option.checked).length
+);
+
+function toggleOptions() {
+  optionsOpen.value = !optionsOpen.value;
+  if (optionsOpen.value) {
+    exportOpen.value = false;
+  }
+}
+
+function updateDiffOption(option: DiffOptionKey, checked: boolean) {
+  switch (option) {
+    case 'ignoreWhitespace':
+      emit('update:ignoreWhitespace', checked);
+      break;
+    case 'ignoreCase':
+      emit('update:ignoreCase', checked);
+      break;
+    case 'collapseUnchanged':
+      emit('update:collapseUnchanged', checked);
+      break;
+  }
+}
+
 // Export dropdown
 const exportOpen = ref(false);
 const exportRef = ref<HTMLElement | null>(null);
 
 function toggleExport() {
   exportOpen.value = !exportOpen.value;
+  if (exportOpen.value) {
+    optionsOpen.value = false;
+  }
 }
 
 function selectExport(format: ExportFormat) {
@@ -72,6 +126,10 @@ function selectExport(format: ExportFormat) {
 }
 
 function handleClickOutside(event: MouseEvent) {
+  if (optionsRef.value && !optionsRef.value.contains(event.target as Node)) {
+    optionsOpen.value = false;
+  }
+
   if (exportRef.value && !exportRef.value.contains(event.target as Node)) {
     exportOpen.value = false;
   }
@@ -79,6 +137,7 @@ function handleClickOutside(event: MouseEvent) {
 
 function handleEscape(event: KeyboardEvent) {
   if (event.key === 'Escape') {
+    optionsOpen.value = false;
     exportOpen.value = false;
   }
 }
@@ -141,38 +200,142 @@ const showPrintWarning = computed(() => props.totalLines > LARGE_DIFF_THRESHOLD)
     <!-- Divider -->
     <div class="h-6 w-px bg-[var(--color-border)]" />
 
-    <!-- Ignore whitespace checkbox -->
-    <label class="flex cursor-pointer items-center gap-2 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]">
-      <input
-        type="checkbox"
-        :checked="ignoreWhitespace"
-        class="accent-[var(--color-accent)]"
-        @change="emit('update:ignoreWhitespace', ($event.target as HTMLInputElement).checked)"
+    <!-- Options dropdown -->
+    <div
+      ref="optionsRef"
+      class="relative inline-block"
+    >
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-elevated)] transition-colors"
+        :aria-expanded="optionsOpen"
+        aria-haspopup="menu"
+        @click="toggleOptions"
       >
-      Ignore whitespace
-    </label>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line
+            x1="4"
+            y1="21"
+            x2="4"
+            y2="14"
+          />
+          <line
+            x1="4"
+            y1="10"
+            x2="4"
+            y2="3"
+          />
+          <line
+            x1="12"
+            y1="21"
+            x2="12"
+            y2="12"
+          />
+          <line
+            x1="12"
+            y1="8"
+            x2="12"
+            y2="3"
+          />
+          <line
+            x1="20"
+            y1="21"
+            x2="20"
+            y2="16"
+          />
+          <line
+            x1="20"
+            y1="12"
+            x2="20"
+            y2="3"
+          />
+          <line
+            x1="2"
+            y1="14"
+            x2="6"
+            y2="14"
+          />
+          <line
+            x1="10"
+            y1="8"
+            x2="14"
+            y2="8"
+          />
+          <line
+            x1="18"
+            y1="16"
+            x2="22"
+            y2="16"
+          />
+        </svg>
+        Options
+        <span
+          v-if="activeOptionCount > 0"
+          class="min-w-[1.25rem] rounded-full bg-[var(--color-accent)]/15 px-1.5 py-0.5 text-xs leading-none text-[var(--color-accent)]"
+          style="font-family: var(--font-mono)"
+        >
+          {{ activeOptionCount }}
+        </span>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="transition-transform"
+          :class="{ 'rotate-180': optionsOpen }"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
 
-    <!-- Ignore case checkbox -->
-    <label class="flex cursor-pointer items-center gap-2 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]">
-      <input
-        type="checkbox"
-        :checked="ignoreCase"
-        class="accent-[var(--color-accent)]"
-        @change="emit('update:ignoreCase', ($event.target as HTMLInputElement).checked)"
+      <Transition
+        enter-active-class="transition duration-150 ease-[var(--ease)]"
+        enter-from-class="opacity-0 translate-y-1"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition duration-100 ease-[var(--ease)]"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 translate-y-1"
       >
-      Ignore case
-    </label>
-
-    <!-- Collapse unchanged checkbox -->
-    <label class="flex cursor-pointer items-center gap-2 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]">
-      <input
-        type="checkbox"
-        :checked="collapseUnchanged"
-        class="accent-[var(--color-accent)]"
-        @change="emit('update:collapseUnchanged', ($event.target as HTMLInputElement).checked)"
-      >
-      Collapse unchanged
-    </label>
+        <div
+          v-if="optionsOpen"
+          class="absolute left-0 z-50 mt-2 min-w-[260px] overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-elevated)] py-1 shadow-xl"
+          role="menu"
+          aria-label="Diff options"
+        >
+          <label
+            v-for="option in diffOptions"
+            :key="option.key"
+            class="flex cursor-pointer items-start gap-3 px-4 py-3 text-sm text-[var(--color-text)] transition-colors hover:bg-[hsla(0,0%,100%,0.03)]"
+          >
+            <input
+              type="checkbox"
+              :checked="option.checked"
+              class="mt-0.5 accent-[var(--color-accent)]"
+              @change="updateDiffOption(option.key, ($event.target as HTMLInputElement).checked)"
+            >
+            <span class="min-w-0">
+              <span class="block">{{ option.label }}</span>
+              <span class="block text-xs text-[var(--color-muted)]">
+                {{ option.description }}
+              </span>
+            </span>
+          </label>
+        </div>
+      </Transition>
+    </div>
 
     <!-- Divider -->
     <div class="h-6 w-px bg-[var(--color-border)]" />
