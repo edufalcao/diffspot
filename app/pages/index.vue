@@ -22,7 +22,7 @@ watch([leftText, rightText], ([l, r]) => {
   if (!l && !r) {
     showDiff.value = false
   }
-})
+}, { flush: 'sync' })
 
 // Auto-switch to unified view on small screens
 const isMobile = ref(false)
