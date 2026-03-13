@@ -18,7 +18,7 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 - Jump navigation between change groups (prev/next)
 - Virtual scrolling for large files (handles 10k+ lines efficiently)
 - Web Worker-based diff computation (non-blocking UI)
-- Print / Save as PDF via browser print dialog
+- Multi-format export: Print/PDF, Unified Diff (.diff), HTML Report (.html), JSON Data (.json)
 - Dark/light theme toggle
 - Keyboard shortcuts (Ctrl+Enter to diff, Alt+Up/Down to jump, Escape to exit fullscreen)
 - Cloudflare Workers backend with D1 database
@@ -31,7 +31,7 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 | Styling | Tailwind CSS 4 |
 | Diff engine | jsdiff (`diff`) |
 | Code editors | CodeMirror 6 via `vue-codemirror` |
-| Print / Export | Browser print dialog (`window.print()`) |
+| Export | Multi-format (Print/PDF, .diff, .html, .json) |
 | Icons | Lucide Vue Next |
 | Fonts | Space Grotesk, DM Sans, JetBrains Mono |
 | Runtime | Cloudflare Workers (via `cloudflare-pages` preset) |
@@ -63,6 +63,15 @@ npx wrangler d1 execute diffspot --file=./migrations/<file>.sql --remote
 npx wrangler d1 execute diffspot --file=./migrations/<file>.sql --local
 ```
 
+## Packages
+
+The diff engine and Vue components are published as standalone npm packages:
+
+| Package | Description |
+|---------|-------------|
+| [`@diffspot/core`](https://www.npmjs.com/package/@diffspot/core) | Framework-agnostic diff computation, minimap, navigation, and export generators |
+| [`@diffspot/vue`](https://www.npmjs.com/package/@diffspot/vue) | Vue 3 components (`DiffView`, `DiffControls`, `DiffStats`, `DiffMinimap`) and composables (`useDiff`, `useExport`, etc.) |
+
 ## Project Structure
 
 ```
@@ -78,10 +87,13 @@ app/
 ├── pages/          # index.vue
 ├── types/          # TypeScript interfaces
 └── assets/css/     # Design system (CSS variables, animations)
+packages/
+├── core/           # @diffspot/core — diff engine, export generators
+└── vue/            # @diffspot/vue — Vue 3 components and composables
 migrations/         # D1 SQL migration files
 server/
 └── routes/         # Cloudflare Workers server routes
 docs/               # PRD
-public/             # Static assets (favicon, og.png)
+public/             # Static assets (favicon, og.png, sitemap.xml)
 wrangler.toml       # Cloudflare Workers + D1 binding config
 ```
