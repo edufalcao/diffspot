@@ -58,6 +58,20 @@ const groups = computeChangeGroups(result.lines)
 // [{ startIndex: 4, endIndex: 6, type: 'mixed' }, ...]
 ```
 
+### Collapsed regions
+
+Compute collapsible regions of consecutive unchanged lines (GitHub-style folding):
+
+```ts
+import { computeCollapsedRegions } from '@diffspot/core'
+
+const regions = computeCollapsedRegions(result.lines)
+// [{ startIndex: 10, endIndex: 45, count: 36 }, ...]
+
+// Custom context (default: 3 lines before/after each change)
+const regions2 = computeCollapsedRegions(result.lines, 5)
+```
+
 ### Export
 
 Generate export files from diff results:
@@ -131,6 +145,10 @@ Merges consecutive same-type changed lines into percentage-positioned blocks sui
 
 Groups consecutive non-unchanged lines for prev/next navigation.
 
+### `computeCollapsedRegions(lines, contextLines?): CollapsedRegion[]`
+
+Finds runs of 8+ consecutive unchanged lines and returns the collapsible ranges, keeping `contextLines` (default 3) visible before and after each change.
+
 ### `generateUnifiedDiff(result, metadata?): string`
 
 Generates a standard unified diff (patch) string with `@@ -old,count +new,count @@` hunk headers and 3 lines of context.
@@ -185,6 +203,12 @@ interface MinimapBlock {
   y: number        // percentage from top (0–100)
   height: number   // percentage height (0–100)
   type: 'added' | 'removed'
+}
+
+interface CollapsedRegion {
+  startIndex: number   // first collapsed line index (inclusive)
+  endIndex: number     // last collapsed line index (inclusive)
+  count: number        // number of collapsed lines
 }
 
 type ExportFormat = 'print' | 'unified-diff' | 'html' | 'json'

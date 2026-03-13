@@ -126,6 +126,7 @@ Main diff display component with split/unified view toggle.
 | `result` | `DiffResult` | required | The diff result from `useDiff` |
 | `viewMode` | `'split' \| 'unified'` | required | Display mode |
 | `isFullscreen` | `boolean` | `false` | Enable fullscreen mode |
+| `collapseUnchanged` | `boolean` | `true` | Collapse consecutive unchanged regions |
 | `currentChangeIndex` | `number` | `-1` | Current highlighted change group |
 | `changeGroups` | `ChangeGroup[]` | `[]` | Change groups from navigation |
 | `scrollRatio` | `number` | `0` | Scroll position ratio (0-1) |
@@ -141,6 +142,7 @@ Toolbar component with view mode, precision, and navigation controls.
 | `precision` | `DiffPrecision` | required | Diff granularity |
 | `ignoreWhitespace` | `boolean` | required | Ignore whitespace option |
 | `ignoreCase` | `boolean` | required | Ignore case option |
+| `collapseUnchanged` | `boolean` | required | Collapse unchanged regions |
 | `hideSplitOption` | `boolean` | `false` | Hide split view option |
 | `isFullscreen` | `boolean` | `false` | Fullscreen state |
 | `currentChangeIndex` | `number` | `-1` | Current change index |
@@ -153,6 +155,7 @@ Toolbar component with view mode, precision, and navigation controls.
 | `update:precision` | `DiffPrecision` | Precision changed |
 | `update:ignoreWhitespace` | `boolean` | Whitespace option changed |
 | `update:ignoreCase` | `boolean` | Case option changed |
+| `update:collapseUnchanged` | `boolean` | Collapse unchanged toggled |
 | `export` | `ExportFormat` | Export format selected (print, unified-diff, html, json) |
 | `toggle-fullscreen` | - | Fullscreen button clicked |
 | `prev-change` | - | Previous change button clicked |

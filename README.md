@@ -11,7 +11,9 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 - Side-by-side or unified diff views
 - Line, word, and character-level precision
 - Ignore whitespace and case options
-- Syntax-highlighted code editors (18+ languages)
+- Syntax-highlighted code editors (18+ languages) and diff output
+- Collapsible unchanged regions (GitHub-style, toggleable)
+- Auto-detect language from uploaded file extension
 - Drag-and-drop file upload
 - Diff minimap sidebar with click/drag navigation
 - Fullscreen mode for diff results
