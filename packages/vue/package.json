@@ -1,0 +1,43 @@
+{
+  "name": "@diffspot/vue",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Vue 3 diff components and composables for diffspot",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./theme.css": "./src/theme.css"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "src/theme.css"],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "dev": "tsup --watch"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0",
+    "@diffspot/core": "^0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@diffspot/core": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@vue/test-utils": "^2.4.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "unplugin-vue": "^5.0.0",
+    "vitest": "^1.6.0",
+    "vue": "^3.4.0",
+    "vue-tsc": "^2.0.0"
+  }
+}

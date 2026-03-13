@@ -1,0 +1,195 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import type { DiffPrecision } from '@diffspot/core'
+
+const props = withDefaults(
+  defineProps<{
+    viewMode: 'split' | 'unified'
+    precision: DiffPrecision
+    ignoreWhitespace: boolean
+    ignoreCase: boolean
+    hideSplitOption?: boolean
+    isFullscreen?: boolean
+    currentChangeIndex?: number
+    totalChanges?: number
+  }>(),
+  {
+    hideSplitOption: false,
+    isFullscreen: false,
+    currentChangeIndex: -1,
+    totalChanges: 0,
+  },
+)
+
+const emit = defineEmits<{
+  'update:viewMode': [value: 'split' | 'unified']
+  'update:precision': [value: DiffPrecision]
+  'update:ignoreWhitespace': [value: boolean]
+  'update:ignoreCase': [value: boolean]
+  'print': []
+  'toggle-fullscreen': []
+  'prev-change': []
+  'next-change': []
+}>()
+
+const viewModeOptions = computed(() =>
+  props.hideSplitOption
+    ? [{ label: 'Unified', value: 'unified' }]
+    : [
+        { label: 'Split', value: 'split' },
+        { label: 'Unified', value: 'unified' },
+      ],
+)
+
+const precisionOptions = [
+  { label: 'Line', value: 'line' },
+  { label: 'Word', value: 'word' },
+  { label: 'Char', value: 'char' },
+]
+
+const changeDisplay = computed(() => {
+  if (props.totalChanges === 0) return '0 / 0'
+  return `${props.currentChangeIndex + 1} / ${props.totalChanges}`
+})
+</script>
+
+<template>
+  <div role="toolbar" aria-label="Diff controls" class="flex flex-wrap items-center gap-3 print:hidden">
+    <!-- View mode toggle -->
+    <div class="inline-flex rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-0.5">
+      <button
+        v-for="option in viewModeOptions"
+        :key="option.value"
+        type="button"
+        :class="[
+          'px-3 py-1 text-sm font-medium rounded-md transition-colors',
+          viewMode === option.value
+            ? 'bg-[var(--color-elevated)] text-[var(--color-text)]'
+            : 'text-[var(--color-muted)] hover:text-[var(--color-text)]'
+        ]"
+        @click="emit('update:viewMode', option.value as 'split' | 'unified')"
+      >
+        {{ option.label }}
+      </button>
+    </div>
+
+    <!-- Precision selector -->
+    <div class="inline-flex rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-0.5">
+      <button
+        v-for="option in precisionOptions"
+        :key="option.value"
+        type="button"
+        :class="[
+          'px-3 py-1 text-sm font-medium rounded-md transition-colors',
+          precision === option.value
+            ? 'bg-[var(--color-elevated)] text-[var(--color-text)]'
+            : 'text-[var(--color-muted)] hover:text-[var(--color-text)]'
+        ]"
+        @click="emit('update:precision', option.value as DiffPrecision)"
+      >
+        {{ option.label }}
+      </button>
+    </div>
+
+    <!-- Divider -->
+    <div class="h-6 w-px bg-[var(--color-border)]" />
+
+    <!-- Ignore whitespace checkbox -->
+    <label class="flex cursor-pointer items-center gap-2 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]">
+      <input
+        type="checkbox"
+        :checked="ignoreWhitespace"
+        class="accent-[var(--color-accent)]"
+        @change="emit('update:ignoreWhitespace', ($event.target as HTMLInputElement).checked)"
+      >
+      Ignore whitespace
+    </label>
+
+    <!-- Ignore case checkbox -->
+    <label class="flex cursor-pointer items-center gap-2 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]">
+      <input
+        type="checkbox"
+        :checked="ignoreCase"
+        class="accent-[var(--color-accent)]"
+        @change="emit('update:ignoreCase', ($event.target as HTMLInputElement).checked)"
+      >
+      Ignore case
+    </label>
+
+    <!-- Divider -->
+    <div class="h-6 w-px bg-[var(--color-border)]" />
+
+    <!-- Jump navigation -->
+    <div class="flex items-center gap-1">
+      <button
+        :disabled="totalChanges === 0 || currentChangeIndex <= 0"
+        class="p-1 rounded text-[var(--color-muted)] hover:text-[var(--color-text)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        title="Previous change (Alt+Up)"
+        @click="emit('prev-change')"
+      >
+        <!-- ChevronUp icon -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m18 15-6-6-6 6"/>
+        </svg>
+      </button>
+      <span
+        class="text-xs tabular-nums min-w-[3.5rem] text-center text-[var(--color-muted)]"
+        style="font-family: var(--font-mono)"
+      >
+        {{ changeDisplay }}
+      </span>
+      <button
+        :disabled="totalChanges === 0 || currentChangeIndex >= totalChanges - 1"
+        class="p-1 rounded text-[var(--color-muted)] hover:text-[var(--color-text)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        title="Next change (Alt+Down)"
+        @click="emit('next-change')"
+      >
+        <!-- ChevronDown icon -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m6 9 6 6 6-6"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Spacer -->
+    <div class="flex-1" />
+
+    <!-- Fullscreen toggle -->
+    <button
+      type="button"
+      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-elevated)] transition-colors"
+      @click="emit('toggle-fullscreen')"
+    >
+      <!-- Minimize2 icon when fullscreen -->
+      <svg v-if="isFullscreen" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 14 10 14 10 20"/>
+        <polyline points="20 10 14 10 14 4"/>
+        <line x1="14" y1="10" x2="21" y2="3"/>
+        <line x1="3" y1="21" x2="10" y2="14"/>
+      </svg>
+      <!-- Maximize2 icon when not fullscreen -->
+      <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 3 21 3 21 9"/>
+        <polyline points="9 21 3 21 3 15"/>
+        <line x1="21" y1="3" x2="14" y2="10"/>
+        <line x1="3" y1="21" x2="10" y2="14"/>
+      </svg>
+      {{ isFullscreen ? 'Exit' : 'Fullscreen' }}
+    </button>
+
+    <!-- Print / Save as PDF -->
+    <button
+      type="button"
+      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-elevated)] transition-colors"
+      @click="emit('print')"
+    >
+      <!-- Printer icon -->
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 6 2 18 2 18 9"/>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      Print
+    </button>
+  </div>
+</template>
