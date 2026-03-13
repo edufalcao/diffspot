@@ -1,0 +1,55 @@
+/**
+ * @diffspot/vue default theme
+ *
+ * Import this CSS file to get the default dark/light theme variables.
+ * Alternatively, define your own CSS variables to customize the appearance.
+ */
+
+:root {
+  /* Colors */
+  --color-bg: #0d0d0d;
+  --color-surface: #1a1a1a;
+  --color-elevated: #242424;
+  --color-text: #f5f5f5;
+  --color-muted: #8b8b8b;
+  --color-accent: #00e5cc;
+  --color-accent-2: #ff006e;
+  --color-border: hsla(0, 0%, 100%, 0.08);
+
+  /* Diff colors */
+  --color-added-bg: rgba(0, 229, 204, 0.08);
+  --color-added-highlight: rgba(0, 229, 204, 0.25);
+  --color-removed-bg: rgba(255, 0, 110, 0.08);
+  --color-removed-highlight: rgba(255, 0, 110, 0.25);
+
+  /* Glow */
+  --glow-accent: rgba(0, 229, 204, 0.15);
+  --glow-accent-2: rgba(255, 0, 110, 0.15);
+
+  /* Typography */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Transitions */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration: 0.15s;
+}
+
+/* Light theme */
+.light {
+  --color-bg: #fafafa;
+  --color-surface: #ffffff;
+  --color-elevated: #f0f0f0;
+  --color-text: #1a1a1a;
+  --color-muted: #6b6b6b;
+  --color-accent: #00b39e;
+  --color-accent-2: #e0005f;
+  --color-border: hsla(0, 0%, 0%, 0.08);
+  --color-added-bg: rgba(0, 179, 158, 0.08);
+  --color-added-highlight: rgba(0, 179, 158, 0.2);
+  --color-removed-bg: rgba(224, 0, 95, 0.08);
+  --color-removed-highlight: rgba(224, 0, 95, 0.2);
+  --glow-accent: rgba(0, 179, 158, 0.1);
+  --glow-accent-2: rgba(224, 0, 95, 0.1);
+}
