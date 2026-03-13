@@ -1,30 +1,33 @@
 <script setup lang="ts">
-import { Transition } from 'vue'
-import type { DiffResult, ChangeGroup } from '@diffspot/core'
-import DiffSplitView from './DiffSplitView.vue'
-import DiffUnifiedView from './DiffUnifiedView.vue'
+import type { DiffResult, ChangeGroup } from '@diffspot/core';
+import DiffSplitView from './DiffSplitView.vue';
+import DiffUnifiedView from './DiffUnifiedView.vue';
 
 defineProps<{
-  result: DiffResult
-  viewMode: 'split' | 'unified'
-  isFullscreen?: boolean
-  currentChangeIndex?: number
-  changeGroups?: ChangeGroup[]
-  scrollRatio?: number
+  result: DiffResult,
+  viewMode: 'split' | 'unified',
+  isFullscreen?: boolean,
+  currentChangeIndex?: number,
+  changeGroups?: ChangeGroup[],
+  scrollRatio?: number,
   viewportRatio?: number
-}>()
+}>();
 
 const emit = defineEmits<{
   'scroll-container-ready': [el: HTMLElement | null]
-}>()
+}>();
 
 function onChildScrollContainerReady(el: HTMLElement | null) {
-  emit('scroll-container-ready', el)
+  emit('scroll-container-ready', el);
 }
 </script>
 
 <template>
-  <div role="region" aria-label="Diff output" :class="isFullscreen ? 'flex-1 min-h-0 flex flex-col' : ''">
+  <div
+    role="region"
+    aria-label="Diff output"
+    :class="isFullscreen ? 'flex-1 min-h-0 flex flex-col' : ''"
+  >
     <Transition
       mode="out-in"
       enter-active-class="transition-all duration-300 ease-[var(--ease)]"

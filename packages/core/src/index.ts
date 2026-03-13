@@ -5,9 +5,9 @@ export type {
   DiffResult,
   DiffOptions,
   ChangeGroup,
-  MinimapBlock,
-} from './types'
+  MinimapBlock
+} from './types';
 
-export { computeDiff } from './compute'
-export { computeMinimapBlocks } from './minimap'
-export { computeChangeGroups } from './navigation'
+export { computeDiff } from './compute';
+export { computeMinimapBlocks } from './minimap';
+export { computeChangeGroups } from './navigation';

@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { DiffLine } from '@diffspot/core'
-import DiffGutter from './DiffGutter.vue'
+import { computed } from 'vue';
+import type { DiffLine } from '@diffspot/core';
+import DiffGutter from './DiffGutter.vue';
 
 const props = withDefaults(
   defineProps<{
-    line: DiffLine
-    showLineNumbers?: boolean
+    line: DiffLine,
+    showLineNumbers?: boolean,
     isHighlighted?: boolean
   }>(),
   {
     showLineNumbers: true,
-    isHighlighted: false,
-  },
-)
+    isHighlighted: false
+  }
+);
 
 const prefixMap: Record<DiffLine['type'], string> = {
   added: '+',
   removed: '-',
-  unchanged: ' ',
-}
+  unchanged: ' '
+};
 
 const lineClasses = computed(() => [
   'flex min-h-[1.625rem] items-stretch',
@@ -27,8 +27,8 @@ const lineClasses = computed(() => [
   props.line.type === 'removed' && 'border-l-[3px] border-l-[var(--color-accent-2)] bg-[var(--color-removed-bg)]',
   props.line.type === 'unchanged' && 'border-l-[3px] border-l-transparent',
   props.isHighlighted && props.line.type === 'added' && 'ring-1 ring-inset ring-[var(--color-accent)]/40',
-  props.isHighlighted && props.line.type === 'removed' && 'ring-1 ring-inset ring-[var(--color-accent-2)]/40',
-])
+  props.isHighlighted && props.line.type === 'removed' && 'ring-1 ring-inset ring-[var(--color-accent-2)]/40'
+]);
 </script>
 
 <template>
@@ -46,7 +46,7 @@ const lineClasses = computed(() => [
           :key="idx"
           :class="[
             word.added && 'bg-[var(--color-added-highlight)] rounded-sm',
-            word.removed && 'bg-[var(--color-removed-highlight)] rounded-sm',
+            word.removed && 'bg-[var(--color-removed-highlight)] rounded-sm'
           ]"
         >{{ word.value }}</span>
       </template>

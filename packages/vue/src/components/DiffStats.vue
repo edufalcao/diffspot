@@ -1,9 +1,9 @@
 <script setup lang="ts">
 defineProps<{
-  additions: number
-  removals: number
+  additions: number,
+  removals: number,
   unchanged: number
-}>()
+}>();
 </script>
 
 <template>

@@ -1,14 +1,14 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    oldLineNumber?: number
+    oldLineNumber?: number,
     newLineNumber?: number
   }>(),
   {
     oldLineNumber: undefined,
-    newLineNumber: undefined,
-  },
-)
+    newLineNumber: undefined
+  }
+);
 </script>
 
 <template>

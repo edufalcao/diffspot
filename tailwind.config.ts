@@ -1,4 +1,4 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss';
 
 export default {
   content: [
@@ -8,6 +8,6 @@ export default {
     './components/**/*.{vue,ts,js}',
     './layouts/**/*.{vue,ts,js}',
     // @diffspot/vue package components (not scanned by default since it's in node_modules)
-    './node_modules/@diffspot/vue/src/**/*.vue',
-  ],
-} satisfies Config
+    './node_modules/@diffspot/vue/src/**/*.vue'
+  ]
+} satisfies Config;

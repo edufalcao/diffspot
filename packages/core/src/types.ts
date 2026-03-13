@@ -1,12 +1,12 @@
 /** Available granularity levels for diff comparison. */
-export type DiffPrecision = 'line' | 'word' | 'char'
+export type DiffPrecision = 'line' | 'word' | 'char';
 
 /** A single word-level (or char-level) segment within a diff line. */
 export interface DiffWord {
   /** The text content of this segment. */
-  value: string
+  value: string,
   /** Whether this segment was added in the new text. */
-  added?: boolean
+  added?: boolean,
   /** Whether this segment was removed from the old text. */
   removed?: boolean
 }
@@ -14,13 +14,13 @@ export interface DiffWord {
 /** A single line in the diff output. */
 export interface DiffLine {
   /** Whether this line was added, removed, or left unchanged. */
-  type: 'added' | 'removed' | 'unchanged'
+  type: 'added' | 'removed' | 'unchanged',
   /** The raw text content of this line (without trailing newline). */
-  content: string
+  content: string,
   /** Line number in the original (left) text. Present for removed and unchanged lines. */
-  oldLineNumber?: number
+  oldLineNumber?: number,
   /** Line number in the modified (right) text. Present for added and unchanged lines. */
-  newLineNumber?: number
+  newLineNumber?: number,
   /** Word-level inline highlights within this line (used for inline diff display). */
   words?: DiffWord[]
 }
@@ -28,11 +28,11 @@ export interface DiffLine {
 /** The complete result of a diff computation. */
 export interface DiffResult {
   /** All lines in the diff output. */
-  lines: DiffLine[]
+  lines: DiffLine[],
   /** Total number of added lines. */
-  additions: number
+  additions: number,
   /** Total number of removed lines. */
-  removals: number
+  removals: number,
   /** Total number of unchanged lines. */
   unchanged: number
 }
@@ -40,9 +40,9 @@ export interface DiffResult {
 /** A group of consecutive changed (non-unchanged) lines in the diff output. */
 export interface ChangeGroup {
   /** Index of the first line in this group (within the full lines array). */
-  startIndex: number
+  startIndex: number,
   /** Index of the last line in this group (inclusive). */
-  endIndex: number
+  endIndex: number,
   /** Whether the group contains only added, only removed, or a mix of both. */
   type: 'added' | 'removed' | 'mixed'
 }
@@ -50,9 +50,9 @@ export interface ChangeGroup {
 /** Configuration options that control how the diff is computed. */
 export interface DiffOptions {
   /** The granularity of the diff comparison. */
-  precision: DiffPrecision
+  precision: DiffPrecision,
   /** Whether to ignore leading/trailing whitespace differences. */
-  ignoreWhitespace: boolean
+  ignoreWhitespace: boolean,
   /** Whether to treat uppercase and lowercase characters as equal. */
   ignoreCase: boolean
 }
@@ -60,9 +60,9 @@ export interface DiffOptions {
 /** A block representing a contiguous region of changes in a minimap. */
 export interface MinimapBlock {
   /** Percentage position from top (0–100). */
-  y: number
+  y: number,
   /** Percentage height (0–100). */
-  height: number
+  height: number,
   /** Type of change in this block. */
   type: 'added' | 'removed'
 }

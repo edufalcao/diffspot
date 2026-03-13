@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
-import type { DiffLine, ChangeGroup } from '@diffspot/core'
-import { useVirtualScroll } from '../composables/useVirtualScroll'
-import DiffLineComponent from './DiffLine.vue'
-import DiffMinimap from './DiffMinimap.vue'
+import { ref, computed, onMounted, nextTick } from 'vue';
+import type { DiffLine, ChangeGroup } from '@diffspot/core';
+import { useVirtualScroll } from '../composables/useVirtualScroll';
+import DiffLineComponent from './DiffLine.vue';
+import DiffMinimap from './DiffMinimap.vue';
 
 const props = withDefaults(
   defineProps<{
-    lines: DiffLine[]
-    showLineNumbers?: boolean
-    isFullscreen?: boolean
-    currentChangeIndex?: number
-    changeGroups?: ChangeGroup[]
-    scrollRatio?: number
+    lines: DiffLine[],
+    showLineNumbers?: boolean,
+    isFullscreen?: boolean,
+    currentChangeIndex?: number,
+    changeGroups?: ChangeGroup[],
+    scrollRatio?: number,
     viewportRatio?: number
   }>(),
   {
@@ -21,62 +21,62 @@ const props = withDefaults(
     currentChangeIndex: -1,
     changeGroups: () => [],
     scrollRatio: 0,
-    viewportRatio: 1,
-  },
-)
+    viewportRatio: 1
+  }
+);
 
 const emit = defineEmits<{
   'scroll-container-ready': [el: HTMLElement | null]
-}>()
+}>();
 
-const scrollContainerRef = ref<HTMLElement | null>(null)
+const scrollContainerRef = ref<HTMLElement | null>(null);
 
-const totalItems = computed(() => props.lines.length)
+const totalItems = computed(() => props.lines.length);
 
 const { startIndex, endIndex, totalHeight, offsetY, isPrinting } = useVirtualScroll(
   scrollContainerRef,
-  totalItems,
-)
+  totalItems
+);
 
 const visibleItems = computed(() => {
-  const items: { line: DiffLine; idx: number }[] = []
-  const end = Math.min(endIndex.value, props.lines.length)
+  const items: { line: DiffLine, idx: number }[] = [];
+  const end = Math.min(endIndex.value, props.lines.length);
   for (let i = startIndex.value; i < end; i++) {
-    items.push({ line: props.lines[i]!, idx: i })
+    items.push({ line: props.lines[i]!, idx: i });
   }
-  return items
-})
+  return items;
+});
 
 onMounted(() => {
   nextTick(() => {
-    emit('scroll-container-ready', scrollContainerRef.value)
-  })
-})
+    emit('scroll-container-ready', scrollContainerRef.value);
+  });
+});
 
 // Compute highlighted line indices from current change group
 const highlightedIndices = computed(() => {
-  const set = new Set<number>()
-  const group = props.currentChangeIndex >= 0 ? props.changeGroups?.[props.currentChangeIndex] : undefined
+  const set = new Set<number>();
+  const group = props.currentChangeIndex >= 0 ? props.changeGroups?.[props.currentChangeIndex] : undefined;
   if (group) {
     for (let i = group.startIndex; i <= group.endIndex; i++) {
-      set.add(i)
+      set.add(i);
     }
   }
-  return set
-})
+  return set;
+});
 
 function onMinimapScrollTo(ratio: number) {
-  const el = scrollContainerRef.value
-  if (!el) return
-  const maxScroll = el.scrollHeight - el.clientHeight
-  el.scrollTop = ratio * maxScroll
+  const el = scrollContainerRef.value;
+  if (!el) return;
+  const maxScroll = el.scrollHeight - el.clientHeight;
+  el.scrollTop = ratio * maxScroll;
 }
 
 defineExpose({
   getScrollContainer() {
-    return scrollContainerRef.value
-  },
-})
+    return scrollContainerRef.value;
+  }
+});
 </script>
 
 <template>
@@ -87,7 +87,7 @@ defineExpose({
       aria-label="Unified diff output"
       :class="[
         'flex-1 min-w-0 overflow-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]',
-        isFullscreen ? 'h-full' : 'max-h-[600px]',
+        isFullscreen ? 'h-full' : 'max-h-[600px]'
       ]"
     >
       <div v-if="isPrinting">
@@ -103,7 +103,10 @@ defineExpose({
           />
         </div>
       </div>
-      <div v-else :style="{ height: totalHeight + 'px', position: 'relative' }">
+      <div
+        v-else
+        :style="{ height: totalHeight + 'px', position: 'relative' }"
+      >
         <div :style="{ position: 'absolute', top: '0', left: '0', right: '0', transform: `translateY(${offsetY}px)` }">
           <div
             v-for="item in visibleItems"
