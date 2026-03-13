@@ -226,6 +226,12 @@ code, pre, .font-mono {
   [aria-label="Modified file"] {
     max-height: none !important;
     overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* Hide minimap in print */
+  [aria-label="Diff minimap"] {
+    display: none !important;
   }
 
   /* Allow page breaks inside diff output */
@@ -234,8 +240,22 @@ code, pre, .font-mono {
   }
 
   /* Avoid breaking diff lines across pages */
-  [role="log"] > div {
-    page-break-inside: avoid;
+  [role="log"] > div > div {
+    break-inside: avoid;
+  }
+
+  /* Boost diff colors for print legibility on white paper */
+  :root {
+    --color-added-bg: rgba(0, 179, 158, 0.15);
+    --color-added-highlight: rgba(0, 179, 158, 0.3);
+    --color-removed-bg: rgba(224, 0, 95, 0.15);
+    --color-removed-highlight: rgba(224, 0, 95, 0.3);
+    --color-text: #1a1a1a;
+    --color-muted: #555;
+    --color-surface: #fff;
+    --color-border: #ddd;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   /* Show stats header in print */

@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import type { DiffResult, ExportFormat, ExportMetadata } from '@diffspot/core';
 import { generateUnifiedDiff, generateHtmlExport, generateJsonExport } from '@diffspot/core';
 
@@ -17,7 +18,14 @@ function downloadFile(content: string, filename: string, mimeType: string) {
  * App-level export composable. Delegates to @diffspot/core generators.
  */
 export function useExport() {
-  function print() {
+  async function print() {
+    // Trigger isPrinting state in virtual scroll before the browser captures the DOM.
+    // Without this, window.print() fires beforeprint synchronously but Vue hasn't
+    // flushed the DOM update yet, so the virtual-scroll branch (partial content) is printed.
+    window.dispatchEvent(new Event('beforeprint'));
+    await nextTick();
+    // Wait one frame for the browser to layout/paint the full content
+    await new Promise(resolve => requestAnimationFrame(resolve));
     window.print();
   }
 

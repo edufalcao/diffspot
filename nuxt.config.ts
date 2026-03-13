@@ -31,6 +31,30 @@ export default defineNuxtConfig({
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'canonical', href: 'https://diffspot.edufalcao.com' }
+      ],
+      script: [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebApplication',
+            'name': 'diffspot',
+            'url': 'https://diffspot.edufalcao.com',
+            'description': 'Paste. Compare. Ship. A developer-focused online text diff comparison tool with split and unified views, word-level highlighting, and multi-format export.',
+            'applicationCategory': 'DeveloperApplication',
+            'operatingSystem': 'Any',
+            'offers': {
+              '@type': 'Offer',
+              'price': '0',
+              'priceCurrency': 'USD'
+            },
+            'author': {
+              '@type': 'Person',
+              'name': 'Eduardo Falcão',
+              'url': 'https://edufalcao.com'
+            }
+          })
+        }
       ]
     }
   },
