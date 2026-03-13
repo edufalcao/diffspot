@@ -1,9 +1,22 @@
 {
   "name": "@diffspot/core",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "type": "module",
   "description": "Framework-agnostic diff computation engine powering diffspot",
   "license": "MIT",
+  "keywords": [
+    "diff",
+    "text-diff",
+    "compare",
+    "difference",
+    "merge",
+    "patch",
+    "unified-diff",
+    "split-diff",
+    "jsdiff",
+    "web-worker",
+    "typescript"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
