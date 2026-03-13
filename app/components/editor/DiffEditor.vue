@@ -37,7 +37,7 @@ const customTheme = EditorView.theme(
       fontFamily: "var(--font-mono)",
       fontSize: '13px',
       minHeight: '150px',
-      maxHeight: 'calc(100vh - 400px)',
+      maxHeight: 'min(420px, calc(100vh - 480px))',
     },
     '&.cm-focused': {
       outline: 'none',
@@ -114,17 +114,17 @@ const extensions = computed(() => {
   overflow: hidden;
   background-color: var(--color-surface);
   min-height: 150px;
-  max-height: calc(100vh - 400px);
+  max-height: min(420px, calc(100vh - 480px));
 }
 
 .diff-editor-wrapper :deep(.cm-editor) {
   min-height: 150px;
-  max-height: calc(100vh - 400px);
+  max-height: min(420px, calc(100vh - 480px));
 }
 
 .diff-editor-wrapper :deep(.cm-scroller) {
   min-height: 150px;
-  max-height: calc(100vh - 400px);
+  max-height: min(420px, calc(100vh - 480px));
   overflow: auto;
 }
 </style>
