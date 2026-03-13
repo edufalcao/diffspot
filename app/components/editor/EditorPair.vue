@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { Copy, Trash2, ChevronDown, Check, Upload } from 'lucide-vue-next';
-import { useEditorState } from '~/composables/useEditorState';
+import { useEditorState, detectLanguageFromFilename } from '~/composables/useEditorState';
 import DiffEditor from './DiffEditor.vue';
 
 const emit = defineEmits<{ clear: [] }>();
@@ -94,6 +94,8 @@ function triggerFileInput(side: 'left' | 'right') {
 function handleFileInput(side: 'left' | 'right', e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0];
   if (!file) return;
+  const detected = detectLanguageFromFilename(file.name);
+  if (detected) language.value = detected;
   const reader = new FileReader();
   reader.onload = () => {
     if (side === 'left') leftText.value = reader.result as string;
@@ -109,6 +111,8 @@ function handleDrop(side: 'left' | 'right', e: DragEvent) {
   isDraggingFile.value = false;
   const file = e.dataTransfer?.files[0];
   if (!file) return;
+  const detected = detectLanguageFromFilename(file.name);
+  if (detected) language.value = detected;
   const reader = new FileReader();
   reader.onload = () => {
     if (side === 'left') leftText.value = reader.result as string;
