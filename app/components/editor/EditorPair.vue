@@ -1,118 +1,120 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { Copy, Trash2, ChevronDown, Check, Upload } from 'lucide-vue-next'
-import { useEditorState } from '~/composables/useEditorState'
-import DiffEditor from './DiffEditor.vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { Copy, Trash2, ChevronDown, Check, Upload } from 'lucide-vue-next';
+import { useEditorState } from '~/composables/useEditorState';
+import DiffEditor from './DiffEditor.vue';
 
-const emit = defineEmits<{ clear: [] }>()
+const emit = defineEmits<{ clear: [] }>();
 
-const { leftText, rightText, language, supportedLanguages } = useEditorState()
+const { leftText, rightText, language, supportedLanguages } = useEditorState();
 
 // Language dropdown
-const dropdownOpen = ref(false)
-const copyFeedback = ref(false)
+const dropdownOpen = ref(false);
+const copyFeedback = ref(false);
 
 // Drag-and-drop state: only show drop zones when a file is being dragged over the window
-const isDraggingFile = ref(false)
-let dragLeaveTimer: ReturnType<typeof setTimeout> | null = null
+const isDraggingFile = ref(false);
+let dragLeaveTimer: ReturnType<typeof setTimeout> | null = null;
 
 function onWindowDragEnter(e: DragEvent) {
   if (e.dataTransfer?.types.includes('Files')) {
-    isDraggingFile.value = true
-    if (dragLeaveTimer) clearTimeout(dragLeaveTimer)
+    isDraggingFile.value = true;
+    if (dragLeaveTimer) clearTimeout(dragLeaveTimer);
   }
 }
 
 function onWindowDragOver(e: DragEvent) {
-  e.preventDefault()
+  e.preventDefault();
 }
 
 function onWindowDragLeave() {
   // Debounce to avoid flickering when moving between elements
-  if (dragLeaveTimer) clearTimeout(dragLeaveTimer)
+  if (dragLeaveTimer) clearTimeout(dragLeaveTimer);
   dragLeaveTimer = setTimeout(() => {
-    isDraggingFile.value = false
-  }, 100)
+    isDraggingFile.value = false;
+  }, 100);
 }
 
 function onWindowDrop() {
-  isDraggingFile.value = false
+  isDraggingFile.value = false;
 }
 
 onMounted(() => {
-  window.addEventListener('dragenter', onWindowDragEnter)
-  window.addEventListener('dragover', onWindowDragOver)
-  window.addEventListener('dragleave', onWindowDragLeave)
-  window.addEventListener('drop', onWindowDrop)
-})
+  window.addEventListener('dragenter', onWindowDragEnter);
+  window.addEventListener('dragover', onWindowDragOver);
+  window.addEventListener('dragleave', onWindowDragLeave);
+  window.addEventListener('drop', onWindowDrop);
+});
 
 onBeforeUnmount(() => {
-  window.removeEventListener('dragenter', onWindowDragEnter)
-  window.removeEventListener('dragover', onWindowDragOver)
-  window.removeEventListener('dragleave', onWindowDragLeave)
-  window.removeEventListener('drop', onWindowDrop)
-  if (dragLeaveTimer) clearTimeout(dragLeaveTimer)
-})
+  window.removeEventListener('dragenter', onWindowDragEnter);
+  window.removeEventListener('dragover', onWindowDragOver);
+  window.removeEventListener('dragleave', onWindowDragLeave);
+  window.removeEventListener('drop', onWindowDrop);
+  if (dragLeaveTimer) clearTimeout(dragLeaveTimer);
+});
 
 const selectedLabel = computed(() => {
-  const entry = supportedLanguages.value.find((l) => l.value === language.value)
-  return entry?.label ?? 'Plain Text'
-})
+  const entry = supportedLanguages.value.find(l => l.value === language.value);
+  return entry?.label ?? 'Plain Text';
+});
 
 function selectLanguage(lang: string) {
-  language.value = lang
-  dropdownOpen.value = false
+  language.value = lang;
+  dropdownOpen.value = false;
 }
 
 async function copyToClipboard() {
-  const content = [leftText.value, rightText.value].filter(Boolean).join('\n---\n')
-  if (!content) return
+  const content = [leftText.value, rightText.value].filter(Boolean).join('\n---\n');
+  if (!content) return;
   try {
-    await navigator.clipboard.writeText(content)
-    copyFeedback.value = true
-    setTimeout(() => { copyFeedback.value = false }, 2000)
-  } catch {}
+    await navigator.clipboard.writeText(content);
+    copyFeedback.value = true;
+    setTimeout(() => {
+      copyFeedback.value = false;
+    }, 2000);
+  } catch { /* clipboard not available */ }
 }
 
 function clearEditors() {
-  emit('clear')
-  leftText.value = ''
-  rightText.value = ''
+  emit('clear');
+  leftText.value = '';
+  rightText.value = '';
 }
 
 // File input refs
-const leftFileInput = ref<HTMLInputElement | null>(null)
-const rightFileInput = ref<HTMLInputElement | null>(null)
+const leftFileInput = ref<HTMLInputElement | null>(null);
+const rightFileInput = ref<HTMLInputElement | null>(null);
 
 function triggerFileInput(side: 'left' | 'right') {
-  if (side === 'left') leftFileInput.value?.click()
-  else rightFileInput.value?.click()
+  if (side === 'left') leftFileInput.value?.click();
+  else rightFileInput.value?.click();
 }
 
 function handleFileInput(side: 'left' | 'right', e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  const reader = new FileReader()
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
   reader.onload = () => {
-    if (side === 'left') leftText.value = reader.result as string
-    else rightText.value = reader.result as string
-  }
+    if (side === 'left') leftText.value = reader.result as string;
+    else rightText.value = reader.result as string;
+  };
   reader.readAsText(file)
   // Reset so the same file can be re-selected
-  ;(e.target as HTMLInputElement).value = ''
+  ;(e.target as HTMLInputElement).value = '';
 }
 
 function handleDrop(side: 'left' | 'right', e: DragEvent) {
-  e.preventDefault()
-  isDraggingFile.value = false
-  const file = e.dataTransfer?.files[0]
-  if (!file) return
-  const reader = new FileReader()
+  e.preventDefault();
+  isDraggingFile.value = false;
+  const file = e.dataTransfer?.files[0];
+  if (!file) return;
+  const reader = new FileReader();
   reader.onload = () => {
-    if (side === 'left') leftText.value = reader.result as string
-    else rightText.value = reader.result as string
-  }
-  reader.readAsText(file)
+    if (side === 'left') leftText.value = reader.result as string;
+    else rightText.value = reader.result as string;
+  };
+  reader.readAsText(file);
 }
 </script>
 
@@ -202,7 +204,12 @@ function handleDrop(side: 'left' | 'right', e: DragEvent) {
           >
             Original
           </span>
-          <input ref="leftFileInput" type="file" class="hidden" @change="handleFileInput('left', $event)">
+          <input
+            ref="leftFileInput"
+            type="file"
+            class="hidden"
+            @change="handleFileInput('left', $event)"
+          >
           <button
             class="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] transition-colors hover:bg-white/5 cursor-pointer"
             style="font-family: var(--font-mono); color: var(--color-muted)"
@@ -226,8 +233,14 @@ function handleDrop(side: 'left' | 'right', e: DragEvent) {
             @dragover.prevent
             @drop="handleDrop('left', $event)"
           >
-            <Upload :size="24" style="color: var(--color-accent)" />
-            <span class="text-xs" style="font-family: var(--font-mono); color: var(--color-accent)">
+            <Upload
+              :size="24"
+              style="color: var(--color-accent)"
+            />
+            <span
+              class="text-xs"
+              style="font-family: var(--font-mono); color: var(--color-accent)"
+            >
               Drop file here
             </span>
           </div>
@@ -243,7 +256,12 @@ function handleDrop(side: 'left' | 'right', e: DragEvent) {
           >
             Modified
           </span>
-          <input ref="rightFileInput" type="file" class="hidden" @change="handleFileInput('right', $event)">
+          <input
+            ref="rightFileInput"
+            type="file"
+            class="hidden"
+            @change="handleFileInput('right', $event)"
+          >
           <button
             class="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] transition-colors hover:bg-white/5 cursor-pointer"
             style="font-family: var(--font-mono); color: var(--color-muted)"
@@ -267,8 +285,14 @@ function handleDrop(side: 'left' | 'right', e: DragEvent) {
             @dragover.prevent
             @drop="handleDrop('right', $event)"
           >
-            <Upload :size="24" style="color: var(--color-accent)" />
-            <span class="text-xs" style="font-family: var(--font-mono); color: var(--color-accent)">
+            <Upload
+              :size="24"
+              style="color: var(--color-accent)"
+            />
+            <span
+              class="text-xs"
+              style="font-family: var(--font-mono); color: var(--color-accent)"
+            >
               Drop file here
             </span>
           </div>

@@ -5,8 +5,8 @@
  */
 export function usePrint() {
   function print() {
-    window.print()
+    window.print();
   }
 
-  return { print }
+  return { print };
 }

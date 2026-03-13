@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { Sun, Moon } from 'lucide-vue-next'
+import { Sun, Moon } from 'lucide-vue-next';
 
-const colorMode = useColorMode()
+const colorMode = useColorMode();
 
-const isDark = computed(() => colorMode.value === 'dark')
+const isDark = computed(() => colorMode.value === 'dark');
 
 function toggle() {
-  colorMode.preference = isDark.value ? 'light' : 'dark'
+  colorMode.preference = isDark.value ? 'light' : 'dark';
 }
 </script>
 
@@ -16,7 +16,15 @@ function toggle() {
     :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
     @click="toggle"
   >
-    <Moon v-if="isDark" :size="16" class="text-[var(--color-accent)]" />
-    <Sun v-else :size="16" class="text-[var(--color-accent)]" />
+    <Moon
+      v-if="isDark"
+      :size="16"
+      class="text-[var(--color-accent)]"
+    />
+    <Sun
+      v-else
+      :size="16"
+      class="text-[var(--color-accent)]"
+    />
   </button>
 </template>

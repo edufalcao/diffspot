@@ -1,15 +1,15 @@
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const isFullscreen = ref(false)
+const isFullscreen = ref(false);
 
 export function useFullscreen() {
   function toggleFullscreen() {
-    isFullscreen.value = !isFullscreen.value
+    isFullscreen.value = !isFullscreen.value;
   }
 
   function exitFullscreen() {
-    isFullscreen.value = false
+    isFullscreen.value = false;
   }
 
-  return { isFullscreen, toggleFullscreen, exitFullscreen }
+  return { isFullscreen, toggleFullscreen, exitFullscreen };
 }

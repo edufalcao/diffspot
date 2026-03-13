@@ -1,105 +1,108 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Codemirror } from 'vue-codemirror'
-import { EditorView } from '@codemirror/view'
-import { oneDark } from '@codemirror/theme-one-dark'
-import { getLanguageExtension } from '~/composables/useEditorState'
+import { computed } from 'vue';
+import { Codemirror } from 'vue-codemirror';
+import { EditorView } from '@codemirror/view';
+import { oneDark } from '@codemirror/theme-one-dark';
+import { getLanguageExtension } from '~/composables/useEditorState';
 
 const props = withDefaults(
   defineProps<{
-    modelValue: string
-    language: string
-    placeholder?: string
-    readonly?: boolean
+    modelValue: string,
+    language: string,
+    placeholder?: string,
+    readonly?: boolean,
     ariaLabel?: string
   }>(),
   {
     placeholder: '',
     readonly: false,
-    ariaLabel: '',
+    ariaLabel: ''
   }
-)
+);
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
-}>()
+}>();
 
 const localValue = computed({
   get: () => props.modelValue,
-  set: (val: string) => emit('update:modelValue', val),
-})
+  set: (val: string) => emit('update:modelValue', val)
+});
 
 const customTheme = EditorView.theme(
   {
     '&': {
       backgroundColor: 'var(--color-surface)',
       color: 'var(--color-text)',
-      fontFamily: "var(--font-mono)",
+      fontFamily: 'var(--font-mono)',
       fontSize: '13px',
       minHeight: '150px',
-      maxHeight: 'min(420px, calc(100vh - 480px))',
+      maxHeight: 'min(420px, calc(100vh - 480px))'
     },
     '&.cm-focused': {
-      outline: 'none',
+      outline: 'none'
     },
     '.cm-content': {
       caretColor: 'var(--color-accent)',
-      fontFamily: "var(--font-mono)",
-      padding: '12px 0',
+      fontFamily: 'var(--font-mono)',
+      padding: '12px 0'
     },
     '.cm-cursor, .cm-dropCursor': {
       borderLeftColor: 'var(--color-accent)',
-      borderLeftWidth: '2px',
+      borderLeftWidth: '2px'
     },
     '.cm-activeLine': {
-      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+      backgroundColor: 'rgba(255, 255, 255, 0.03)'
     },
     '.cm-selectionBackground, ::selection': {
-      backgroundColor: 'rgba(0, 229, 204, 0.15) !important',
+      backgroundColor: 'rgba(0, 229, 204, 0.15) !important'
     },
     '.cm-gutters': {
       backgroundColor: 'var(--color-surface)',
       color: 'var(--color-muted)',
       border: 'none',
-      fontFamily: "var(--font-mono)",
-      fontSize: '12px',
+      fontFamily: 'var(--font-mono)',
+      fontSize: '12px'
     },
     '.cm-activeLineGutter': {
       backgroundColor: 'rgba(255, 255, 255, 0.03)',
-      color: 'var(--color-accent)',
+      color: 'var(--color-accent)'
     },
     '.cm-lineNumbers .cm-gutterElement': {
-      padding: '0 12px 0 8px',
+      padding: '0 12px 0 8px'
     },
     '.cm-placeholder': {
       color: 'var(--color-muted)',
-      fontStyle: 'italic',
+      fontStyle: 'italic'
     },
     '.cm-scroller': {
-      overflow: 'auto',
-    },
+      overflow: 'auto'
+    }
   },
   { dark: true }
-)
+);
 
 const extensions = computed(() => {
   const exts = [
     customTheme,
     oneDark,
     EditorView.lineWrapping,
-    getLanguageExtension(props.language),
-  ]
+    getLanguageExtension(props.language)
+  ];
 
   if (props.readonly) {
-    exts.push(EditorView.editable.of(false))
+    exts.push(EditorView.editable.of(false));
   }
 
-  return exts
-})
+  return exts;
+});
 </script>
 
 <template>
-  <div class="diff-editor-wrapper" :aria-label="ariaLabel || undefined">
+  <div
+    class="diff-editor-wrapper"
+    :aria-label="ariaLabel || undefined"
+  >
     <Codemirror
       v-model="localValue"
       :placeholder="placeholder"

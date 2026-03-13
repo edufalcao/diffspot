@@ -4,8 +4,8 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-  command: 'diff a.txt b.txt',
-})
+  command: 'diff a.txt b.txt'
+});
 </script>
 
 <template>

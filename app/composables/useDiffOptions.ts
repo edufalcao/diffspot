@@ -1,5 +1,5 @@
-import { ref, computed } from 'vue'
-import type { DiffPrecision, DiffOptions } from '@diffspot/core'
+import { ref, computed } from 'vue';
+import type { DiffPrecision, DiffOptions } from '@diffspot/core';
 
 /**
  * Reactive state for diff configuration options.
@@ -9,25 +9,25 @@ import type { DiffPrecision, DiffOptions } from '@diffspot/core'
  */
 export function useDiffOptions() {
   /** The granularity of the diff comparison. */
-  const precision = ref<DiffPrecision>('line')
+  const precision = ref<DiffPrecision>('line');
 
   /** Whether to ignore leading/trailing whitespace differences. */
-  const ignoreWhitespace = ref(false)
+  const ignoreWhitespace = ref(false);
 
   /** Whether to treat uppercase and lowercase characters as equal. */
-  const ignoreCase = ref(false)
+  const ignoreCase = ref(false);
 
   /** Computed options object suitable for passing to `useDiff`. */
   const options = computed<DiffOptions>(() => ({
     precision: precision.value,
     ignoreWhitespace: ignoreWhitespace.value,
-    ignoreCase: ignoreCase.value,
-  }))
+    ignoreCase: ignoreCase.value
+  }));
 
   return {
     precision,
     ignoreWhitespace,
     ignoreCase,
-    options,
-  }
+    options
+  };
 }

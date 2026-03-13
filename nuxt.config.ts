@@ -1,41 +1,14 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2024-11-01',
-  devtools: { enabled: true },
+
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/google-fonts', '@nuxtjs/color-mode', '@nuxt/eslint'],
   ssr: false,
-
-  nitro: {
-    preset: 'cloudflare-pages',
-    modules: ['nitro-cloudflare-dev'],
-  },
-
-  future: {
-    compatibilityVersion: 4,
-  },
 
   components: [
     { path: '~/components' },
-    { path: '../node_modules/@diffspot/vue/src/components', pathPrefix: false, extensions: ['vue'] },
+    { path: '../node_modules/@diffspot/vue/src/components', pathPrefix: false, extensions: ['vue'] }
   ],
-
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/google-fonts', '@nuxtjs/color-mode'],
-
-  colorMode: {
-    classSuffix: '',
-    preference: 'dark',
-    fallback: 'dark',
-  },
-
-  css: ['~/assets/css/main.css'],
-
-  googleFonts: {
-    families: {
-      'Space Grotesk': [400, 500, 600, 700],
-      'DM Sans': [400, 500, 600, 700],
-      'JetBrains Mono': [400, 500, 600, 700],
-    },
-    display: 'swap',
-  },
+  devtools: { enabled: true },
 
   app: {
     head: {
@@ -53,12 +26,49 @@ export default defineNuxtConfig({
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'diffspot — Online Text Diff Tool' },
         { name: 'twitter:description', content: 'Paste. Compare. Ship. A developer-focused online text diff comparison tool.' },
-        { name: 'twitter:image', content: 'https://diffspot.edufalcao.com/og.png' },
+        { name: 'twitter:image', content: 'https://diffspot.edufalcao.com/og.png' }
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-        { rel: 'canonical', href: 'https://diffspot.edufalcao.com' },
-      ],
-    },
+        { rel: 'canonical', href: 'https://diffspot.edufalcao.com' }
+      ]
+    }
   },
-})
+
+  css: ['~/assets/css/main.css'],
+
+  colorMode: {
+    classSuffix: '',
+    preference: 'dark',
+    fallback: 'dark'
+  },
+
+  future: {
+    compatibilityVersion: 4
+  },
+  compatibilityDate: '2024-11-01',
+
+  nitro: {
+    preset: 'cloudflare-pages',
+    modules: ['nitro-cloudflare-dev']
+  },
+
+  eslint: {
+    config: {
+      stylistic: {
+        semi: true,
+        commaDangle: 'never',
+        braceStyle: '1tbs'
+      }
+    }
+  },
+
+  googleFonts: {
+    families: {
+      'Space Grotesk': [400, 500, 600, 700],
+      'DM Sans': [400, 500, 600, 700],
+      'JetBrains Mono': [400, 500, 600, 700]
+    },
+    display: 'swap'
+  }
+});

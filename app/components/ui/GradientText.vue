@@ -4,12 +4,15 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-  as: 'span',
-})
+  as: 'span'
+});
 </script>
 
 <template>
-  <component :is="as" class="gradient-text">
+  <component
+    :is="as"
+    class="gradient-text"
+  >
     <slot />
   </component>
 </template>

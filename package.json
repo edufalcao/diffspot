@@ -8,6 +8,9 @@
     "dev:packages": "pnpm --filter @diffspot/core dev & pnpm --filter @diffspot/vue dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck",
+    "prepare": "husky",
     "postinstall": "nuxt prepare",
     "build:core": "pnpm --filter @diffspot/core build",
     "build:vue": "pnpm --filter @diffspot/vue build",
@@ -44,8 +47,19 @@
     "vue-codemirror": "^6.1.1"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260313.1",
+    "@nuxt/eslint": "^1.15.2",
     "@types/diff": "^7.0.2",
+    "eslint": "^10.0.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.3",
     "nitro-cloudflare-dev": "^0.2.2",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^2.2.12",
     "wrangler": "^4.71.0"
+  },
+  "lint-staged": {
+    "*.{ts,vue,js,mjs}": "eslint --fix"
   }
 }

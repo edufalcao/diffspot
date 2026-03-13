@@ -1,46 +1,46 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Copy, Trash2, ChevronDown, Check } from 'lucide-vue-next'
-import { useEditorState } from '~/composables/useEditorState'
+import { ref } from 'vue';
+import { Copy, Trash2, ChevronDown, Check } from 'lucide-vue-next';
+import { useEditorState } from '~/composables/useEditorState';
 
-const { leftText, rightText, language, supportedLanguages } = useEditorState()
+const { leftText, rightText, language, supportedLanguages } = useEditorState();
 
-const dropdownOpen = ref(false)
-const copyFeedback = ref(false)
+const dropdownOpen = ref(false);
+const copyFeedback = ref(false);
 
 function toggleDropdown() {
-  dropdownOpen.value = !dropdownOpen.value
+  dropdownOpen.value = !dropdownOpen.value;
 }
 
 function selectLanguage(lang: string) {
-  language.value = lang
-  dropdownOpen.value = false
+  language.value = lang;
+  dropdownOpen.value = false;
 }
 
 async function copyToClipboard() {
-  const content = [leftText.value, rightText.value].filter(Boolean).join('\n---\n')
-  if (!content) return
+  const content = [leftText.value, rightText.value].filter(Boolean).join('\n---\n');
+  if (!content) return;
 
   try {
-    await navigator.clipboard.writeText(content)
-    copyFeedback.value = true
+    await navigator.clipboard.writeText(content);
+    copyFeedback.value = true;
     setTimeout(() => {
-      copyFeedback.value = false
-    }, 2000)
+      copyFeedback.value = false;
+    }, 2000);
   } catch {
     // Clipboard API not available
   }
 }
 
 function clearEditors() {
-  leftText.value = ''
-  rightText.value = ''
+  leftText.value = '';
+  rightText.value = '';
 }
 
 const selectedLabel = computed(() => {
-  const entry = supportedLanguages.value.find((l) => l.value === language.value)
-  return entry?.label ?? 'Plain Text'
-})
+  const entry = supportedLanguages.value.find(l => l.value === language.value);
+  return entry?.label ?? 'Plain Text';
+});
 </script>
 
 <template>
@@ -86,7 +86,7 @@ const selectedLabel = computed(() => {
             :key="lang.value"
             class="w-full text-left px-3 py-1.5 text-sm transition-colors hover:bg-white/5"
             :class="{
-              'text-[var(--color-accent)]': language === lang.value,
+              'text-[var(--color-accent)]': language === lang.value
             }"
             style="font-family: var(--font-mono); color: var(--color-text)"
             @click="selectLanguage(lang.value)"

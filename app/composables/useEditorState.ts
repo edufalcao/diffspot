@@ -1,24 +1,24 @@
-import { ref, computed } from 'vue'
-import { javascript } from '@codemirror/lang-javascript'
-import { python } from '@codemirror/lang-python'
-import { html } from '@codemirror/lang-html'
-import { css } from '@codemirror/lang-css'
-import { json } from '@codemirror/lang-json'
-import { markdown } from '@codemirror/lang-markdown'
-import { xml } from '@codemirror/lang-xml'
-import { java } from '@codemirror/lang-java'
-import { cpp } from '@codemirror/lang-cpp'
-import { rust } from '@codemirror/lang-rust'
-import { go } from '@codemirror/lang-go'
-import { php } from '@codemirror/lang-php'
-import { sql } from '@codemirror/lang-sql'
-import type { Extension } from '@codemirror/state'
+import { ref, computed } from 'vue';
+import { javascript } from '@codemirror/lang-javascript';
+import { python } from '@codemirror/lang-python';
+import { html } from '@codemirror/lang-html';
+import { css } from '@codemirror/lang-css';
+import { json } from '@codemirror/lang-json';
+import { markdown } from '@codemirror/lang-markdown';
+import { xml } from '@codemirror/lang-xml';
+import { java } from '@codemirror/lang-java';
+import { cpp } from '@codemirror/lang-cpp';
+import { rust } from '@codemirror/lang-rust';
+import { go } from '@codemirror/lang-go';
+import { php } from '@codemirror/lang-php';
+import { sql } from '@codemirror/lang-sql';
+import type { Extension } from '@codemirror/state';
 
-const leftText = ref('')
-const rightText = ref('')
-const language = ref('plaintext')
+const leftText = ref('');
+const rightText = ref('');
+const language = ref('plaintext');
 
-const languageMap: Record<string, { label: string; extension: () => Extension }> = {
+const languageMap: Record<string, { label: string, extension: () => Extension }> = {
   plaintext: { label: 'Plain Text', extension: () => [] as unknown as Extension },
   javascript: { label: 'JavaScript', extension: () => javascript() },
   typescript: { label: 'TypeScript', extension: () => javascript({ typescript: true }) },
@@ -36,30 +36,30 @@ const languageMap: Record<string, { label: string; extension: () => Extension }>
   rust: { label: 'Rust', extension: () => rust() },
   go: { label: 'Go', extension: () => go() },
   php: { label: 'PHP', extension: () => php() },
-  sql: { label: 'SQL', extension: () => sql() },
-}
+  sql: { label: 'SQL', extension: () => sql() }
+};
 
 export function getLanguageExtension(lang: string): Extension {
-  const entry = languageMap[lang]
+  const entry = languageMap[lang];
   if (entry) {
-    return entry.extension()
+    return entry.extension();
   }
-  return [] as unknown as Extension
+  return [] as unknown as Extension;
 }
 
 export function useEditorState() {
   const supportedLanguages = computed(() =>
     Object.entries(languageMap).map(([value, { label }]) => ({
       label,
-      value,
+      value
     }))
-  )
+  );
 
   return {
     leftText,
     rightText,
     language,
     supportedLanguages,
-    getLanguageExtension,
-  }
+    getLanguageExtension
+  };
 }

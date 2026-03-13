@@ -1,19 +1,19 @@
-import { computeDiff } from '@diffspot/core'
-import type { DiffOptions } from '@diffspot/core'
+import { computeDiff } from '@diffspot/core';
+import type { DiffOptions } from '@diffspot/core';
 
 interface WorkerRequest {
-  id: number
-  left: string
-  right: string
+  id: number,
+  left: string,
+  right: string,
   options: DiffOptions
 }
 
 addEventListener('message', (e: MessageEvent<WorkerRequest>) => {
-  const { id, left, right, options } = e.data
+  const { id, left, right, options } = e.data;
   try {
-    const result = computeDiff(left, right, options)
-    postMessage({ id, result })
+    const result = computeDiff(left, right, options);
+    postMessage({ id, result });
   } catch (error) {
-    postMessage({ id, error: String(error) })
+    postMessage({ id, error: String(error) });
   }
-})
+});

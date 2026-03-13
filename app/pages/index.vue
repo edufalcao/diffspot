@@ -1,110 +1,110 @@
 <script setup lang="ts">
-const { leftText, rightText, language } = useEditorState()
-const { precision, ignoreWhitespace, ignoreCase, options } = useDiffOptions()
-const { result, isComputing, compute } = useDiff(leftText, rightText, options)
-const { print } = usePrint()
-const { isFullscreen, toggleFullscreen, exitFullscreen } = useFullscreen()
+const { leftText, rightText } = useEditorState();
+const { precision, ignoreWhitespace, ignoreCase, options } = useDiffOptions();
+const { result, isComputing, compute } = useDiff(leftText, rightText, options);
+const { print } = usePrint();
+const { isFullscreen, toggleFullscreen, exitFullscreen } = useFullscreen();
 
-const viewMode = ref<'split' | 'unified'>('split')
-const showDiff = ref(false)
-const showLoading = ref(false)
-const diffSectionRef = ref<HTMLElement | null>(null)
-const scrollContainerRef = ref<HTMLElement | null>(null)
+const viewMode = ref<'split' | 'unified'>('split');
+const showDiff = ref(false);
+const showLoading = ref(false);
+const diffSectionRef = ref<HTMLElement | null>(null);
+const scrollContainerRef = ref<HTMLElement | null>(null);
 
-const { changeGroups, totalChanges, currentChangeIndex, scrollRatio, viewportRatio, goToNextChange, goToPrevChange } = useDiffNavigation(result, scrollContainerRef, { itemHeight: VIRTUAL_SCROLL_ITEM_HEIGHT })
+const { changeGroups, totalChanges, currentChangeIndex, scrollRatio, viewportRatio, goToNextChange, goToPrevChange } = useDiffNavigation(result, scrollContainerRef, { itemHeight: VIRTUAL_SCROLL_ITEM_HEIGHT });
 
 function onScrollContainerReady(el: HTMLElement | null) {
-  scrollContainerRef.value = el
+  scrollContainerRef.value = el;
 }
 
 // Hide diff results when both inputs are cleared
 watch([leftText, rightText], ([l, r]) => {
   if (!l && !r) {
-    showDiff.value = false
+    showDiff.value = false;
   }
-}, { flush: 'sync' })
+}, { flush: 'sync' });
 
 // Auto-switch to unified view on small screens
-const isMobile = ref(false)
+const isMobile = ref(false);
 
 onMounted(() => {
-  const mql = window.matchMedia('(max-width: 767px)')
-  isMobile.value = mql.matches
+  const mql = window.matchMedia('(max-width: 767px)');
+  isMobile.value = mql.matches;
   if (mql.matches) {
-    viewMode.value = 'unified'
+    viewMode.value = 'unified';
   }
   const handler = (e: MediaQueryListEvent) => {
-    isMobile.value = e.matches
+    isMobile.value = e.matches;
     if (e.matches) {
-      viewMode.value = 'unified'
+      viewMode.value = 'unified';
     }
-  }
-  mql.addEventListener('change', handler)
+  };
+  mql.addEventListener('change', handler);
   onBeforeUnmount(() => {
-    mql.removeEventListener('change', handler)
-  })
+    mql.removeEventListener('change', handler);
+  });
 
   // Keyboard shortcuts
-  window.addEventListener('keydown', handleKeydown)
-})
+  window.addEventListener('keydown', handleKeydown);
+});
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown)
-})
+  window.removeEventListener('keydown', handleKeydown);
+});
 
 async function findDifferences() {
-  if (!leftText.value && !rightText.value) return
+  if (!leftText.value && !rightText.value) return;
 
-  showLoading.value = true
-  showDiff.value = true
+  showLoading.value = true;
+  showDiff.value = true;
 
-  await compute()
-  showLoading.value = false
+  await compute();
+  showLoading.value = false;
   nextTick(() => {
-    diffSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  })
+    diffSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 }
 
-const hasDiff = computed(() => showDiff.value && (result.value.additions > 0 || result.value.removals > 0 || result.value.unchanged > 0))
+const hasDiff = computed(() => showDiff.value && (result.value.additions > 0 || result.value.removals > 0 || result.value.unchanged > 0));
 
 /** True when diff was requested but both inputs are identical (no actual differences). */
 const textsAreIdentical = computed(() => {
-  if (!showDiff.value) return false
-  if (!leftText.value && !rightText.value) return false
-  return result.value.additions === 0 && result.value.removals === 0 && result.value.unchanged > 0
-})
+  if (!showDiff.value) return false;
+  if (!leftText.value && !rightText.value) return false;
+  return result.value.additions === 0 && result.value.removals === 0 && result.value.unchanged > 0;
+});
 
 // ---------------------------------------------------------------------------
 // Keyboard shortcuts
 // ---------------------------------------------------------------------------
 function handleKeydown(e: KeyboardEvent) {
-  const mod = e.metaKey || e.ctrlKey
+  const mod = e.metaKey || e.ctrlKey;
 
   // Escape — exit fullscreen
   if (e.key === 'Escape' && isFullscreen.value) {
-    e.preventDefault()
-    exitFullscreen()
-    return
+    e.preventDefault();
+    exitFullscreen();
+    return;
   }
 
   // Ctrl/Cmd + Enter — Find Differences
   if (mod && e.key === 'Enter') {
-    e.preventDefault()
+    e.preventDefault();
     if (leftText.value || rightText.value) {
-      findDifferences()
+      findDifferences();
     }
   }
 
   // Alt + ArrowDown — Next change
   if (e.altKey && e.key === 'ArrowDown') {
-    e.preventDefault()
-    goToNextChange()
+    e.preventDefault();
+    goToNextChange();
   }
 
   // Alt + ArrowUp — Previous change
   if (e.altKey && e.key === 'ArrowUp') {
-    e.preventDefault()
-    goToPrevChange()
+    e.preventDefault();
+    goToPrevChange();
   }
 }
 </script>
@@ -143,8 +143,19 @@ function handleKeydown(e: KeyboardEvent) {
           fill="none"
           viewBox="0 0 24 24"
         >
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          />
         </svg>
         Computing diff...
       </template>
@@ -173,8 +184,19 @@ function handleKeydown(e: KeyboardEvent) {
           fill="none"
           viewBox="0 0 24 24"
         >
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          />
         </svg>
         <p
           class="text-sm"
@@ -232,7 +254,7 @@ function handleKeydown(e: KeyboardEvent) {
         :class="[
           isFullscreen
             ? 'fixed inset-0 z-50 flex flex-col bg-[var(--color-bg)] p-6 overflow-hidden'
-            : 'w-full max-w-6xl animate-slide-up space-y-4',
+            : 'w-full max-w-6xl animate-slide-up space-y-4'
         ]"
       >
         <!-- Controls -->

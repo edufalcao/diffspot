@@ -1,63 +1,63 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Upload } from 'lucide-vue-next'
+import { ref } from 'vue';
+import { Upload } from 'lucide-vue-next';
 
 defineProps<{
   side: 'left' | 'right'
-}>()
+}>();
 
 const emit = defineEmits<{
   'file-loaded': [content: string]
-}>()
+}>();
 
-const isDragOver = ref(false)
-const fileInput = ref<HTMLInputElement | null>(null)
+const isDragOver = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
 
 const acceptedExtensions = [
   '.txt', '.js', '.ts', '.py', '.json', '.xml', '.html', '.css', '.md',
-  '.go', '.rs', '.java', '.cpp', '.c', '.php', '.sql', '.yaml', '.yml', '.toml',
-].join(',')
+  '.go', '.rs', '.java', '.cpp', '.c', '.php', '.sql', '.yaml', '.yml', '.toml'
+].join(',');
 
 function handleDragOver(event: DragEvent) {
-  event.preventDefault()
-  isDragOver.value = true
+  event.preventDefault();
+  isDragOver.value = true;
 }
 
 function handleDragLeave() {
-  isDragOver.value = false
+  isDragOver.value = false;
 }
 
 function handleDrop(event: DragEvent) {
-  event.preventDefault()
-  isDragOver.value = false
+  event.preventDefault();
+  isDragOver.value = false;
 
-  const file = event.dataTransfer?.files[0]
+  const file = event.dataTransfer?.files[0];
   if (file) {
-    readFile(file)
+    readFile(file);
   }
 }
 
 function handleClick() {
-  fileInput.value?.click()
+  fileInput.value?.click();
 }
 
 function handleFileChange(event: Event) {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
   if (file) {
-    readFile(file)
+    readFile(file);
   }
   // Reset input so the same file can be re-selected
-  target.value = ''
+  target.value = '';
 }
 
 function readFile(file: File) {
-  const reader = new FileReader()
+  const reader = new FileReader();
   reader.onload = () => {
-    const content = reader.result as string
-    emit('file-loaded', content)
-  }
-  reader.readAsText(file)
+    const content = reader.result as string;
+    emit('file-loaded', content);
+  };
+  reader.readAsText(file);
 }
 </script>
 
@@ -88,7 +88,7 @@ function readFile(file: File) {
       class="hidden"
       :accept="acceptedExtensions"
       @change="handleFileChange"
-    />
+    >
   </div>
 </template>
 

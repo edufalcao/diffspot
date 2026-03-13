@@ -1,60 +1,63 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, type Component } from 'vue'
+import { ref, onMounted, onBeforeUnmount, type Component } from 'vue';
 
 interface DropdownItem {
-  label: string
-  value: string
+  label: string,
+  value: string,
   icon?: Component
 }
 
 interface Props {
-  items: DropdownItem[]
+  items: DropdownItem[],
   modelValue?: string
 }
 
-const props = defineProps<Props>()
+const _props = defineProps<Props>();
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
-}>()
+}>();
 
-const isOpen = ref(false)
-const dropdownRef = ref<HTMLElement | null>(null)
+const isOpen = ref(false);
+const dropdownRef = ref<HTMLElement | null>(null);
 
 function toggle() {
-  isOpen.value = !isOpen.value
+  isOpen.value = !isOpen.value;
 }
 
 function selectItem(value: string) {
-  emit('update:modelValue', value)
-  isOpen.value = false
+  emit('update:modelValue', value);
+  isOpen.value = false;
 }
 
 function handleClickOutside(event: MouseEvent) {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
-    isOpen.value = false
+    isOpen.value = false;
   }
 }
 
 function handleKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') {
-    isOpen.value = false
+    isOpen.value = false;
   }
 }
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-  document.addEventListener('keydown', handleKeydown)
-})
+  document.addEventListener('click', handleClickOutside);
+  document.addEventListener('keydown', handleKeydown);
+});
 
 onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
-  document.removeEventListener('keydown', handleKeydown)
-})
+  document.removeEventListener('click', handleClickOutside);
+  document.removeEventListener('keydown', handleKeydown);
+});
 </script>
 
 <template>
-  <div ref="dropdownRef" class="relative inline-block">
+  <div
+    ref="dropdownRef"
+    class="relative inline-block"
+  >
     <!-- Trigger -->
     <div @click="toggle">
       <slot name="trigger" />
@@ -82,7 +85,7 @@ onBeforeUnmount(() => {
             'transition-all duration-[var(--duration)] ease-[var(--ease)]',
             modelValue === item.value
               ? 'border-l-[var(--color-accent)] bg-[var(--glow-accent)] text-[var(--color-accent)]'
-              : 'border-l-transparent text-[var(--color-text)] hover:border-l-[var(--color-accent)] hover:bg-[hsla(0,0%,100%,0.03)]',
+              : 'border-l-transparent text-[var(--color-text)] hover:border-l-[var(--color-accent)] hover:bg-[hsla(0,0%,100%,0.03)]'
           ]"
           @click="selectItem(item.value)"
         >

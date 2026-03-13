@@ -1,6 +1,8 @@
+/// <reference types="@cloudflare/workers-types" />
+
 export default defineEventHandler(async (event) => {
-  const { cloudflare } = event.context
-  const DB = cloudflare?.env?.DB as D1Database | undefined
+  const { cloudflare } = event.context;
+  const DB = cloudflare?.env?.DB as D1Database | undefined;
 
   const headers = getRequestHeaders(event)
   const timestamp = new Date().toISOString()
