@@ -1,6 +1,10 @@
 import * as Diff from 'diff';
-import type { Change } from 'diff';
+import type { ArrayChange, Change } from 'diff';
 import type { DiffOptions, DiffResult, DiffLine, DiffWord } from './types';
+
+function stripTrailingCarriageReturn(value: string): string {
+  return value.endsWith('\r') ? value.slice(0, -1) : value;
+}
 
 /**
  * Split a jsdiff change value into individual lines, stripping the trailing
@@ -9,7 +13,7 @@ import type { DiffOptions, DiffResult, DiffLine, DiffWord } from './types';
 function splitLines(value: string): string[] {
   const trimmed = value.endsWith('\n') ? value.slice(0, -1) : value;
   if (trimmed === '') return [];
-  return trimmed.split('\n');
+  return trimmed.split('\n').map(stripTrailingCarriageReturn);
 }
 
 /**
@@ -19,42 +23,73 @@ function splitLines(value: string): string[] {
 function computeInlineWords(
   oldText: string,
   newText: string,
-  opts: { ignoreCase: boolean }
+  opts: { ignoreCase: boolean },
+  preferredSide: 'old' | 'new' = 'new'
 ): DiffWord[] {
-  const changes = Diff.diffWords(oldText, newText, {
-    ignoreCase: opts.ignoreCase
-  });
+  const changes = preferredSide === 'new'
+    ? Diff.diffWords(oldText, newText, {
+        ignoreCase: opts.ignoreCase
+      })
+    : Diff.diffWords(newText, oldText, {
+        ignoreCase: opts.ignoreCase
+      });
 
   return changes.map((c: Change) => ({
     value: c.value,
-    ...(c.added ? { added: true } : {}),
-    ...(c.removed ? { removed: true } : {})
+    ...(preferredSide === 'new'
+      ? {
+          ...(c.added ? { added: true } : {}),
+          ...(c.removed ? { removed: true } : {})
+        }
+      : {
+          ...(c.added ? { removed: true } : {}),
+          ...(c.removed ? { added: true } : {})
+        })
   }));
 }
 
+function normalizeLineForComparison(value: string, opts: DiffOptions): string {
+  let normalized = value;
+
+  if (opts.ignoreWhitespace) {
+    normalized = normalized.trim();
+  }
+
+  if (opts.ignoreCase) {
+    normalized = normalized.toLowerCase();
+  }
+
+  return normalized;
+}
+
 function computeLineDiff(left: string, right: string, opts: DiffOptions): DiffLine[] {
-  const changes = Diff.diffLines(left, right, {
-    ignoreWhitespace: opts.ignoreWhitespace
+  const leftLines = splitLines(left);
+  const rightLines = splitLines(right);
+  const changes = Diff.diffArrays(leftLines, rightLines, {
+    comparator: (leftLine, rightLine) =>
+      normalizeLineForComparison(leftLine, opts) === normalizeLineForComparison(rightLine, opts)
   });
 
   const lines: DiffLine[] = [];
   let oldLine = 1;
   let newLine = 1;
+  let oldIndex = 0;
+  let newIndex = 0;
 
   for (let i = 0; i < changes.length; i++) {
-    const change = changes[i]!;
-    const lineTexts = splitLines(change.value);
+    const change = changes[i] as ArrayChange<string>;
+    const lineTexts = change.value;
 
     if (change.added) {
       const prev = i > 0 ? changes[i - 1] : null;
       const pairedRemovedLines
-        = prev && prev.removed ? splitLines(prev.value) : null;
+        = prev && prev.removed ? (prev as ArrayChange<string>).value : null;
 
       for (let j = 0; j < lineTexts.length; j++) {
         const pairedOld = pairedRemovedLines?.[j];
         const words
           = pairedOld !== undefined
-            ? computeInlineWords(pairedOld, lineTexts[j]!, opts).filter(
+            ? computeInlineWords(pairedOld, lineTexts[j]!, opts, 'new').filter(
                 w => !w.removed
               )
             : undefined;
@@ -66,16 +101,17 @@ function computeLineDiff(left: string, right: string, opts: DiffOptions): DiffLi
           ...(words ? { words } : {})
         });
       }
+      newIndex += lineTexts.length;
     } else if (change.removed) {
       const next = i + 1 < changes.length ? changes[i + 1] : null;
       const pairedAddedLines
-        = next && next.added ? splitLines(next.value) : null;
+        = next && next.added ? (next as ArrayChange<string>).value : null;
 
       for (let j = 0; j < lineTexts.length; j++) {
         const pairedNew = pairedAddedLines?.[j];
         const words
           = pairedNew !== undefined
-            ? computeInlineWords(lineTexts[j]!, pairedNew, opts).filter(
+            ? computeInlineWords(lineTexts[j]!, pairedNew, opts, 'old').filter(
                 w => !w.added
               )
             : undefined;
@@ -87,14 +123,26 @@ function computeLineDiff(left: string, right: string, opts: DiffOptions): DiffLi
           ...(words ? { words } : {})
         });
       }
+      oldIndex += lineTexts.length;
     } else {
-      for (const text of lineTexts) {
+      for (let j = 0; j < lineTexts.length; j++) {
+        const oldContent = leftLines[oldIndex]!;
+        const newContent = rightLines[newIndex]!;
+
         lines.push({
           type: 'unchanged',
-          content: text,
+          content: oldContent,
+          ...(oldContent !== newContent
+            ? {
+                oldContent,
+                newContent
+              }
+            : {}),
           oldLineNumber: oldLine++,
           newLineNumber: newLine++
         });
+        oldIndex++;
+        newIndex++;
       }
     }
   }
@@ -135,7 +183,7 @@ function computeWordDiff(left: string, right: string, opts: DiffOptions): DiffLi
   }
 
   for (const change of changes) {
-    const parts = change.value.split('\n');
+    const parts = change.value.split('\n').map(stripTrailingCarriageReturn);
     for (let p = 0; p < parts.length; p++) {
       if (p > 0) {
         pushLine();
@@ -186,7 +234,7 @@ function computeCharDiff(left: string, right: string, opts: DiffOptions): DiffLi
   }
 
   for (const change of changes) {
-    const parts = change.value.split('\n');
+    const parts = change.value.split('\n').map(stripTrailingCarriageReturn);
     for (let p = 0; p < parts.length; p++) {
       if (p > 0) pushLine();
       if (parts[p] !== '' || p === 0) {
@@ -204,26 +252,18 @@ function computeCharDiff(left: string, right: string, opts: DiffOptions): DiffLi
 }
 
 export function computeDiff(left: string, right: string, options: DiffOptions): DiffResult {
-  let l = left;
-  let r = right;
-
-  if (options.ignoreCase) {
-    l = l.toLowerCase();
-    r = r.toLowerCase();
-  }
-
   let lines: DiffLine[];
 
   switch (options.precision) {
     case 'word':
-      lines = computeWordDiff(l, r, options);
+      lines = computeWordDiff(left, right, options);
       break;
     case 'char':
-      lines = computeCharDiff(l, r, options);
+      lines = computeCharDiff(left, right, options);
       break;
     case 'line':
     default:
-      lines = computeLineDiff(l, r, options);
+      lines = computeLineDiff(left, right, options);
       break;
   }
 

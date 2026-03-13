@@ -134,7 +134,7 @@ Main diff display component with split/unified view toggle.
 
 ### DiffControls
 
-Toolbar component with view mode, precision, an options dropdown, and navigation controls.
+Toolbar component with view mode, precision, an options dropdown, active option badges, and navigation controls.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|

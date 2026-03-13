@@ -28,14 +28,30 @@ Online text diff comparison tool with a dark terminal-chic aesthetic (matching e
 ## Commands
 
 ```bash
-npm run dev         # Start dev server
-npm run build       # Build for production (outputs to dist/)
-npm run preview     # Preview production build
+pnpm dev            # Start dev server
+pnpm build          # Build for production (outputs to dist/)
+pnpm preview        # Preview production build
+pnpm test:packages  # Run package tests
+pnpm lint           # Run ESLint
+pnpm typecheck      # Run Nuxt typecheck
 ```
+
+## Verification
+
+After finishing any implementation work, run this full verification checklist before considering the task complete:
+
+```bash
+pnpm test:packages
+pnpm lint
+pnpm typecheck
+pnpm build
+```
+
+If one of these steps cannot be run or fails for an external reason, call that out explicitly in the handoff.
 
 ## Build Output
 
-With `nitro.preset = 'cloudflare-pages'`, `npm run build` outputs to `dist/`:
+With `nitro.preset = 'cloudflare-pages'`, `pnpm build` outputs to `dist/`:
 - `dist/_worker.js` — Cloudflare Worker (handles server routes)
 - `dist/_nuxt/` — static client assets
 - `dist/index.html` — SPA shell

@@ -182,6 +182,8 @@ interface DiffResult {
 interface DiffLine {
   type: 'added' | 'removed' | 'unchanged'
   content: string
+  oldContent?: string     // preserved left-side content for ignored differences
+  newContent?: string     // preserved right-side content for ignored differences
   oldLineNumber?: number
   newLineNumber?: number
   words?: DiffWord[]      // word/char-level highlights

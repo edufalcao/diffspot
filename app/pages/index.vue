@@ -105,6 +105,28 @@ const textsAreIdentical = computed(() => {
   return result.value.additions === 0 && result.value.removals === 0 && result.value.unchanged > 0;
 });
 
+const emptyDiffMessage = computed(() => {
+  const hiddenDifferences: string[] = [];
+
+  if (ignoreWhitespace.value) {
+    hiddenDifferences.push('whitespace');
+  }
+
+  if (ignoreCase.value) {
+    hiddenDifferences.push('case');
+  }
+
+  if (hiddenDifferences.length === 0) {
+    return 'Both texts are identical under the current diff options.';
+  }
+
+  if (hiddenDifferences.length === 1) {
+    return `The active options above are ignoring ${hiddenDifferences[0]} differences.`;
+  }
+
+  return 'The active options above are ignoring whitespace and case differences.';
+});
+
 watch([precision, ignoreWhitespace, ignoreCase], async () => {
   if (!showDiff.value) return;
   if (!leftText.value && !rightText.value) return;
@@ -300,7 +322,7 @@ function handleKeydown(e: KeyboardEvent) {
             class="text-sm"
             style="font-family: var(--font-mono); color: var(--color-muted)"
           >
-            Both texts are identical under the current diff options.
+            {{ emptyDiffMessage }}
           </p>
         </div>
       </template>

@@ -53,6 +53,23 @@ describe('generateUnifiedDiff', () => {
     expect(diff).toContain(' e');
   });
 
+  it('keeps original context casing when ignoreCase treats a line as unchanged', () => {
+    const result = computeDiff('alpha\nHello\nomega', 'alpha\nhello\nOMEGA', {
+      ...defaultOptions,
+      ignoreCase: true
+    });
+    const diff = generateUnifiedDiff(result);
+
+    expect(diff).toContain('--- original');
+    expect(diff).toContain('+++ modified');
+    expect(diff).not.toContain('@@');
+    expect(result.lines[1]).toMatchObject({
+      content: 'Hello',
+      oldContent: 'Hello',
+      newContent: 'hello'
+    });
+  });
+
   it('returns empty hunks for identical texts', () => {
     const result = makeDiff('same\ntext', 'same\ntext');
     const diff = generateUnifiedDiff(result);
@@ -121,6 +138,19 @@ describe('generateHtmlExport', () => {
     expect(html).toContain('2026-01-01T00:00:00Z');
   });
 
+  it('keeps original line content in HTML exports when ignore-based options collapse differences', () => {
+    const result = computeDiff('Hello\n  world', 'hello\nworld', {
+      ...defaultOptions,
+      ignoreCase: true,
+      ignoreWhitespace: true
+    });
+    const html = generateHtmlExport(result);
+
+    expect(html).toContain('Hello');
+    expect(html).toContain('  world');
+    expect(html).not.toContain('&gt;hello&lt;');
+  });
+
   it('renders word-level highlights when present', () => {
     const result = computeDiff('hello world', 'hello earth', {
       ...defaultOptions,
@@ -156,6 +186,21 @@ describe('generateJsonExport', () => {
     expect(parsed.metadata.timestamp).toBe('2026-01-01');
     expect(parsed.metadata.leftLabel).toBe('old');
     expect(parsed.metadata.rightLabel).toBe('new');
+  });
+
+  it('preserves side-specific content in JSON exports for ignored differences', () => {
+    const result = computeDiff('Hello', 'hello', {
+      ...defaultOptions,
+      ignoreCase: true
+    });
+    const json = generateJsonExport(result);
+    const parsed = JSON.parse(json);
+
+    expect(parsed.result.lines[0]).toMatchObject({
+      content: 'Hello',
+      oldContent: 'Hello',
+      newContent: 'hello'
+    });
   });
 
   it('preserves diff result structure', () => {

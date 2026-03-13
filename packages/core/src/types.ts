@@ -15,8 +15,12 @@ export interface DiffWord {
 export interface DiffLine {
   /** Whether this line was added, removed, or left unchanged. */
   type: 'added' | 'removed' | 'unchanged',
-  /** The raw text content of this line (without trailing newline). */
+  /** The primary text content for this line (without trailing newline). */
   content: string,
+  /** Original left-side content when it differs from `content`. */
+  oldContent?: string,
+  /** Original right-side content when it differs from `content`. */
+  newContent?: string,
   /** Line number in the original (left) text. Present for removed and unchanged lines. */
   oldLineNumber?: number,
   /** Line number in the modified (right) text. Present for added and unchanged lines. */

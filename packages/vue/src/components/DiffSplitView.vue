@@ -10,6 +10,24 @@ type DisplayItem
   = { kind: 'line', line: DiffLine & { originalIndex: number } }
     | { kind: 'collapsed', region: CollapsedRegion };
 
+function resolveLineForSide(
+  line: DiffLine,
+  side: 'left' | 'right'
+): DiffLine {
+  if (line.type !== 'unchanged') return line;
+
+  const content = side === 'left'
+    ? line.oldContent ?? line.content
+    : line.newContent ?? line.content;
+
+  if (content === line.content) return line;
+
+  return {
+    ...line,
+    content
+  };
+}
+
 const props = withDefaults(
   defineProps<{
     lines: DiffLine[],
@@ -77,13 +95,33 @@ const allDisplayItems = computed<DisplayItem[]>(() => {
 const leftDisplayItems = computed(() =>
   allDisplayItems.value.filter(item =>
     item.kind === 'collapsed' || item.line.type === 'removed' || item.line.type === 'unchanged'
-  )
+  ).map((item) => {
+    if (item.kind === 'collapsed') return item;
+
+    return {
+      ...item,
+      line: {
+        ...item.line,
+        ...resolveLineForSide(item.line, 'left')
+      }
+    };
+  })
 );
 
 const rightDisplayItems = computed(() =>
   allDisplayItems.value.filter(item =>
     item.kind === 'collapsed' || item.line.type === 'added' || item.line.type === 'unchanged'
-  )
+  ).map((item) => {
+    if (item.kind === 'collapsed') return item;
+
+    return {
+      ...item,
+      line: {
+        ...item.line,
+        ...resolveLineForSide(item.line, 'right')
+      }
+    };
+  })
 );
 
 function toggleRegion(startIndex: number) {

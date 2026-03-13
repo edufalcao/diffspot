@@ -91,6 +91,12 @@ describe('computeDiff', () => {
       });
       expect(result.additions).toBe(0);
       expect(result.removals).toBe(0);
+      expect(result.lines[0]).toMatchObject({
+        type: 'unchanged',
+        content: 'hello',
+        oldContent: 'hello',
+        newContent: '  hello  '
+      });
     });
 
     it('detects whitespace differences when disabled', () => {
@@ -111,6 +117,12 @@ describe('computeDiff', () => {
       });
       expect(result.additions).toBe(0);
       expect(result.removals).toBe(0);
+      expect(result.lines[0]).toMatchObject({
+        type: 'unchanged',
+        content: 'Hello',
+        oldContent: 'Hello',
+        newContent: 'hello'
+      });
     });
 
     it('detects case differences when disabled', () => {
@@ -120,6 +132,32 @@ describe('computeDiff', () => {
       });
       // Should detect a change
       expect(result.additions + result.removals).toBeGreaterThan(0);
+    });
+
+    it('preserves original content for ignored case changes alongside real line changes', () => {
+      const result = computeDiff('alpha\nHello\nomega', 'alpha\nhello\nOMEGA', {
+        ...defaultOptions,
+        ignoreCase: true
+      });
+
+      expect(result.lines).toMatchObject([
+        {
+          type: 'unchanged',
+          content: 'alpha'
+        },
+        {
+          type: 'unchanged',
+          content: 'Hello',
+          oldContent: 'Hello',
+          newContent: 'hello'
+        },
+        {
+          type: 'unchanged',
+          content: 'omega',
+          oldContent: 'omega',
+          newContent: 'OMEGA'
+        }
+      ]);
     });
   });
 
@@ -154,6 +192,40 @@ describe('computeDiff', () => {
       expect(result.removals).toBe(3);
       expect(result.additions).toBe(3);
       expect(result.unchanged).toBe(0);
+    });
+
+    it('treats CRLF and LF line endings as equal without leaking carriage returns', () => {
+      const result = computeDiff('alpha\r\nbeta\r\n', 'alpha\nbeta\n', defaultOptions);
+
+      expect(result.additions).toBe(0);
+      expect(result.removals).toBe(0);
+      expect(result.unchanged).toBe(2);
+      expect(result.lines.map(line => line.content)).toEqual(['alpha', 'beta']);
+    });
+
+    it('combines ignoreWhitespace and ignoreCase on the same lines', () => {
+      const result = computeDiff('  Hello  \nworld', 'hello\nWorld', {
+        ...defaultOptions,
+        ignoreWhitespace: true,
+        ignoreCase: true
+      });
+
+      expect(result.additions).toBe(0);
+      expect(result.removals).toBe(0);
+      expect(result.lines).toMatchObject([
+        {
+          type: 'unchanged',
+          content: '  Hello  ',
+          oldContent: '  Hello  ',
+          newContent: 'hello'
+        },
+        {
+          type: 'unchanged',
+          content: 'world',
+          oldContent: 'world',
+          newContent: 'World'
+        }
+      ]);
     });
   });
 });
