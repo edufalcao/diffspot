@@ -193,6 +193,10 @@ code, pre, .font-mono {
 
 /* --- Print styles --- */
 @media print {
+  @page {
+    margin: 1cm;
+  }
+
   /* Hide everything except the diff output */
   .noise-overlay,
   .radial-bg,
@@ -227,5 +231,15 @@ code, pre, .font-mono {
   /* Allow page breaks inside diff output */
   [role="region"] {
     break-inside: auto;
+  }
+
+  /* Avoid breaking diff lines across pages */
+  [role="log"] > div {
+    page-break-inside: avoid;
+  }
+
+  /* Show stats header in print */
+  [role="toolbar"] ~ [aria-label="Diff statistics"] {
+    display: flex !important;
   }
 }

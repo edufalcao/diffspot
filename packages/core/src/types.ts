@@ -57,6 +57,21 @@ export interface DiffOptions {
   ignoreCase: boolean
 }
 
+/** Available export format identifiers. */
+export type ExportFormat = 'print' | 'unified-diff' | 'html' | 'json';
+
+/** Metadata attached to export output. */
+export interface ExportMetadata {
+  /** ISO timestamp of when the export was generated. */
+  timestamp?: string,
+  /** Label for the left (original) text. */
+  leftLabel?: string,
+  /** Label for the right (modified) text. */
+  rightLabel?: string,
+  /** Diff options used during computation. */
+  options?: DiffOptions
+}
+
 /** A block representing a contiguous region of changes in a minimap. */
 export interface MinimapBlock {
   /** Percentage position from top (0–100). */

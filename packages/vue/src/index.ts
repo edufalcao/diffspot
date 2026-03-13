@@ -13,4 +13,4 @@ export { useDiff } from './composables/useDiff';
 export { useDiffOptions } from './composables/useDiffOptions';
 export { useDiffNavigation } from './composables/useDiffNavigation';
 export { useVirtualScroll, VIRTUAL_SCROLL_ITEM_HEIGHT } from './composables/useVirtualScroll';
-export { usePrint } from './composables/useExport';
+export { useExport, usePrint } from './composables/useExport';

@@ -1,6 +1,6 @@
 {
   "name": "@diffspot/vue",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "type": "module",
   "description": "Vue 3 diff components and composables for diffspot",
   "license": "MIT",

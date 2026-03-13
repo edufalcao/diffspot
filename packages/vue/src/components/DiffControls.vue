@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { DiffPrecision } from '@diffspot/core';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import type { DiffPrecision, ExportFormat } from '@diffspot/core';
+
+const LARGE_DIFF_THRESHOLD = 50_000;
 
 const props = withDefaults(
   defineProps<{
@@ -11,13 +13,15 @@ const props = withDefaults(
     hideSplitOption?: boolean,
     isFullscreen?: boolean,
     currentChangeIndex?: number,
-    totalChanges?: number
+    totalChanges?: number,
+    totalLines?: number
   }>(),
   {
     hideSplitOption: false,
     isFullscreen: false,
     currentChangeIndex: -1,
-    totalChanges: 0
+    totalChanges: 0,
+    totalLines: 0
   }
 );
 
@@ -26,7 +30,7 @@ const emit = defineEmits<{
   'update:precision': [value: DiffPrecision],
   'update:ignoreWhitespace': [value: boolean],
   'update:ignoreCase': [value: boolean],
-  'print': [],
+  'export': [format: ExportFormat],
   'toggle-fullscreen': [],
   'prev-change': [],
   'next-change': []
@@ -51,6 +55,43 @@ const changeDisplay = computed(() => {
   if (props.totalChanges === 0) return '0 / 0';
   return `${props.currentChangeIndex + 1} / ${props.totalChanges}`;
 });
+
+// Export dropdown
+const exportOpen = ref(false);
+const exportRef = ref<HTMLElement | null>(null);
+
+function toggleExport() {
+  exportOpen.value = !exportOpen.value;
+}
+
+function selectExport(format: ExportFormat) {
+  exportOpen.value = false;
+  emit('export', format);
+}
+
+function handleClickOutside(event: MouseEvent) {
+  if (exportRef.value && !exportRef.value.contains(event.target as Node)) {
+    exportOpen.value = false;
+  }
+}
+
+function handleEscape(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    exportOpen.value = false;
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+  document.addEventListener('keydown', handleEscape);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
+  document.removeEventListener('keydown', handleEscape);
+});
+
+const showPrintWarning = computed(() => props.totalLines > LARGE_DIFF_THRESHOLD);
 </script>
 
 <template>
@@ -239,33 +280,189 @@ const changeDisplay = computed(() => {
       {{ isFullscreen ? 'Exit' : 'Fullscreen' }}
     </button>
 
-    <!-- Print / Save as PDF -->
-    <button
-      type="button"
-      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-elevated)] transition-colors"
-      @click="emit('print')"
+    <!-- Export dropdown -->
+    <div
+      ref="exportRef"
+      class="relative inline-block"
     >
-      <!-- Printer icon -->
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-elevated)] transition-colors"
+        @click="toggleExport"
       >
-        <polyline points="6 9 6 2 18 2 18 9" />
-        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-        <rect
-          x="6"
-          y="14"
+        <!-- Download icon -->
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line
+            x1="12"
+            y1="15"
+            x2="12"
+            y2="3"
+          />
+        </svg>
+        Export
+        <!-- ChevronDown -->
+        <svg
           width="12"
-          height="8"
-        />
-      </svg>
-      Print
-    </button>
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+
+      <!-- Dropdown menu -->
+      <Transition
+        enter-active-class="transition duration-150 ease-[var(--ease)]"
+        enter-from-class="opacity-0 translate-y-1"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition duration-100 ease-[var(--ease)]"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 translate-y-1"
+      >
+        <div
+          v-if="exportOpen"
+          class="absolute right-0 z-50 mt-2 min-w-[220px] overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-elevated)] py-1 shadow-xl"
+        >
+          <!-- Print / PDF -->
+          <button
+            type="button"
+            class="flex w-full cursor-pointer items-center gap-3 px-4 py-2.5 text-left text-sm text-[var(--color-text)] hover:bg-[hsla(0,0%,100%,0.03)] transition-colors"
+            @click="selectExport('print')"
+          >
+            <!-- Printer icon -->
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="shrink-0"
+            >
+              <polyline points="6 9 6 2 18 2 18 9" />
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+              <rect
+                x="6"
+                y="14"
+                width="12"
+                height="8"
+              />
+            </svg>
+            <div>
+              <div>Print / PDF</div>
+              <div
+                v-if="showPrintWarning"
+                class="text-xs text-[var(--color-accent-2)] mt-0.5"
+              >
+                Large diff ({{ totalLines.toLocaleString() }} lines) — may be slow
+              </div>
+            </div>
+          </button>
+
+          <!-- Unified Diff -->
+          <button
+            type="button"
+            class="flex w-full cursor-pointer items-center gap-3 px-4 py-2.5 text-left text-sm text-[var(--color-text)] hover:bg-[hsla(0,0%,100%,0.03)] transition-colors"
+            @click="selectExport('unified-diff')"
+          >
+            <!-- FileText icon -->
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="shrink-0"
+            >
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line
+                x1="16"
+                y1="13"
+                x2="8"
+                y2="13"
+              />
+              <line
+                x1="16"
+                y1="17"
+                x2="8"
+                y2="17"
+              />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+            <span>Unified Diff (.diff)</span>
+          </button>
+
+          <!-- HTML Report -->
+          <button
+            type="button"
+            class="flex w-full cursor-pointer items-center gap-3 px-4 py-2.5 text-left text-sm text-[var(--color-text)] hover:bg-[hsla(0,0%,100%,0.03)] transition-colors"
+            @click="selectExport('html')"
+          >
+            <!-- Code icon -->
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="shrink-0"
+            >
+              <polyline points="16 18 22 12 16 6" />
+              <polyline points="8 6 2 12 8 18" />
+            </svg>
+            <span>HTML Report (.html)</span>
+          </button>
+
+          <!-- JSON Data -->
+          <button
+            type="button"
+            class="flex w-full cursor-pointer items-center gap-3 px-4 py-2.5 text-left text-sm text-[var(--color-text)] hover:bg-[hsla(0,0%,100%,0.03)] transition-colors"
+            @click="selectExport('json')"
+          >
+            <!-- Braces icon -->
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="shrink-0"
+            >
+              <path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h1" />
+              <path d="M16 3h1a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2 2 2 0 0 0-2 2v5a2 2 0 0 1-2 2h-1" />
+            </svg>
+            <span>JSON Data (.json)</span>
+          </button>
+        </div>
+      </Transition>
+    </div>
   </div>
 </template>

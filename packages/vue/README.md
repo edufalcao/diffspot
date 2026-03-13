@@ -21,7 +21,8 @@ import {
   DiffStats,
   useDiff,
   useDiffOptions,
-  useDiffNavigation
+  useDiffNavigation,
+  useExport
 } from '@diffspot/vue'
 import '@diffspot/vue/theme.css'
 
@@ -44,6 +45,12 @@ const {
   goToPrevChange
 } = useDiffNavigation(result, scrollContainerRef)
 
+const { exportAs } = useExport()
+
+function handleExport(format) {
+  exportAs(format, result.value, { timestamp: new Date().toISOString() })
+}
+
 // Compute initial diff
 compute()
 </script>
@@ -63,8 +70,10 @@ compute()
       v-model:ignore-case="ignoreCase"
       :current-change-index="currentChangeIndex"
       :total-changes="totalChanges"
+      :total-lines="result.lines.length"
       @prev-change="goToPrevChange"
       @next-change="goToNextChange"
+      @export="handleExport"
       @update:precision="compute"
       @update:ignore-whitespace="compute"
       @update:ignore-case="compute"
@@ -136,6 +145,7 @@ Toolbar component with view mode, precision, and navigation controls.
 | `isFullscreen` | `boolean` | `false` | Fullscreen state |
 | `currentChangeIndex` | `number` | `-1` | Current change index |
 | `totalChanges` | `number` | `0` | Total number of changes |
+| `totalLines` | `number` | `0` | Total diff lines (for large-diff warning) |
 
 | Event | Payload | Description |
 |-------|---------|-------------|
@@ -143,7 +153,7 @@ Toolbar component with view mode, precision, and navigation controls.
 | `update:precision` | `DiffPrecision` | Precision changed |
 | `update:ignoreWhitespace` | `boolean` | Whitespace option changed |
 | `update:ignoreCase` | `boolean` | Case option changed |
-| `print` | - | Print button clicked |
+| `export` | `ExportFormat` | Export format selected (print, unified-diff, html, json) |
 | `toggle-fullscreen` | - | Fullscreen button clicked |
 | `prev-change` | - | Previous change button clicked |
 | `next-change` | - | Next change button clicked |
@@ -242,15 +252,30 @@ const { startIndex, endIndex, totalHeight, offsetY, isPrinting } = useVirtualScr
 )
 ```
 
-### usePrint
+### useExport
 
-Trigger browser print dialog.
+Multi-format export: print, unified diff, HTML report, JSON data.
 
 ```ts
-import { usePrint } from '@diffspot/vue'
+import { useExport } from '@diffspot/vue'
 
+const { print, exportAs } = useExport()
+
+// Print via browser dialog
+print()
+
+// Export as unified diff, HTML report, or JSON
+exportAs('unified-diff', result, { leftLabel: 'old.txt', rightLabel: 'new.txt' })
+exportAs('html', result)
+exportAs('json', result)
+```
+
+### usePrint (deprecated)
+
+Use `useExport()` instead. Kept for backward compatibility.
+
+```ts
 const { print } = usePrint()
-// call print() to open the browser print dialog
 ```
 
 ## License

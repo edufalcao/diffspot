@@ -58,6 +58,30 @@ const groups = computeChangeGroups(result.lines)
 // [{ startIndex: 4, endIndex: 6, type: 'mixed' }, ...]
 ```
 
+### Export
+
+Generate export files from diff results:
+
+```ts
+import {
+  generateUnifiedDiff,
+  generateHtmlExport,
+  generateJsonExport
+} from '@diffspot/core'
+
+const result = computeDiff(oldText, newText, options)
+const metadata = { leftLabel: 'original.txt', rightLabel: 'modified.txt' }
+
+// Standard unified diff / patch format
+const patch = generateUnifiedDiff(result, metadata)
+
+// Self-contained styled HTML report (dark theme)
+const html = generateHtmlExport(result, metadata)
+
+// Raw JSON data
+const json = generateJsonExport(result, metadata)
+```
+
 ### Web Worker
 
 For large files, offload computation to a Worker to keep the UI thread free:
@@ -107,6 +131,18 @@ Merges consecutive same-type changed lines into percentage-positioned blocks sui
 
 Groups consecutive non-unchanged lines for prev/next navigation.
 
+### `generateUnifiedDiff(result, metadata?): string`
+
+Generates a standard unified diff (patch) string with `@@ -old,count +new,count @@` hunk headers and 3 lines of context.
+
+### `generateHtmlExport(result, metadata?): string`
+
+Generates a self-contained HTML report with inline CSS replicating diffspot's dark theme, including word-level highlights.
+
+### `generateJsonExport(result, metadata?): string`
+
+Generates a pretty-printed JSON string containing the metadata and full DiffResult.
+
 ## Types
 
 ```ts
@@ -149,6 +185,15 @@ interface MinimapBlock {
   y: number        // percentage from top (0–100)
   height: number   // percentage height (0–100)
   type: 'added' | 'removed'
+}
+
+type ExportFormat = 'print' | 'unified-diff' | 'html' | 'json'
+
+interface ExportMetadata {
+  timestamp?: string
+  leftLabel?: string
+  rightLabel?: string
+  options?: DiffOptions
 }
 ```
 

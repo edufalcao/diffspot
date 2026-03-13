@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { ExportFormat } from '@diffspot/core';
+
 const { leftText, rightText } = useEditorState();
 const { precision, ignoreWhitespace, ignoreCase, options } = useDiffOptions();
 const { result, isComputing, compute } = useDiff(leftText, rightText, options);
-const { print } = usePrint();
+const { exportAs } = useExport();
 const { isFullscreen, toggleFullscreen, exitFullscreen } = useFullscreen();
 
 const viewMode = ref<'split' | 'unified'>('split');
@@ -62,6 +64,15 @@ async function findDifferences() {
   showLoading.value = false;
   nextTick(() => {
     diffSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+const totalLines = computed(() => result.value.lines.length);
+
+function handleExport(format: ExportFormat) {
+  exportAs(format, result.value, {
+    timestamp: new Date().toISOString(),
+    options: options.value
   });
 }
 
@@ -262,11 +273,12 @@ function handleKeydown(e: KeyboardEvent) {
         :is-fullscreen="isFullscreen"
         :current-change-index="currentChangeIndex"
         :total-changes="totalChanges"
+        :total-lines="totalLines"
         @update:view-mode="viewMode = $event"
         @update:precision="precision = $event"
         @update:ignore-whitespace="ignoreWhitespace = $event"
         @update:ignore-case="ignoreCase = $event"
-        @print="print"
+        @export="handleExport"
         @toggle-fullscreen="toggleFullscreen"
         @prev-change="goToPrevChange"
         @next-change="goToNextChange"
