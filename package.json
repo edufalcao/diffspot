@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "pnpm build:packages && pnpm dev:packages & nuxt dev",
+    "dev:packages": "pnpm --filter @diffspot/core dev & pnpm --filter @diffspot/vue dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
