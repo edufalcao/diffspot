@@ -24,8 +24,8 @@ export function useExport() {
     // flushed the DOM update yet, so the virtual-scroll branch (partial content) is printed.
     window.dispatchEvent(new Event('beforeprint'));
     await nextTick();
-    // Wait one frame for the browser to layout/paint the full content
-    await new Promise(resolve => requestAnimationFrame(resolve));
+    // Wait two frames for the browser to layout/paint all unvirtualized content
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     window.print();
   }
 

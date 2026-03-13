@@ -136,7 +136,7 @@ defineExpose({
         ref="leftPanelRef"
         aria-label="Original file"
         :class="[
-          'overflow-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]',
+          'overflow-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] print:!max-h-none print:!overflow-visible print:!h-auto',
           isFullscreen ? 'h-full' : 'max-h-[600px]'
         ]"
       >
@@ -178,7 +178,7 @@ defineExpose({
         ref="rightPanelRef"
         aria-label="Modified file"
         :class="[
-          'overflow-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]',
+          'overflow-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] print:!max-h-none print:!overflow-visible print:!h-auto',
           isFullscreen ? 'h-full' : 'max-h-[600px]'
         ]"
       >

@@ -86,7 +86,7 @@ defineExpose({
       role="log"
       aria-label="Unified diff output"
       :class="[
-        'flex-1 min-w-0 overflow-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]',
+        'flex-1 min-w-0 overflow-auto rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] print:!max-h-none print:!overflow-visible print:!h-auto',
         isFullscreen ? 'h-full' : 'max-h-[600px]'
       ]"
     >

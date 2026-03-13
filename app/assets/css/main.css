@@ -241,6 +241,12 @@ code, pre, .font-mono {
     break-inside: avoid;
   }
 
+  /* Wrap long lines instead of clipping horizontally */
+  .whitespace-pre {
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+  }
+
   /* Boost diff colors for print legibility on white paper */
   :root {
     --color-added-bg: rgba(0, 179, 158, 0.15);
