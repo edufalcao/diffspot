@@ -1,6 +1,6 @@
 {
   "name": "@diffspot/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "Framework-agnostic diff computation engine powering diffspot",
   "license": "MIT",
@@ -18,7 +18,9 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

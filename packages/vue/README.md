@@ -8,6 +8,8 @@ Vue 3 diff components and composables for building beautiful text comparison int
 npm install @diffspot/vue @diffspot/core
 ```
 
+> **Peer dependencies:** `vue ^3.3` and `@diffspot/core ^0.1` are required.
+
 ## Quick Start
 
 ```vue
@@ -245,7 +247,10 @@ const { startIndex, endIndex, totalHeight, offsetY, isPrinting } = useVirtualScr
 Trigger browser print dialog.
 
 ```ts
+import { usePrint } from '@diffspot/vue'
+
 const { print } = usePrint()
+// call print() to open the browser print dialog
 ```
 
 ## License

@@ -1,6 +1,6 @@
 {
   "name": "@diffspot/vue",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Vue 3 diff components and composables for diffspot",
   "license": "MIT",
@@ -15,7 +15,10 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "src/theme.css"],
+  "files": [
+    "dist",
+    "src/theme.css"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
