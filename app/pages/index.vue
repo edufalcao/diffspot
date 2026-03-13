@@ -121,9 +121,9 @@ function handleKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div class="flex flex-col items-center px-6 py-10 md:py-16">
+  <div class="flex flex-col items-center px-6 py-10 md:py-16 print:p-0 print:block">
     <!-- Hero -->
-    <div class="text-center animate-fade-in mb-8">
+    <div class="text-center animate-fade-in mb-8 print:hidden">
       <h1 class="text-4xl md:text-6xl font-bold font-[family-name:var(--font-display)] mb-3">
         <span class="font-mono text-[var(--color-muted)]">$ </span>
         <span class="gradient-text">diffspot</span>
@@ -134,7 +134,7 @@ function handleKeydown(e: KeyboardEvent) {
     </div>
 
     <!-- Editor pair (toolbar integrated) -->
-    <div class="w-full max-w-7xl animate-slide-up mb-6">
+    <div class="w-full max-w-7xl animate-slide-up mb-6 print:hidden">
       <EditorPair @clear="showDiff = false" />
     </div>
 
@@ -142,7 +142,7 @@ function handleKeydown(e: KeyboardEvent) {
     <UiGlowButton
       variant="primary"
       size="lg"
-      class="animate-slide-up mb-10"
+      class="animate-slide-up mb-10 print:hidden"
       style="animation-delay: 0.1s"
       :disabled="(!leftText && !rightText) || showLoading || isComputing"
       @click="findDifferences"

@@ -197,14 +197,11 @@ code, pre, .font-mono {
     margin: 1cm;
   }
 
-  /* Hide everything except the diff output */
+  /* Hide non-result chrome */
   .noise-overlay,
   .radial-bg,
   header,
-  footer,
-  .animate-fade-in,
-  .animate-slide-up > .mb-6,
-  button {
+  footer {
     display: none !important;
   }
 
