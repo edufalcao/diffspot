@@ -191,6 +191,46 @@ code, pre, .font-mono {
   color: var(--color-bg);
 }
 
+/* --- Syntax highlighting (Lezer classHighlighter tok-* classes) --- */
+.tok-keyword { color: #c792ea; }
+.tok-atom, .tok-bool { color: #f78c6c; }
+.tok-number { color: #f78c6c; }
+.tok-string, .tok-string2 { color: #c3e88d; }
+.tok-comment { color: #546e7a; font-style: italic; }
+.tok-variableName { color: #eeffff; }
+.tok-definition { color: #82aaff; }
+.tok-variableName2 { color: #ffb86c; }
+.tok-typeName, .tok-className { color: #ffcb6b; }
+.tok-namespace { color: #ffcb6b; }
+.tok-macroName { color: #82aaff; }
+.tok-propertyName { color: #82aaff; }
+.tok-operator { color: #89ddff; }
+.tok-punctuation { color: #89ddff; }
+.tok-meta { color: #f78c6c; }
+.tok-link { color: #82aaff; text-decoration: underline; }
+.tok-heading { color: #c792ea; font-weight: bold; }
+.tok-emphasis { font-style: italic; }
+.tok-strong { font-weight: bold; }
+.tok-invalid { color: #ff5555; }
+.tok-labelName { color: #82aaff; }
+
+/* Syntax — Light theme */
+.light .tok-keyword { color: #7c4dff; }
+.light .tok-atom, .light .tok-bool { color: #f76d47; }
+.light .tok-number { color: #f76d47; }
+.light .tok-string, .light .tok-string2 { color: #558b2f; }
+.light .tok-comment { color: #90a4ae; font-style: italic; }
+.light .tok-variableName { color: #37474f; }
+.light .tok-definition { color: #6182b8; }
+.light .tok-variableName2 { color: #e2931d; }
+.light .tok-typeName, .light .tok-className { color: #e2931d; }
+.light .tok-namespace { color: #e2931d; }
+.light .tok-propertyName { color: #6182b8; }
+.light .tok-operator { color: #39adb5; }
+.light .tok-punctuation { color: #39adb5; }
+.light .tok-meta { color: #f76d47; }
+.light .tok-invalid { color: #e53935; }
+
 /* --- Print styles --- */
 @media print {
   @page {

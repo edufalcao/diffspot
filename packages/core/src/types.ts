@@ -57,6 +57,16 @@ export interface DiffOptions {
   ignoreCase: boolean
 }
 
+/** A collapsible region of consecutive unchanged lines. */
+export interface CollapsedRegion {
+  /** Start index in the lines array (inclusive). */
+  startIndex: number,
+  /** End index in the lines array (inclusive). */
+  endIndex: number,
+  /** Number of lines in this collapsed region. */
+  count: number
+}
+
 /** Available export format identifiers. */
 export type ExportFormat = 'print' | 'unified-diff' | 'html' | 'json';
 

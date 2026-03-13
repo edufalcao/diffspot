@@ -10,6 +10,7 @@ const props = withDefaults(
     precision: DiffPrecision,
     ignoreWhitespace: boolean,
     ignoreCase: boolean,
+    collapseUnchanged: boolean,
     hideSplitOption?: boolean,
     isFullscreen?: boolean,
     currentChangeIndex?: number,
@@ -30,6 +31,7 @@ const emit = defineEmits<{
   'update:precision': [value: DiffPrecision],
   'update:ignoreWhitespace': [value: boolean],
   'update:ignoreCase': [value: boolean],
+  'update:collapseUnchanged': [value: boolean],
   'export': [format: ExportFormat],
   'toggle-fullscreen': [],
   'prev-change': [],
@@ -159,6 +161,17 @@ const showPrintWarning = computed(() => props.totalLines > LARGE_DIFF_THRESHOLD)
         @change="emit('update:ignoreCase', ($event.target as HTMLInputElement).checked)"
       >
       Ignore case
+    </label>
+
+    <!-- Collapse unchanged checkbox -->
+    <label class="flex cursor-pointer items-center gap-2 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]">
+      <input
+        type="checkbox"
+        :checked="collapseUnchanged"
+        class="accent-[var(--color-accent)]"
+        @change="emit('update:collapseUnchanged', ($event.target as HTMLInputElement).checked)"
+      >
+      Collapse unchanged
     </label>
 
     <!-- Divider -->

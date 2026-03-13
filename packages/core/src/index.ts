@@ -5,6 +5,7 @@ export type {
   DiffResult,
   DiffOptions,
   ChangeGroup,
+  CollapsedRegion,
   MinimapBlock,
   ExportFormat,
   ExportMetadata
@@ -14,3 +15,4 @@ export { computeDiff } from './compute';
 export { computeMinimapBlocks } from './minimap';
 export { computeChangeGroups } from './navigation';
 export { generateUnifiedDiff, generateHtmlExport, generateJsonExport } from './export';
+export { computeCollapsedRegions } from './collapse';

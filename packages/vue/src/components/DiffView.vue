@@ -7,6 +7,7 @@ defineProps<{
   result: DiffResult,
   viewMode: 'split' | 'unified',
   isFullscreen?: boolean,
+  collapseUnchanged?: boolean,
   currentChangeIndex?: number,
   changeGroups?: ChangeGroup[],
   scrollRatio?: number,
@@ -42,6 +43,7 @@ function onChildScrollContainerReady(el: HTMLElement | null) {
         :key="'split'"
         :lines="result.lines"
         :is-fullscreen="isFullscreen"
+        :collapse-unchanged="collapseUnchanged"
         :current-change-index="currentChangeIndex"
         :change-groups="changeGroups"
         :scroll-ratio="scrollRatio"
@@ -53,6 +55,7 @@ function onChildScrollContainerReady(el: HTMLElement | null) {
         :key="'unified'"
         :lines="result.lines"
         :is-fullscreen="isFullscreen"
+        :collapse-unchanged="collapseUnchanged"
         :current-change-index="currentChangeIndex"
         :change-groups="changeGroups"
         :scroll-ratio="scrollRatio"

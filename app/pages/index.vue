@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import type { ExportFormat } from '@diffspot/core';
+import { useSyntaxHighlight } from '~/composables/useSyntaxHighlight';
 
-const { leftText, rightText } = useEditorState();
+const { leftText, rightText, language } = useEditorState();
 const { precision, ignoreWhitespace, ignoreCase, options } = useDiffOptions();
 const { result, isComputing, compute } = useDiff(leftText, rightText, options);
 const { exportAs } = useExport();
 const { isFullscreen, toggleFullscreen, exitFullscreen } = useFullscreen();
+const { highlightLine } = useSyntaxHighlight(leftText, rightText, language);
+
+provide('diffspot:highlightLine', highlightLine);
 
 const viewMode = ref<'split' | 'unified'>('split');
+const collapseUnchanged = ref(true);
 const showDiff = ref(false);
 const showLoading = ref(false);
 const diffSectionRef = ref<HTMLElement | null>(null);
@@ -269,6 +274,7 @@ function handleKeydown(e: KeyboardEvent) {
         :precision="precision"
         :ignore-whitespace="ignoreWhitespace"
         :ignore-case="ignoreCase"
+        :collapse-unchanged="collapseUnchanged"
         :hide-split-option="isMobile"
         :is-fullscreen="isFullscreen"
         :current-change-index="currentChangeIndex"
@@ -278,6 +284,7 @@ function handleKeydown(e: KeyboardEvent) {
         @update:precision="precision = $event"
         @update:ignore-whitespace="ignoreWhitespace = $event"
         @update:ignore-case="ignoreCase = $event"
+        @update:collapse-unchanged="collapseUnchanged = $event"
         @export="handleExport"
         @toggle-fullscreen="toggleFullscreen"
         @prev-change="goToPrevChange"
@@ -297,6 +304,7 @@ function handleKeydown(e: KeyboardEvent) {
         :result="result"
         :view-mode="viewMode"
         :is-fullscreen="isFullscreen"
+        :collapse-unchanged="collapseUnchanged"
         :current-change-index="currentChangeIndex"
         :change-groups="changeGroups"
         :scroll-ratio="scrollRatio"

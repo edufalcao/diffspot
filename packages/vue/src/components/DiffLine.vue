@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import type { DiffLine } from '@diffspot/core';
 import DiffGutter from './DiffGutter.vue';
+
+interface SyntaxSpan {
+  text: string,
+  cls: string
+}
+
+type HighlightLineFn = (line: DiffLine) => SyntaxSpan[] | null;
 
 const props = withDefaults(
   defineProps<{
@@ -14,6 +21,15 @@ const props = withDefaults(
     isHighlighted: false
   }
 );
+
+const highlightLineFn = inject<HighlightLineFn | null>('diffspot:highlightLine', null);
+
+const syntaxSpans = computed(() => {
+  // Skip syntax highlighting when word-level diff highlights are active
+  if (props.line.words && props.line.words.length > 0) return null;
+  if (!highlightLineFn) return null;
+  return highlightLineFn(props.line);
+});
 
 const prefixMap: Record<DiffLine['type'], string> = {
   added: '+',
@@ -49,6 +65,13 @@ const lineClasses = computed(() => [
             word.removed && 'bg-[var(--color-removed-highlight)] rounded-sm'
           ]"
         >{{ word.value }}</span>
+      </template>
+      <template v-else-if="syntaxSpans && syntaxSpans.length > 0">
+        <span
+          v-for="(span, idx) in syntaxSpans"
+          :key="idx"
+          :class="span.cls || undefined"
+        >{{ span.text }}</span>
       </template>
       <template v-else>{{ line.content }}</template>
     </span>

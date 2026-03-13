@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import type { DiffLine, ChangeGroup } from '@diffspot/core';
+import type { DiffLine, ChangeGroup, CollapsedRegion } from '@diffspot/core';
+import { computeCollapsedRegions } from '@diffspot/core';
 import { useVirtualScroll } from '../composables/useVirtualScroll';
 import DiffLineComponent from './DiffLine.vue';
 import DiffMinimap from './DiffMinimap.vue';
+
+type DisplayItem
+  = { kind: 'line', line: DiffLine & { originalIndex: number } }
+    | { kind: 'collapsed', region: CollapsedRegion };
 
 const props = withDefaults(
   defineProps<{
     lines: DiffLine[],
     isFullscreen?: boolean,
+    collapseUnchanged?: boolean,
     currentChangeIndex?: number,
     changeGroups?: ChangeGroup[],
     scrollRatio?: number,
@@ -16,6 +22,7 @@ const props = withDefaults(
   }>(),
   {
     isFullscreen: false,
+    collapseUnchanged: true,
     currentChangeIndex: -1,
     changeGroups: () => [],
     scrollRatio: 0,
@@ -32,36 +39,78 @@ const leftPanelRef = ref<HTMLElement | null>(null);
 const rightPanelRef = ref<HTMLElement | null>(null);
 let isSyncing = false;
 
-// Map lines preserving original index before filtering
-const leftLines = computed(() =>
-  props.lines
-    .map((l, i) => ({ ...l, originalIndex: i }))
-    .filter(l => l.type === 'removed' || l.type === 'unchanged')
+// Collapsible regions
+const collapsedRegions = computed(() =>
+  props.collapseUnchanged ? computeCollapsedRegions(props.lines) : []
+);
+const expandedRegions = ref(new Set<number>());
+
+// Build display items from full lines array, then filter for each panel.
+// Collapsed regions contain only unchanged lines, so they appear in both panels.
+const allDisplayItems = computed<DisplayItem[]>(() => {
+  const regions = collapsedRegions.value;
+  const expanded = expandedRegions.value;
+  const items: DisplayItem[] = [];
+  const regionMap = new Map<number, CollapsedRegion>();
+
+  for (const region of regions) {
+    if (!expanded.has(region.startIndex)) {
+      regionMap.set(region.startIndex, region);
+    }
+  }
+
+  let i = 0;
+  while (i < props.lines.length) {
+    const region = regionMap.get(i);
+    if (region) {
+      items.push({ kind: 'collapsed', region });
+      i = region.endIndex + 1;
+    } else {
+      items.push({ kind: 'line', line: { ...props.lines[i]!, originalIndex: i } });
+      i++;
+    }
+  }
+
+  return items;
+});
+
+const leftDisplayItems = computed(() =>
+  allDisplayItems.value.filter(item =>
+    item.kind === 'collapsed' || item.line.type === 'removed' || item.line.type === 'unchanged'
+  )
 );
 
-const rightLines = computed(() =>
-  props.lines
-    .map((l, i) => ({ ...l, originalIndex: i }))
-    .filter(l => l.type === 'added' || l.type === 'unchanged')
+const rightDisplayItems = computed(() =>
+  allDisplayItems.value.filter(item =>
+    item.kind === 'collapsed' || item.line.type === 'added' || item.line.type === 'unchanged'
+  )
 );
+
+function toggleRegion(startIndex: number) {
+  const next = new Set(expandedRegions.value);
+  if (next.has(startIndex)) {
+    next.delete(startIndex);
+  } else {
+    next.add(startIndex);
+  }
+  expandedRegions.value = next;
+}
 
 // Virtual scroll for left panel
-const leftTotalItems = computed(() => leftLines.value.length);
+const leftTotalItems = computed(() => leftDisplayItems.value.length);
 const leftVs = useVirtualScroll(leftPanelRef, leftTotalItems);
 
 // Virtual scroll for right panel
-const rightTotalItems = computed(() => rightLines.value.length);
+const rightTotalItems = computed(() => rightDisplayItems.value.length);
 const rightVs = useVirtualScroll(rightPanelRef, rightTotalItems);
 
-const leftVisibleItems = computed(() => {
-  const items = leftLines.value;
-  return items.slice(leftVs.startIndex.value, leftVs.endIndex.value);
-});
+const leftVisibleItems = computed(() =>
+  leftDisplayItems.value.slice(leftVs.startIndex.value, leftVs.endIndex.value)
+);
 
-const rightVisibleItems = computed(() => {
-  const items = rightLines.value;
-  return items.slice(rightVs.startIndex.value, rightVs.endIndex.value);
-});
+const rightVisibleItems = computed(() =>
+  rightDisplayItems.value.slice(rightVs.startIndex.value, rightVs.endIndex.value)
+);
 
 // Compute highlighted line indices from current change group
 const highlightedIndices = computed(() => {
@@ -141,34 +190,56 @@ defineExpose({
         ]"
       >
         <div v-if="leftVs.isPrinting.value">
-          <div
-            v-for="(line, idx) in leftLines"
-            :key="idx"
-            :data-line-index="line.originalIndex"
+          <template
+            v-for="(item, i) in leftDisplayItems"
+            :key="i"
           >
-            <DiffLineComponent
-              :line="line"
-              :show-line-numbers="true"
-              :is-highlighted="highlightedIndices.has(line.originalIndex)"
-            />
-          </div>
+            <div
+              v-if="item.kind === 'collapsed'"
+              class="flex items-center justify-center min-h-[1.625rem] text-xs text-[var(--color-muted)] bg-[var(--color-elevated)] border-y border-[var(--color-border)] font-[var(--font-mono)]"
+            >
+              ··· {{ item.region.count }} unchanged lines ···
+            </div>
+            <div
+              v-else
+              :data-line-index="item.line.originalIndex"
+            >
+              <DiffLineComponent
+                :line="item.line"
+                :show-line-numbers="true"
+                :is-highlighted="highlightedIndices.has(item.line.originalIndex)"
+              />
+            </div>
+          </template>
         </div>
         <div
           v-else
           :style="{ height: leftVs.totalHeight.value + 'px', position: 'relative' }"
         >
           <div :style="{ position: 'absolute', top: '0', left: '0', right: '0', transform: `translateY(${leftVs.offsetY.value}px)` }">
-            <div
-              v-for="item in leftVisibleItems"
-              :key="item.originalIndex"
-              :data-line-index="item.originalIndex"
+            <template
+              v-for="(item, i) in leftVisibleItems"
+              :key="leftVs.startIndex.value + i"
             >
-              <DiffLineComponent
-                :line="item"
-                :show-line-numbers="true"
-                :is-highlighted="highlightedIndices.has(item.originalIndex)"
-              />
-            </div>
+              <button
+                v-if="item.kind === 'collapsed'"
+                type="button"
+                class="flex w-full items-center justify-center min-h-[1.625rem] text-xs text-[var(--color-muted)] hover:text-[var(--color-text)] bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border-y border-[var(--color-border)] font-[var(--font-mono)] cursor-pointer transition-colors"
+                @click="toggleRegion(item.region.startIndex)"
+              >
+                ··· {{ item.region.count }} unchanged lines ···
+              </button>
+              <div
+                v-else
+                :data-line-index="item.line.originalIndex"
+              >
+                <DiffLineComponent
+                  :line="item.line"
+                  :show-line-numbers="true"
+                  :is-highlighted="highlightedIndices.has(item.line.originalIndex)"
+                />
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -183,34 +254,56 @@ defineExpose({
         ]"
       >
         <div v-if="rightVs.isPrinting.value">
-          <div
-            v-for="(line, idx) in rightLines"
-            :key="idx"
-            :data-line-index="line.originalIndex"
+          <template
+            v-for="(item, i) in rightDisplayItems"
+            :key="i"
           >
-            <DiffLineComponent
-              :line="line"
-              :show-line-numbers="true"
-              :is-highlighted="highlightedIndices.has(line.originalIndex)"
-            />
-          </div>
+            <div
+              v-if="item.kind === 'collapsed'"
+              class="flex items-center justify-center min-h-[1.625rem] text-xs text-[var(--color-muted)] bg-[var(--color-elevated)] border-y border-[var(--color-border)] font-[var(--font-mono)]"
+            >
+              ··· {{ item.region.count }} unchanged lines ···
+            </div>
+            <div
+              v-else
+              :data-line-index="item.line.originalIndex"
+            >
+              <DiffLineComponent
+                :line="item.line"
+                :show-line-numbers="true"
+                :is-highlighted="highlightedIndices.has(item.line.originalIndex)"
+              />
+            </div>
+          </template>
         </div>
         <div
           v-else
           :style="{ height: rightVs.totalHeight.value + 'px', position: 'relative' }"
         >
           <div :style="{ position: 'absolute', top: '0', left: '0', right: '0', transform: `translateY(${rightVs.offsetY.value}px)` }">
-            <div
-              v-for="item in rightVisibleItems"
-              :key="item.originalIndex"
-              :data-line-index="item.originalIndex"
+            <template
+              v-for="(item, i) in rightVisibleItems"
+              :key="rightVs.startIndex.value + i"
             >
-              <DiffLineComponent
-                :line="item"
-                :show-line-numbers="true"
-                :is-highlighted="highlightedIndices.has(item.originalIndex)"
-              />
-            </div>
+              <button
+                v-if="item.kind === 'collapsed'"
+                type="button"
+                class="flex w-full items-center justify-center min-h-[1.625rem] text-xs text-[var(--color-muted)] hover:text-[var(--color-text)] bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border-y border-[var(--color-border)] font-[var(--font-mono)] cursor-pointer transition-colors"
+                @click="toggleRegion(item.region.startIndex)"
+              >
+                ··· {{ item.region.count }} unchanged lines ···
+              </button>
+              <div
+                v-else
+                :data-line-index="item.line.originalIndex"
+              >
+                <DiffLineComponent
+                  :line="item.line"
+                  :show-line-numbers="true"
+                  :is-highlighted="highlightedIndices.has(item.line.originalIndex)"
+                />
+              </div>
+            </template>
           </div>
         </div>
       </div>

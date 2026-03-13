@@ -62,6 +62,12 @@ importers:
       '@diffspot/vue':
         specifier: workspace:*
         version: link:packages/vue
+      '@lezer/common':
+        specifier: ^1.5.1
+        version: 1.5.1
+      '@lezer/highlight':
+        specifier: ^1.2.3
+        version: 1.2.3
       '@nuxtjs/color-mode':
         specifier: ^3.5.2
         version: 3.5.2(magicast@0.5.2)

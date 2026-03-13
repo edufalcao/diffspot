@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue';
-import type { DiffLine, ChangeGroup } from '@diffspot/core';
+import type { DiffLine, ChangeGroup, CollapsedRegion } from '@diffspot/core';
+import { computeCollapsedRegions } from '@diffspot/core';
 import { useVirtualScroll } from '../composables/useVirtualScroll';
 import DiffLineComponent from './DiffLine.vue';
 import DiffMinimap from './DiffMinimap.vue';
+
+type DisplayItem
+  = { kind: 'line', line: DiffLine, idx: number }
+    | { kind: 'collapsed', region: CollapsedRegion };
 
 const props = withDefaults(
   defineProps<{
     lines: DiffLine[],
     showLineNumbers?: boolean,
     isFullscreen?: boolean,
+    collapseUnchanged?: boolean,
     currentChangeIndex?: number,
     changeGroups?: ChangeGroup[],
     scrollRatio?: number,
@@ -18,6 +24,7 @@ const props = withDefaults(
   {
     showLineNumbers: true,
     isFullscreen: false,
+    collapseUnchanged: true,
     currentChangeIndex: -1,
     changeGroups: () => [],
     scrollRatio: 0,
@@ -31,7 +38,50 @@ const emit = defineEmits<{
 
 const scrollContainerRef = ref<HTMLElement | null>(null);
 
-const totalItems = computed(() => props.lines.length);
+// Collapsible regions
+const collapsedRegions = computed(() =>
+  props.collapseUnchanged ? computeCollapsedRegions(props.lines) : []
+);
+const expandedRegions = ref(new Set<number>());
+
+const displayItems = computed<DisplayItem[]>(() => {
+  const regions = collapsedRegions.value;
+  const expanded = expandedRegions.value;
+  const items: DisplayItem[] = [];
+  const regionMap = new Map<number, CollapsedRegion>();
+
+  for (const region of regions) {
+    if (!expanded.has(region.startIndex)) {
+      regionMap.set(region.startIndex, region);
+    }
+  }
+
+  let i = 0;
+  while (i < props.lines.length) {
+    const region = regionMap.get(i);
+    if (region) {
+      items.push({ kind: 'collapsed', region });
+      i = region.endIndex + 1;
+    } else {
+      items.push({ kind: 'line', line: props.lines[i]!, idx: i });
+      i++;
+    }
+  }
+
+  return items;
+});
+
+function toggleRegion(startIndex: number) {
+  const next = new Set(expandedRegions.value);
+  if (next.has(startIndex)) {
+    next.delete(startIndex);
+  } else {
+    next.add(startIndex);
+  }
+  expandedRegions.value = next;
+}
+
+const totalItems = computed(() => displayItems.value.length);
 
 const { startIndex, endIndex, totalHeight, offsetY, isPrinting } = useVirtualScroll(
   scrollContainerRef,
@@ -39,12 +89,7 @@ const { startIndex, endIndex, totalHeight, offsetY, isPrinting } = useVirtualScr
 );
 
 const visibleItems = computed(() => {
-  const items: { line: DiffLine, idx: number }[] = [];
-  const end = Math.min(endIndex.value, props.lines.length);
-  for (let i = startIndex.value; i < end; i++) {
-    items.push({ line: props.lines[i]!, idx: i });
-  }
-  return items;
+  return displayItems.value.slice(startIndex.value, endIndex.value);
 });
 
 onMounted(() => {
@@ -91,26 +136,18 @@ defineExpose({
       ]"
     >
       <div v-if="isPrinting">
-        <div
-          v-for="(line, idx) in lines"
-          :key="idx"
-          :data-line-index="idx"
+        <template
+          v-for="(item, i) in displayItems"
+          :key="i"
         >
-          <DiffLineComponent
-            :line="line"
-            :show-line-numbers="showLineNumbers"
-            :is-highlighted="highlightedIndices.has(idx)"
-          />
-        </div>
-      </div>
-      <div
-        v-else
-        :style="{ height: totalHeight + 'px', position: 'relative' }"
-      >
-        <div :style="{ position: 'absolute', top: '0', left: '0', right: '0', transform: `translateY(${offsetY}px)` }">
           <div
-            v-for="item in visibleItems"
-            :key="item.idx"
+            v-if="item.kind === 'collapsed'"
+            class="flex items-center justify-center min-h-[1.625rem] text-xs text-[var(--color-muted)] bg-[var(--color-elevated)] border-y border-[var(--color-border)] font-[var(--font-mono)]"
+          >
+            ··· {{ item.region.count }} unchanged lines ···
+          </div>
+          <div
+            v-else
             :data-line-index="item.idx"
           >
             <DiffLineComponent
@@ -119,6 +156,36 @@ defineExpose({
               :is-highlighted="highlightedIndices.has(item.idx)"
             />
           </div>
+        </template>
+      </div>
+      <div
+        v-else
+        :style="{ height: totalHeight + 'px', position: 'relative' }"
+      >
+        <div :style="{ position: 'absolute', top: '0', left: '0', right: '0', transform: `translateY(${offsetY}px)` }">
+          <template
+            v-for="(item, i) in visibleItems"
+            :key="startIndex + i"
+          >
+            <button
+              v-if="item.kind === 'collapsed'"
+              type="button"
+              class="flex w-full items-center justify-center min-h-[1.625rem] text-xs text-[var(--color-muted)] hover:text-[var(--color-text)] bg-[var(--color-elevated)] hover:bg-[var(--color-surface)] border-y border-[var(--color-border)] font-[var(--font-mono)] cursor-pointer transition-colors"
+              @click="toggleRegion(item.region.startIndex)"
+            >
+              ··· {{ item.region.count }} unchanged lines ···
+            </button>
+            <div
+              v-else
+              :data-line-index="item.idx"
+            >
+              <DiffLineComponent
+                :line="item.line"
+                :show-line-numbers="showLineNumbers"
+                :is-highlighted="highlightedIndices.has(item.idx)"
+              />
+            </div>
+          </template>
         </div>
       </div>
     </div>
