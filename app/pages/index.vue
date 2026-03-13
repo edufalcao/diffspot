@@ -243,60 +243,54 @@ function handleKeydown(e: KeyboardEvent) {
     </Transition>
 
     <!-- Diff output -->
-    <Transition
-      enter-active-class="transition-all duration-300 ease-[var(--ease)]"
-      enter-from-class="opacity-0 translate-y-4"
-      enter-to-class="opacity-100 translate-y-0"
+    <div
+      v-if="hasDiff && !textsAreIdentical"
+      ref="diffSectionRef"
+      :class="[
+        isFullscreen
+          ? 'fixed inset-0 z-50 flex flex-col bg-[var(--color-bg)] p-6 overflow-hidden'
+          : 'w-full max-w-6xl animate-slide-up space-y-4'
+      ]"
     >
-      <div
-        v-if="hasDiff && !textsAreIdentical"
-        ref="diffSectionRef"
-        :class="[
-          isFullscreen
-            ? 'fixed inset-0 z-50 flex flex-col bg-[var(--color-bg)] p-6 overflow-hidden'
-            : 'w-full max-w-6xl animate-slide-up space-y-4'
-        ]"
-      >
-        <!-- Controls -->
-        <DiffControls
-          :view-mode="viewMode"
-          :precision="precision"
-          :ignore-whitespace="ignoreWhitespace"
-          :ignore-case="ignoreCase"
-          :hide-split-option="isMobile"
-          :is-fullscreen="isFullscreen"
-          :current-change-index="currentChangeIndex"
-          :total-changes="totalChanges"
-          @update:view-mode="viewMode = $event"
-          @update:precision="precision = $event"
-          @update:ignore-whitespace="ignoreWhitespace = $event"
-          @update:ignore-case="ignoreCase = $event"
-          @print="print"
-          @toggle-fullscreen="toggleFullscreen"
-          @prev-change="goToPrevChange"
-          @next-change="goToNextChange"
-        />
+      <!-- Controls -->
+      <DiffControls
+        :view-mode="viewMode"
+        :precision="precision"
+        :ignore-whitespace="ignoreWhitespace"
+        :ignore-case="ignoreCase"
+        :hide-split-option="isMobile"
+        :is-fullscreen="isFullscreen"
+        :current-change-index="currentChangeIndex"
+        :total-changes="totalChanges"
+        @update:view-mode="viewMode = $event"
+        @update:precision="precision = $event"
+        @update:ignore-whitespace="ignoreWhitespace = $event"
+        @update:ignore-case="ignoreCase = $event"
+        @print="print"
+        @toggle-fullscreen="toggleFullscreen"
+        @prev-change="goToPrevChange"
+        @next-change="goToNextChange"
+      />
 
-        <!-- Stats -->
-        <DiffStats
-          :additions="result.additions"
-          :removals="result.removals"
-          :unchanged="result.unchanged"
-          :class="isFullscreen ? 'flex-shrink-0' : ''"
-        />
+      <!-- Stats -->
+      <DiffStats
+        :additions="result.additions"
+        :removals="result.removals"
+        :unchanged="result.unchanged"
+        :class="isFullscreen ? 'flex-shrink-0' : ''"
+      />
 
-        <!-- Diff view -->
-        <DiffView
-          :result="result"
-          :view-mode="viewMode"
-          :is-fullscreen="isFullscreen"
-          :current-change-index="currentChangeIndex"
-          :change-groups="changeGroups"
-          :scroll-ratio="scrollRatio"
-          :viewport-ratio="viewportRatio"
-          @scroll-container-ready="onScrollContainerReady"
-        />
-      </div>
-    </Transition>
+      <!-- Diff view -->
+      <DiffView
+        :result="result"
+        :view-mode="viewMode"
+        :is-fullscreen="isFullscreen"
+        :current-change-index="currentChangeIndex"
+        :change-groups="changeGroups"
+        :scroll-ratio="scrollRatio"
+        :viewport-ratio="viewportRatio"
+        @scroll-container-ready="onScrollContainerReady"
+      />
+    </div>
   </div>
 </template>
