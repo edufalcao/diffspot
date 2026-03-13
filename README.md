@@ -55,6 +55,8 @@ This repository is `pnpm`-first. The workspace scripts shell out to `pnpm --filt
 pnpm build
 ```
 
+`pnpm build` runs the package test suite first, then builds the workspace packages, and finally produces the Nuxt app build.
+
 Output is in `dist/` — deployed automatically to Cloudflare Pages via GitHub Actions on push to `main`.
 
 ## Database Migrations

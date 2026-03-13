@@ -152,7 +152,7 @@
 |---|---|---|
 | Nitro preset: `cloudflare-pages` | ✅ Done | Outputs `dist/_worker.js` + static assets |
 | SSR disabled (SPA mode) | ✅ Done | `ssr: false` — pages render client-side |
-| CI/CD pipeline | ✅ Done | GitHub Actions → `pnpm build` → Cloudflare Pages on push to `main` |
+| CI/CD pipeline | ✅ Done | GitHub Actions → `pnpm build` (tests + package builds + app build) → Cloudflare Pages on push to `main` |
 | Hosting (Cloudflare Pages) | ✅ Done | `wrangler pages deploy dist` — secrets configured, build passing |
 | D1 database binding | ✅ Done | `wrangler.toml` + dashboard binding → `env.DB` available in Workers |
 | D1 schema migrations | ✅ Done | `migrations/` directory; run via `wrangler d1 execute --remote` |
@@ -191,7 +191,7 @@
 ## 6. Verification Checklist (pre-launch)
 
 - [ ] `pnpm dev` — app renders, theme matches edufalcao.com
-- [ ] `pnpm build` — `dist/` generated with `_worker.js`
+- [ ] `pnpm build` — package tests pass and `dist/` is generated with `_worker.js`
 - [ ] Diff accuracy: paste known pairs, verify additions/removals
 - [ ] Split view + synced scrolling QA
 - [ ] Unified view QA

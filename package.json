@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
+    "build": "pnpm test:packages && pnpm build:packages && pnpm build:app",
+    "build:app": "nuxt build",
     "dev": "pnpm build:packages && pnpm dev:packages & nuxt dev",
     "dev:packages": "pnpm --filter @diffspot/core dev & pnpm --filter @diffspot/vue dev",
     "generate": "nuxt generate",
