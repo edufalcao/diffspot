@@ -1,44 +1,31 @@
-import { computed, type Ref } from 'vue';
+import { computed, shallowRef, watch, type Ref } from 'vue';
 import type { DiffLine } from '@diffspot/core';
 import { highlightTree, classHighlighter } from '@lezer/highlight';
 import type { Parser, Tree } from '@lezer/common';
-import { javascriptLanguage, typescriptLanguage, jsxLanguage, tsxLanguage } from '@codemirror/lang-javascript';
-import { pythonLanguage } from '@codemirror/lang-python';
-import { htmlLanguage } from '@codemirror/lang-html';
-import { cssLanguage } from '@codemirror/lang-css';
-import { jsonLanguage } from '@codemirror/lang-json';
-import { markdownLanguage } from '@codemirror/lang-markdown';
-import { xmlLanguage } from '@codemirror/lang-xml';
-import { javaLanguage } from '@codemirror/lang-java';
-import { cppLanguage } from '@codemirror/lang-cpp';
-import { rustLanguage } from '@codemirror/lang-rust';
-import { goLanguage } from '@codemirror/lang-go';
-import { phpLanguage } from '@codemirror/lang-php';
-import { StandardSQL } from '@codemirror/lang-sql';
 
 export interface SyntaxSpan {
   text: string,
   cls: string
 }
 
-const parserMap: Record<string, Parser> = {
-  javascript: javascriptLanguage.parser,
-  typescript: typescriptLanguage.parser,
-  jsx: jsxLanguage.parser,
-  tsx: tsxLanguage.parser,
-  python: pythonLanguage.parser,
-  html: htmlLanguage.parser,
-  css: cssLanguage.parser,
-  json: jsonLanguage.parser,
-  markdown: markdownLanguage.parser,
-  xml: xmlLanguage.parser,
-  java: javaLanguage.parser,
-  cpp: cppLanguage.parser,
-  c: cppLanguage.parser,
-  rust: rustLanguage.parser,
-  go: goLanguage.parser,
-  php: phpLanguage.parser,
-  sql: StandardSQL.language.parser
+const parserLoaders: Record<string, () => Promise<Parser>> = {
+  javascript: async () => (await import('@codemirror/lang-javascript')).javascriptLanguage.parser,
+  typescript: async () => (await import('@codemirror/lang-javascript')).typescriptLanguage.parser,
+  jsx: async () => (await import('@codemirror/lang-javascript')).jsxLanguage.parser,
+  tsx: async () => (await import('@codemirror/lang-javascript')).tsxLanguage.parser,
+  python: async () => (await import('@codemirror/lang-python')).pythonLanguage.parser,
+  html: async () => (await import('@codemirror/lang-html')).htmlLanguage.parser,
+  css: async () => (await import('@codemirror/lang-css')).cssLanguage.parser,
+  json: async () => (await import('@codemirror/lang-json')).jsonLanguage.parser,
+  markdown: async () => (await import('@codemirror/lang-markdown')).markdownLanguage.parser,
+  xml: async () => (await import('@codemirror/lang-xml')).xmlLanguage.parser,
+  java: async () => (await import('@codemirror/lang-java')).javaLanguage.parser,
+  cpp: async () => (await import('@codemirror/lang-cpp')).cppLanguage.parser,
+  c: async () => (await import('@codemirror/lang-cpp')).cppLanguage.parser,
+  rust: async () => (await import('@codemirror/lang-rust')).rustLanguage.parser,
+  go: async () => (await import('@codemirror/lang-go')).goLanguage.parser,
+  php: async () => (await import('@codemirror/lang-php')).phpLanguage.parser,
+  sql: async () => (await import('@codemirror/lang-sql')).StandardSQL.language.parser
 };
 
 function buildHighlightMap(tree: Tree, text: string): Map<number, SyntaxSpan[]> {
@@ -123,7 +110,33 @@ export function useSyntaxHighlight(
   rightText: Ref<string>,
   language: Ref<string>
 ) {
-  const parser = computed(() => parserMap[language.value] ?? null);
+  const parser = shallowRef<Parser | null>(null);
+  let currentParserRequest = 0;
+
+  watch(
+    language,
+    async (languageValue) => {
+      const requestId = ++currentParserRequest;
+      const loader = parserLoaders[languageValue];
+
+      if (!loader) {
+        parser.value = null;
+        return;
+      }
+
+      try {
+        const loadedParser = await loader();
+        if (requestId === currentParserRequest) {
+          parser.value = loadedParser;
+        }
+      } catch {
+        if (requestId === currentParserRequest) {
+          parser.value = null;
+        }
+      }
+    },
+    { immediate: true }
+  );
 
   const leftHighlightMap = computed(() => {
     if (!parser.value) return null;

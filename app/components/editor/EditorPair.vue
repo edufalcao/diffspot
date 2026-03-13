@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue';
 import { Copy, Trash2, ChevronDown, Check, Upload } from 'lucide-vue-next';
 import { useEditorState, detectLanguageFromFilename } from '~/composables/useEditorState';
-import DiffEditor from './DiffEditor.vue';
+
+const DiffEditor = defineAsyncComponent(() => import('./DiffEditor.vue'));
 
 const emit = defineEmits<{ clear: [] }>();
 

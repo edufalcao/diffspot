@@ -29,8 +29,8 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Nuxt 4 (Vue 3 + TypeScript) |
-| Styling | Tailwind CSS 4 |
+| Framework | Nuxt 3 (Vue 3 + TypeScript) |
+| Styling | Tailwind CSS 3 |
 | Diff engine | jsdiff (`diff`) |
 | Code editors | CodeMirror 6 via `vue-codemirror` |
 | Export | Multi-format (Print/PDF, .diff, .html, .json) |
@@ -42,15 +42,17 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 ## Getting Started
 
 ```bash
-npm install
-npm run dev
-npm run preview   # preview production build
+pnpm install
+pnpm dev
+pnpm preview   # preview production build
 ```
+
+This repository is `pnpm`-first. The workspace scripts shell out to `pnpm --filter`, so `pnpm` needs to be installed locally.
 
 ## Build & Deploy
 
 ```bash
-npm run build
+pnpm build
 ```
 
 Output is in `dist/` — deployed automatically to Cloudflare Pages via GitHub Actions on push to `main`.
@@ -81,17 +83,14 @@ app/
 ├── components/
 │   ├── layout/     # AppHeader, AppFooter, ThemeToggle
 │   ├── editor/     # DiffEditor, EditorPair
-│   ├── diff/       # DiffView, DiffSplitView, DiffUnifiedView, DiffControls, DiffStats, DiffMinimap
 │   └── ui/         # GlowButton, ToggleGroup, DropdownMenu, GradientText
-├── composables/    # useDiff, useEditorState, useDiffOptions, useExport, useDiffNavigation, useFullscreen, useMinimap, useVirtualScroll
-├── utils/          # Pure functions (diffCompute — extracted for Web Worker)
+├── composables/    # App-level wrappers and orchestration for diff, export, navigation, fullscreen, and syntax highlighting
 ├── workers/        # Web Workers (diff.worker — off-main-thread diff computation)
 ├── pages/          # index.vue
-├── types/          # TypeScript interfaces
 └── assets/css/     # Design system (CSS variables, animations)
 packages/
 ├── core/           # @diffspot/core — diff engine, export generators
-└── vue/            # @diffspot/vue — Vue 3 components and composables
+└── vue/            # @diffspot/vue — Vue 3 components, composables, and package tests
 migrations/         # D1 SQL migration files
 server/
 └── routes/         # Cloudflare Workers server routes

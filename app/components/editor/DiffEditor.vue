@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, shallowRef, watch } from 'vue';
 import { Codemirror } from 'vue-codemirror';
+import type { Extension } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { getLanguageExtension } from '~/composables/useEditorState';
+import { loadLanguageExtension } from '~/composables/useEditorState';
 
 const props = withDefaults(
   defineProps<{
@@ -24,10 +25,34 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>();
 
+const EMPTY_EXTENSION = [] as unknown as Extension;
+
 const localValue = computed({
   get: () => props.modelValue,
   set: (val: string) => emit('update:modelValue', val)
 });
+
+const languageExtension = shallowRef<Extension>(EMPTY_EXTENSION);
+let currentLanguageRequest = 0;
+
+watch(
+  () => props.language,
+  async (language) => {
+    const requestId = ++currentLanguageRequest;
+
+    try {
+      const extension = await loadLanguageExtension(language);
+      if (requestId === currentLanguageRequest) {
+        languageExtension.value = extension;
+      }
+    } catch {
+      if (requestId === currentLanguageRequest) {
+        languageExtension.value = EMPTY_EXTENSION;
+      }
+    }
+  },
+  { immediate: true }
+);
 
 const customTheme = EditorView.theme(
   {
@@ -87,7 +112,7 @@ const extensions = computed(() => {
     customTheme,
     oneDark,
     EditorView.lineWrapping,
-    getLanguageExtension(props.language)
+    languageExtension.value
   ];
 
   if (props.readonly) {

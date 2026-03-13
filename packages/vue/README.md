@@ -8,7 +8,7 @@ Vue 3 diff components and composables for building beautiful text comparison int
 npm install @diffspot/vue @diffspot/core
 ```
 
-> **Peer dependencies:** `vue ^3.3` and `@diffspot/core ^0.1` are required.
+> **Peer dependencies:** `vue ^3.3` and `@diffspot/core ^0.3` are required.
 
 ## Quick Start
 

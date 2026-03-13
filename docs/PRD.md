@@ -10,7 +10,7 @@
 
 **Design language:** Dark terminal-chic aesthetic matching edufalcao.com — cyan/pink accents, JetBrains Mono, noise overlay, glow effects.
 
-**Live stack:** Nuxt 4 + Vue 3 + TypeScript + Tailwind CSS 4 + jsdiff + CodeMirror 6 + Cloudflare Workers + D1
+**Live stack:** Nuxt 3 + Vue 3 + TypeScript + Tailwind CSS 3 + jsdiff + CodeMirror 6 + Cloudflare Workers + D1
 
 ---
 
@@ -33,8 +33,8 @@
 
 | Feature | Status | Notes |
 |---|---|---|
-| Nuxt 4 + Vue 3 + TypeScript | ✅ Done | |
-| Tailwind CSS 4 | ✅ Done | |
+| Nuxt 3 + Vue 3 + TypeScript | ✅ Done | |
+| Tailwind CSS 3 | ✅ Done | |
 | CSS design tokens (colors, fonts, effects) | ✅ Done | `main.css` |
 | Noise overlay + radial gradient background | ✅ Done | `app.vue` |
 | Google Fonts (Space Grotesk, DM Sans, JetBrains Mono) | ✅ Done | |
@@ -152,7 +152,7 @@
 |---|---|---|
 | Nitro preset: `cloudflare-pages` | ✅ Done | Outputs `dist/_worker.js` + static assets |
 | SSR disabled (SPA mode) | ✅ Done | `ssr: false` — pages render client-side |
-| CI/CD pipeline | ✅ Done | GitHub Actions → `npm run build` → Cloudflare Pages on push to `main` |
+| CI/CD pipeline | ✅ Done | GitHub Actions → `pnpm build` → Cloudflare Pages on push to `main` |
 | Hosting (Cloudflare Pages) | ✅ Done | `wrangler pages deploy dist` — secrets configured, build passing |
 | D1 database binding | ✅ Done | `wrangler.toml` + dashboard binding → `env.DB` available in Workers |
 | D1 schema migrations | ✅ Done | `migrations/` directory; run via `wrangler d1 execute --remote` |
@@ -190,8 +190,8 @@
 
 ## 6. Verification Checklist (pre-launch)
 
-- [ ] `npm run dev` — app renders, theme matches edufalcao.com
-- [ ] `npm run build` — `dist/` generated with `_worker.js`
+- [ ] `pnpm dev` — app renders, theme matches edufalcao.com
+- [ ] `pnpm build` — `dist/` generated with `_worker.js`
 - [ ] Diff accuracy: paste known pairs, verify additions/removals
 - [ ] Split view + synced scrolling QA
 - [ ] Unified view QA
