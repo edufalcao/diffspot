@@ -13,6 +13,11 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
 
+  components: [
+    { path: '~/components', pathPrefix: false },
+    { path: '../node_modules/@diffspot/vue/src/components', pathPrefix: false, extensions: ['vue'] },
+  ],
+
   modules: ['@nuxtjs/tailwindcss', '@nuxtjs/google-fonts', '@nuxtjs/color-mode'],
 
   colorMode: {
