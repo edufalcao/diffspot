@@ -1,33 +1,6 @@
 import { computed, ref, watch, nextTick, onBeforeUnmount, type Ref, type ComputedRef } from 'vue'
-import type { DiffResult, DiffLine, ChangeGroup } from '~/types/diff'
-
-/**
- * Groups consecutive non-unchanged lines into change groups.
- */
-function computeChangeGroups(lines: DiffLine[]): ChangeGroup[] {
-  const groups: ChangeGroup[] = []
-  let i = 0
-
-  while (i < lines.length) {
-    const currentLine = lines[i]!
-    if (currentLine.type !== 'unchanged') {
-      const startIndex = i
-      const types = new Set<'added' | 'removed'>()
-
-      while (i < lines.length && lines[i]!.type !== 'unchanged') {
-        types.add(lines[i]!.type as 'added' | 'removed')
-        i++
-      }
-
-      const type = types.size > 1 ? 'mixed' : ([...types][0] as 'added' | 'removed')
-      groups.push({ startIndex, endIndex: i - 1, type })
-    } else {
-      i++
-    }
-  }
-
-  return groups
-}
+import type { DiffResult, ChangeGroup } from '@diffspot/core'
+import { computeChangeGroups } from '@diffspot/core'
 
 export function useDiffNavigation(
   result: Ref<DiffResult> | ComputedRef<DiffResult>,

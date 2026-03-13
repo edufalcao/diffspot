@@ -1,6 +1,6 @@
 import { ref, type Ref, type ComputedRef } from 'vue'
-import type { DiffOptions, DiffResult } from '~/types/diff'
-import { computeDiff as computeDiffSync } from '~/utils/diffCompute'
+import type { DiffOptions, DiffResult } from '@diffspot/core'
+import { computeDiff as computeDiffSync } from '@diffspot/core'
 
 type MaybeRef<T> = T | Ref<T> | ComputedRef<T>
 

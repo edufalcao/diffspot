@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DiffLine } from '~/types/diff'
+import type { DiffLine } from '@diffspot/core'
 
 const props = withDefaults(
   defineProps<{

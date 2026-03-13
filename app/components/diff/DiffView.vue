@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DiffResult, ChangeGroup } from '~/types/diff'
+import type { DiffResult, ChangeGroup } from '@diffspot/core'
 
 defineProps<{
   result: DiffResult

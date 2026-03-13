@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeUnmount } from 'vue'
-import type { DiffLine } from '~/types/diff'
-import { computeMinimapBlocks } from '~/composables/useMinimap'
+import type { DiffLine } from '@diffspot/core'
+import { computeMinimapBlocks } from '@diffspot/core'
 
 const props = defineProps<{
   lines: DiffLine[]

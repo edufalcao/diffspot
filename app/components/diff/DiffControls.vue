@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Printer, Maximize2, Minimize2, ChevronUp, ChevronDown } from 'lucide-vue-next'
-import type { DiffPrecision } from '~/types/diff'
+import type { DiffPrecision } from '@diffspot/core'
 
 const props = withDefaults(
   defineProps<{

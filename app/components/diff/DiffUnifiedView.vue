@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue'
-import type { DiffLine, ChangeGroup } from '~/types/diff'
+import type { DiffLine, ChangeGroup } from '@diffspot/core'
 
 const props = withDefaults(
   defineProps<{

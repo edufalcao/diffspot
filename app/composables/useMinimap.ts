@@ -1,4 +1,4 @@
-import type { DiffLine } from '~/types/diff'
+import type { DiffLine } from '@diffspot/core'
 
 export interface MinimapBlock {
   y: number      // percentage from top (0–100)

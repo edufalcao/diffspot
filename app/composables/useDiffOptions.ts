@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import type { DiffPrecision, DiffOptions } from '~/types/diff'
+import type { DiffPrecision, DiffOptions } from '@diffspot/core'
 
 /**
  * Reactive state for diff configuration options.

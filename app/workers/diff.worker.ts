@@ -1,5 +1,5 @@
-import { computeDiff } from '../utils/diffCompute'
-import type { DiffOptions } from '../types/diff'
+import { computeDiff } from '@diffspot/core'
+import type { DiffOptions } from '@diffspot/core'
 
 interface WorkerRequest {
   id: number

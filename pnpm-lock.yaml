@@ -56,6 +56,12 @@ importers:
       '@codemirror/view':
         specifier: ^6.39.16
         version: 6.40.0
+      '@diffspot/core':
+        specifier: workspace:*
+        version: link:packages/core
+      '@diffspot/vue':
+        specifier: workspace:*
+        version: link:packages/vue
       '@nuxtjs/color-mode':
         specifier: ^3.5.2
         version: 3.5.2(magicast@0.5.2)
