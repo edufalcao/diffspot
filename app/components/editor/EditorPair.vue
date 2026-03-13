@@ -4,6 +4,8 @@ import { Copy, Trash2, ChevronDown, Check, Upload } from 'lucide-vue-next'
 import { useEditorState } from '~/composables/useEditorState'
 import DiffEditor from './DiffEditor.vue'
 
+const emit = defineEmits<{ clear: [] }>()
+
 const { leftText, rightText, language, supportedLanguages } = useEditorState()
 
 // Language dropdown
@@ -73,6 +75,7 @@ async function copyToClipboard() {
 }
 
 function clearEditors() {
+  emit('clear')
   leftText.value = ''
   rightText.value = ''
 }

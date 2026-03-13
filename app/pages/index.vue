@@ -124,7 +124,7 @@ function handleKeydown(e: KeyboardEvent) {
 
     <!-- Editor pair (toolbar integrated) -->
     <div class="w-full max-w-7xl animate-slide-up mb-6">
-      <EditorPair />
+      <EditorPair @clear="showDiff = false" />
     </div>
 
     <!-- Find Differences button -->
