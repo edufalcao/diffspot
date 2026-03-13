@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   },
 
   components: [
-    { path: '~/components', pathPrefix: false },
+    { path: '~/components' },
     { path: '../node_modules/@diffspot/vue/src/components', pathPrefix: false, extensions: ['vue'] },
   ],
 
