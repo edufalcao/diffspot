@@ -30,8 +30,8 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Nuxt 3 (Vue 3 + TypeScript) |
-| Styling | Tailwind CSS 3 |
+| Framework | Nuxt 4 (Vue 3 + TypeScript) |
+| Styling | Tailwind CSS 4 |
 | Diff engine | jsdiff (`diff`) |
 | Code editors | CodeMirror 6 via `vue-codemirror` |
 | Export | Multi-format (Print/PDF, .diff, .html, .json) |

@@ -261,7 +261,7 @@ async function handleDrop(side: 'left' | 'right', e: DragEvent) {
           <!-- Drop zone: only visible when dragging a file over the window -->
           <div
             v-if="isDraggingFile && !leftText"
-            class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed border-[var(--color-accent)] bg-[rgba(0,229,204,0.04)]"
+            class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-xs border-2 border-dashed border-[var(--color-accent)] bg-[rgba(0,229,204,0.04)]"
             @dragover.prevent
             @drop="handleDrop('left', $event)"
           >
@@ -326,7 +326,7 @@ async function handleDrop(side: 'left' | 'right', e: DragEvent) {
           <!-- Drop zone: only visible when dragging a file over the window -->
           <div
             v-if="isDraggingFile && !rightText"
-            class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed border-[var(--color-accent)] bg-[rgba(0,229,204,0.04)]"
+            class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-xs border-2 border-dashed border-[var(--color-accent)] bg-[rgba(0,229,204,0.04)]"
             @dragover.prevent
             @drop="handleDrop('right', $event)"
           >

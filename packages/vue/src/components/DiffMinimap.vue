@@ -70,7 +70,7 @@ onBeforeUnmount(() => {
     <div
       v-for="(block, idx) in blocks"
       :key="idx"
-      class="absolute left-1 right-1 rounded-sm"
+      class="absolute left-1 right-1 rounded-xs"
       :class="block.type === 'added' ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-accent-2)]'"
       :style="{
         top: block.y + '%',
@@ -81,7 +81,7 @@ onBeforeUnmount(() => {
 
     <!-- Viewport indicator -->
     <div
-      class="absolute left-0 right-0 border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 rounded-sm pointer-events-none transition-[top] duration-75"
+      class="absolute left-0 right-0 border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 rounded-xs pointer-events-none transition-[top] duration-75"
       :style="{
         top: viewportY + '%',
         height: viewportHeight + '%'

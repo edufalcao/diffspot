@@ -6,9 +6,9 @@ Online text diff comparison tool with a dark terminal-chic aesthetic (matching e
 
 | Layer | Technology | Docs |
 |-------|-----------|------|
-| Framework | Nuxt 3 (Vue 3 + TypeScript, compat v4) | https://nuxt.com/docs |
+| Framework | Nuxt 4 (Vue 3 + TypeScript) | https://nuxt.com/docs |
 | UI Framework | Vue 3 | https://vuejs.org/ |
-| Styling | Tailwind CSS 3 | https://tailwindcss.com/docs/installation |
+| Styling | Tailwind CSS 4 (via `@tailwindcss/vite`) | https://tailwindcss.com/docs/installation |
 | Diff engine | jsdiff (`diff`) | https://github.com/kpdecker/jsdiff |
 | Code editors | CodeMirror 6 via `vue-codemirror` | https://codemirror.net/docs/ / https://github.com/surmon-china/vue-codemirror |
 | Export | Multi-format (Print/PDF, .diff, .html, .json) | `@diffspot/core` export generators + `useExport` composable |

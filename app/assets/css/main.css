@@ -1,3 +1,6 @@
+@import "tailwindcss";
+@source "../../node_modules/@diffspot/vue/src/**/*.vue";
+
 /* ========================================
    Diffspot — Design System
    Dark terminal-chic aesthetic

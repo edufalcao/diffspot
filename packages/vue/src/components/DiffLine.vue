@@ -61,8 +61,8 @@ const lineClasses = computed(() => [
           v-for="(word, idx) in line.words"
           :key="idx"
           :class="[
-            word.added && 'bg-[var(--color-added-highlight)] rounded-sm',
-            word.removed && 'bg-[var(--color-removed-highlight)] rounded-sm'
+            word.added && 'bg-[var(--color-added-highlight)] rounded-xs',
+            word.removed && 'bg-[var(--color-removed-highlight)] rounded-xs'
           ]"
         >{{ word.value }}</span>
       </template>

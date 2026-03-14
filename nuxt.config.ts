@@ -1,7 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import tailwindcss from '@tailwindcss/vite';
+
 export default defineNuxtConfig({
 
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/google-fonts', '@nuxtjs/color-mode', '@nuxt/eslint'],
+  modules: ['@nuxtjs/google-fonts', '@nuxtjs/color-mode', '@nuxt/eslint'],
   ssr: false,
 
   components: [
@@ -67,14 +69,15 @@ export default defineNuxtConfig({
     fallback: 'dark'
   },
 
-  future: {
-    compatibilityVersion: 4
-  },
   compatibilityDate: '2024-11-01',
 
   nitro: {
     preset: 'cloudflare-pages',
     modules: ['nitro-cloudflare-dev']
+  },
+
+  vite: {
+    plugins: [tailwindcss()]
   },
 
   eslint: {
