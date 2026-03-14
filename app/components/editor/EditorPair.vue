@@ -2,12 +2,17 @@
 import { ref, computed, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue';
 import { Copy, Trash2, ChevronDown, Check, Upload } from 'lucide-vue-next';
 import { useEditorState, detectLanguageFromFilename } from '~/composables/useEditorState';
+import { acceptedTextFileTypes, getTextFileValidationMessage, isSupportedTextFile } from '~/utils/textFiles';
 
 const DiffEditor = defineAsyncComponent(() => import('./DiffEditor.vue'));
 
 const emit = defineEmits<{ clear: [] }>();
 
 const { leftText, rightText, language, supportedLanguages } = useEditorState();
+const fileErrors = ref<{ left: string | null, right: string | null }>({
+  left: null,
+  right: null
+});
 
 // Language dropdown
 const dropdownOpen = ref(false);
@@ -81,6 +86,8 @@ function clearEditors() {
   emit('clear');
   leftText.value = '';
   rightText.value = '';
+  fileErrors.value.left = null;
+  fileErrors.value.right = null;
 }
 
 // File input refs
@@ -92,34 +99,41 @@ function triggerFileInput(side: 'left' | 'right') {
   else rightFileInput.value?.click();
 }
 
-function handleFileInput(side: 'left' | 'right', e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0];
-  if (!file) return;
+function setFileError(side: 'left' | 'right', message: string | null) {
+  fileErrors.value[side] = message;
+}
+
+async function loadFile(side: 'left' | 'right', file: File) {
+  if (!(await isSupportedTextFile(file))) {
+    setFileError(side, getTextFileValidationMessage());
+    return;
+  }
+
+  setFileError(side, null);
+
   const detected = detectLanguageFromFilename(file.name);
   if (detected) language.value = detected;
-  const reader = new FileReader();
-  reader.onload = () => {
-    if (side === 'left') leftText.value = reader.result as string;
-    else rightText.value = reader.result as string;
-  };
-  reader.readAsText(file)
+
+  const content = await file.text();
+  if (side === 'left') leftText.value = content;
+  else rightText.value = content;
+}
+
+async function handleFileInput(side: 'left' | 'right', e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (file) {
+    await loadFile(side, file);
+  }
   // Reset so the same file can be re-selected
   ;(e.target as HTMLInputElement).value = '';
 }
 
-function handleDrop(side: 'left' | 'right', e: DragEvent) {
+async function handleDrop(side: 'left' | 'right', e: DragEvent) {
   e.preventDefault();
   isDraggingFile.value = false;
   const file = e.dataTransfer?.files[0];
   if (!file) return;
-  const detected = detectLanguageFromFilename(file.name);
-  if (detected) language.value = detected;
-  const reader = new FileReader();
-  reader.onload = () => {
-    if (side === 'left') leftText.value = reader.result as string;
-    else rightText.value = reader.result as string;
-  };
-  reader.readAsText(file);
+  await loadFile(side, file);
 }
 </script>
 
@@ -213,17 +227,30 @@ function handleDrop(side: 'left' | 'right', e: DragEvent) {
             ref="leftFileInput"
             type="file"
             class="hidden"
+            :accept="acceptedTextFileTypes"
             @change="handleFileInput('left', $event)"
           >
           <button
             class="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] transition-colors hover:bg-white/5 cursor-pointer"
             style="font-family: var(--font-mono); color: var(--color-muted)"
-            title="Upload file"
+            title="Upload text file"
             @click="triggerFileInput('left')"
           >
             <Upload :size="10" />
             <span class="hidden sm:inline">Upload</span>
           </button>
+        </div>
+        <div
+          v-if="fileErrors.left"
+          class="px-3 py-1 border-b border-[var(--color-border)]"
+          style="background-color: rgba(255, 0, 110, 0.08)"
+        >
+          <span
+            class="text-[10px]"
+            style="font-family: var(--font-mono); color: var(--color-accent-2)"
+          >
+            {{ fileErrors.left }}
+          </span>
         </div>
         <div class="relative">
           <DiffEditor
@@ -246,7 +273,7 @@ function handleDrop(side: 'left' | 'right', e: DragEvent) {
               class="text-xs"
               style="font-family: var(--font-mono); color: var(--color-accent)"
             >
-              Drop file here
+              Drop text file here
             </span>
           </div>
         </div>
@@ -265,17 +292,30 @@ function handleDrop(side: 'left' | 'right', e: DragEvent) {
             ref="rightFileInput"
             type="file"
             class="hidden"
+            :accept="acceptedTextFileTypes"
             @change="handleFileInput('right', $event)"
           >
           <button
             class="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] transition-colors hover:bg-white/5 cursor-pointer"
             style="font-family: var(--font-mono); color: var(--color-muted)"
-            title="Upload file"
+            title="Upload text file"
             @click="triggerFileInput('right')"
           >
             <Upload :size="10" />
             <span class="hidden sm:inline">Upload</span>
           </button>
+        </div>
+        <div
+          v-if="fileErrors.right"
+          class="px-3 py-1 border-b border-[var(--color-border)]"
+          style="background-color: rgba(255, 0, 110, 0.08)"
+        >
+          <span
+            class="text-[10px]"
+            style="font-family: var(--font-mono); color: var(--color-accent-2)"
+          >
+            {{ fileErrors.right }}
+          </span>
         </div>
         <div class="relative">
           <DiffEditor
@@ -298,7 +338,7 @@ function handleDrop(side: 'left' | 'right', e: DragEvent) {
               class="text-xs"
               style="font-family: var(--font-mono); color: var(--color-accent)"
             >
-              Drop file here
+              Drop text file here
             </span>
           </div>
         </div>

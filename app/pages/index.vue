@@ -147,7 +147,7 @@ function handleKeydown(e: KeyboardEvent) {
     return;
   }
 
-  // Ctrl/Cmd + Enter — Find Differences
+  // Ctrl/Cmd + Enter — Compare
   if (mod && e.key === 'Enter') {
     e.preventDefault();
     if (leftText.value || rightText.value) {
@@ -187,7 +187,7 @@ function handleKeydown(e: KeyboardEvent) {
       <EditorPair @clear="showDiff = false" />
     </div>
 
-    <!-- Find Differences button -->
+    <!-- Compare button -->
     <UiGlowButton
       variant="primary"
       size="lg"
@@ -220,7 +220,7 @@ function handleKeydown(e: KeyboardEvent) {
         Computing diff...
       </template>
       <template v-else>
-        Find Differences
+        Compare
       </template>
     </UiGlowButton>
 
