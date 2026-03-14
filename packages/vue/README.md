@@ -8,7 +8,7 @@ Vue 3 diff components and composables for building beautiful text comparison int
 npm install @diffspot/vue @diffspot/core
 ```
 
-> **Peer dependencies:** `vue ^3.3` and `@diffspot/core ^0.3` are required.
+> **Peer dependencies:** `vue ^3.3` and `@diffspot/core ^0.4` are required.
 
 ## Quick Start
 
@@ -68,6 +68,7 @@ compute()
       v-model:precision="precision"
       v-model:ignore-whitespace="ignoreWhitespace"
       v-model:ignore-case="ignoreCase"
+      :collapse-unchanged="true"
       :current-change-index="currentChangeIndex"
       :total-changes="totalChanges"
       :total-lines="result.lines.length"

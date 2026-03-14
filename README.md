@@ -14,7 +14,8 @@ Built with a dark terminal-chic aesthetic inspired by [edufalcao.com](https://ed
 - Syntax-highlighted code editors (18+ languages) and diff output
 - Collapsible unchanged regions (GitHub-style, toggleable)
 - Auto-detect language from uploaded file extension
-- Drag-and-drop file upload
+- Drag-and-drop and click-to-upload (text files only)
+- Auto-recompute diffs when comparison options change
 - Diff minimap sidebar with click/drag navigation
 - Fullscreen mode for diff results
 - Jump navigation between change groups (prev/next)
@@ -87,6 +88,7 @@ app/
 │   ├── editor/     # DiffEditor, EditorPair
 │   └── ui/         # GlowButton, ToggleGroup, DropdownMenu, GradientText
 ├── composables/    # App-level wrappers and orchestration for diff, export, navigation, fullscreen, and syntax highlighting
+├── utils/          # Pure utility functions (textFiles — file type detection and validation)
 ├── workers/        # Web Workers (diff.worker — off-main-thread diff computation)
 ├── pages/          # index.vue
 └── assets/css/     # Design system (CSS variables, animations)

@@ -6,12 +6,12 @@ Online text diff comparison tool with a dark terminal-chic aesthetic (matching e
 
 | Layer | Technology | Docs |
 |-------|-----------|------|
-| Framework | Nuxt 4 (Vue 3 + TypeScript) | https://nuxt.com/docs |
+| Framework | Nuxt 3 (Vue 3 + TypeScript, compat v4) | https://nuxt.com/docs |
 | UI Framework | Vue 3 | https://vuejs.org/ |
-| Styling | Tailwind CSS 4 | https://tailwindcss.com/docs/installation |
+| Styling | Tailwind CSS 3 | https://tailwindcss.com/docs/installation |
 | Diff engine | jsdiff (`diff`) | https://github.com/kpdecker/jsdiff |
 | Code editors | CodeMirror 6 via `vue-codemirror` | https://codemirror.net/docs/ / https://github.com/surmon-china/vue-codemirror |
-| Print / Export | Browser print dialog | Native `window.print()` with print CSS |
+| Export | Multi-format (Print/PDF, .diff, .html, .json) | `@diffspot/core` export generators + `useExport` composable |
 | Icons | Lucide Vue Next | https://lucide.dev/guide/packages/lucide-vue-next |
 | Fonts | @nuxtjs/google-fonts | https://google-fonts.nuxtjs.org/ |
 | Runtime | Cloudflare Workers | `nitro.preset = 'cloudflare-pages'` |
@@ -106,8 +106,8 @@ Located in `server/routes/`. Compiled into the Cloudflare Worker.
 
 Key directories:
 - `app/components/` — Vue components (layout, editor, diff, ui)
-- `app/composables/` — Shared reactive logic (useDiff, useEditorState, useDiffOptions, useExport, useDiffNavigation, useFullscreen, useMinimap, useVirtualScroll)
-- `app/utils/` — Pure utility functions (diffCompute — extracted diff logic for Web Worker)
+- `app/composables/` — Shared reactive logic (useDiff, useEditorState, useDiffOptions, useExport, useDiffNavigation, useFullscreen, useMinimap, useVirtualScroll, useSyntaxHighlight)
+- `app/utils/` — Pure utility functions (textFiles — file type detection and validation)
 - `app/workers/` — Web Workers (diff.worker — off-main-thread diff computation)
 - `app/pages/` — Nuxt file-based routing (index.vue only)
 - `app/types/` — TypeScript interfaces

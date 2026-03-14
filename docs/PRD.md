@@ -1,6 +1,6 @@
 # Diffspot — Product Requirements Document
 
-> Last updated: 2026-03-10
+> Last updated: 2026-03-13
 
 ---
 
@@ -19,10 +19,10 @@
 1. Land on page → hero: `$ diffspot` + "Paste. Compare. Ship."
 2. Paste/type text or drag-and-drop/upload files into both editors
 3. Select language (syntax highlighting) and precision (line/word/char)
-4. Click **Find Differences** or press `Ctrl+Enter`
+4. Click **Compare** or press `Ctrl+Enter`
 5. Page auto-scrolls to diff output with stats bar
 6. Toggle split/unified view, adjust options, re-diff as needed
-7. Export via Print/Save as PDF
+7. Export via Print/PDF, Unified Diff (.diff), HTML Report (.html), or JSON Data (.json)
 8. Clear editors or erase both inputs to dismiss results
 
 ---
@@ -74,6 +74,8 @@
 | Ignore whitespace option | ✅ Done | |
 | Ignore case option | ✅ Done | |
 | On-demand diff (button-triggered, not reactive) | ✅ Done | |
+| Auto-recompute when options change | ✅ Done | Watches precision, ignoreWhitespace, ignoreCase |
+| CRLF normalization | ✅ Done | Strips `\r` before diffing |
 | Web Worker diff computation | ✅ Done | Off-main-thread via `diff.worker.ts`; UI stays responsive on large inputs |
 | Auto-clear results when both inputs are emptied | ✅ Done | `watch([leftText, rightText])` |
 
@@ -102,6 +104,8 @@
 | Fullscreen mode | ✅ Done | `useFullscreen` — toggle via toolbar button or Escape to exit |
 | Jump navigation between changes | ✅ Done | `useDiffNavigation` — prev/next buttons, `Alt+Up`/`Alt+Down` shortcuts |
 | Current change highlight | ✅ Done | Ring highlight on active change group lines |
+| Collapsible unchanged regions | ✅ Done | GitHub-style folding with 3-line context, toggleable via toolbar |
+| Syntax highlighting in diff output | ✅ Done | Lezer-based tokenization, Material Theme colors, all 18 languages |
 
 ---
 
@@ -109,8 +113,12 @@
 
 | Feature | Status | Notes |
 |---|---|---|
-| Print / Save as PDF (browser print dialog) | ✅ Done | `usePrint` → `window.print()` |
-| Print CSS (hide non-diff elements) | ✅ Done | `print:hidden` in controls |
+| Print / Save as PDF (browser print dialog) | ✅ Done | `useExport` → `window.print()` with virtual scroll unrolling |
+| Unified Diff (.diff) export | ✅ Done | `generateUnifiedDiff` in `@diffspot/core` |
+| HTML Report (.html) export | ✅ Done | `generateHtmlExport` — self-contained dark-themed HTML |
+| JSON Data (.json) export | ✅ Done | `generateJsonExport` — metadata + full DiffResult |
+| Export dropdown UI | ✅ Done | Replaces single Print button with 4-format dropdown |
+| Print CSS (hide non-diff elements, wrap long lines) | ✅ Done | `print:hidden` utilities, `pre-wrap` for wide lines |
 | PNG export (DOM → canvas → image) | ❌ Not built | Originally planned with `html-to-image`; not implemented |
 
 ---
@@ -123,12 +131,14 @@
 | Keyboard shortcut: `Alt + Up/Down` to jump between changes | ✅ Done | |
 | Keyboard shortcut: `Escape` to exit fullscreen | ✅ Done | |
 | Button disabled when both inputs empty | ✅ Done | |
-| "Find Differences" button with spinner state | ✅ Done | |
+| "Compare" button with spinner state | ✅ Done | |
 | Fade-in animations (hero, editor, button) | ✅ Done | |
 | Web Worker diff computation (non-blocking UI) | ✅ Done | Replaced `setTimeout` hack; async `compute()` via dedicated worker |
 | Click-away to close language dropdown | ✅ Done | Fixed overlay |
 | Copy feedback ("Copied" for 2s) | ✅ Done | |
 | Large file performance | ✅ Done | Virtual scrolling + Web Worker diff — handles 10k+ lines without UI freeze |
+| Auto-detect language from file extension | ✅ Done | On file upload or drag-and-drop, 30+ extensions mapped |
+| Text-only file uploads | ✅ Done | Restricts uploads to text MIME types and known text extensions |
 | Keyboard navigation (ARIA / focus management) | ⚠️ Partial | `role="toolbar"` on DiffControls; no full ARIA audit |
 
 ---
@@ -143,6 +153,9 @@
 | OpenGraph tags (og:title, og:description, og:image) | ✅ Done | `nuxt.config.ts` + `public/og.png` (1200×630) |
 | Twitter/X card meta | ✅ Done | `twitter:card`, `twitter:title`, `twitter:image` |
 | Canonical URL | ✅ Done | `<link rel="canonical">` in head |
+| robots.txt | ✅ Done | Allow all crawlers, sitemap reference |
+| sitemap.xml | ✅ Done | Static single-page sitemap |
+| JSON-LD structured data | ✅ Done | WebApplication schema in `nuxt.config.ts` |
 
 ---
 
@@ -199,6 +212,6 @@
 - [ ] Mobile: resize to 375px — unified auto-switch, stacked editors
 - [ ] Theme toggle: dark/light — all components respect CSS vars
 - [ ] `Ctrl+Enter` shortcut works
-- [ ] Print / Save as PDF — diff renders correctly
+- [ ] Export dropdown — all 4 formats work (Print, .diff, .html, .json)
 - [ ] `/ping` returns `message`, `request`, and `total_pings`
 - [ ] No console errors on fresh load
