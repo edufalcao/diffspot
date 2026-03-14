@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@source "../../node_modules/@diffspot/vue/src/**/*.vue";
+@source "../../packages/vue/src/**/*.vue";
 
 /* ========================================
    Diffspot — Design System
