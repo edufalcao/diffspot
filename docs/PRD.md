@@ -1,6 +1,6 @@
 # Diffspot — Product Requirements Document
 
-> Last updated: 2026-03-13
+> Last updated: 2026-03-27
 
 ---
 
@@ -10,13 +10,13 @@
 
 **Design language:** Dark terminal-chic aesthetic matching edufalcao.com — cyan/pink accents, JetBrains Mono, noise overlay, glow effects.
 
-**Live stack:** Nuxt 3 + Vue 3 + TypeScript + Tailwind CSS 3 + jsdiff + CodeMirror 6 + Cloudflare Workers + D1
+**Live stack:** Nuxt 4 + Vue 3 + TypeScript + Tailwind CSS 4 + jsdiff + CodeMirror 6 + Cloudflare Workers + D1
 
 ---
 
 ## 2. Core User Flow
 
-1. Land on page → hero: `$ diffspot` + "Paste. Compare. Ship."
+1. Land on page → hero: `diffspot` + "Paste. Compare. Ship."
 2. Paste/type text or drag-and-drop/upload files into both editors
 3. Select language (syntax highlighting) and precision (line/word/char)
 4. Click **Compare** or press `Ctrl+Enter`
@@ -33,14 +33,14 @@
 
 | Feature | Status | Notes |
 |---|---|---|
-| Nuxt 3 + Vue 3 + TypeScript | ✅ Done | |
-| Tailwind CSS 3 | ✅ Done | |
+| Nuxt 4 + Vue 3 + TypeScript | ✅ Done | |
+| Tailwind CSS 4 | ✅ Done | |
 | CSS design tokens (colors, fonts, effects) | ✅ Done | `main.css` |
 | Noise overlay + radial gradient background | ✅ Done | `app.vue` |
 | Google Fonts (Space Grotesk, DM Sans, JetBrains Mono) | ✅ Done | |
 | Dark/light theme toggle | ✅ Done | `@nuxtjs/color-mode` |
-| AppHeader (`$ diffspot` + GitHub link + theme toggle) | ✅ Done | |
-| AppFooter (built by edufalcao.com) | ✅ Done | |
+| AppHeader (gradient brand, GitHub icon button, theme toggle) | ✅ Done | Sticky with backdrop blur |
+| AppFooter (`diffspot by Eduardo Falcão · Built with Nuxt`) | ✅ Done | Unified across all sites |
 | favicon.svg | ✅ Done | |
 
 ---

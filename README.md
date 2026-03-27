@@ -84,7 +84,7 @@ The diff engine and Vue components are published as standalone npm packages:
 ```
 app/
 ├── components/
-│   ├── layout/     # AppHeader, AppFooter, ThemeToggle
+│   ├── layout/     # AppHeader, AppFooter
 │   ├── editor/     # DiffEditor, EditorPair
 │   └── ui/         # GlowButton, ToggleGroup, DropdownMenu, GradientText
 ├── composables/    # App-level wrappers and orchestration for diff, export, navigation, fullscreen, and syntax highlighting

@@ -174,7 +174,6 @@ function handleKeydown(e: KeyboardEvent) {
     <!-- Hero -->
     <div class="text-center animate-fade-in mb-8 print:hidden">
       <h1 class="text-4xl md:text-6xl font-bold font-[family-name:var(--font-display)] mb-3">
-        <span class="font-mono text-[var(--color-muted)]">$ </span>
         <span class="gradient-text">diffspot</span>
       </h1>
       <p class="text-lg md:text-xl text-[var(--color-muted)] font-[family-name:var(--font-body)]">
