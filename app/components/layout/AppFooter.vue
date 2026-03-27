@@ -1,27 +1,27 @@
 <template>
-  <footer class="relative z-10 flex items-center justify-center px-6 py-4 border-t border-[var(--color-border)]">
-    <p class="text-sm text-[var(--color-muted)] font-mono">
-      Built by
+  <footer class="relative z-20 border-t border-[var(--color-border)] py-4">
+    <div class="mx-auto flex max-w-7xl items-center justify-center px-6 text-sm font-[var(--font-mono)] text-[var(--color-muted)]">
+      <a
+        href="https://github.com/edufalcao/diffspot"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-[var(--color-accent)] transition-colors duration-150 hover:brightness-110"
+      >diffspot</a>
+      <span class="mx-1">by</span>
       <a
         href="https://edufalcao.com"
         target="_blank"
         rel="noopener noreferrer"
-        class="text-[var(--color-accent)] hover:underline"
-      >edufalcao.com</a>
-      with
+        class="text-[var(--color-accent-2)] transition-colors duration-150 hover:brightness-110"
+      >Eduardo Falcão</a>
+      <span class="mx-1">·</span>
+      <span>Built with</span>
       <a
         href="https://nuxt.com"
         target="_blank"
         rel="noopener noreferrer"
-        class="text-[var(--color-accent)] hover:underline"
+        class="ml-1 text-[var(--color-accent)] transition-colors duration-150 hover:brightness-110"
       >Nuxt</a>
-      &amp;
-      <a
-        href="https://tailwindcss.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-[var(--color-accent)] hover:underline"
-      >Tailwind</a>
-    </p>
+    </div>
   </footer>
 </template>
