@@ -16,12 +16,12 @@ function toggle() {
     :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
     @click="toggle"
   >
-    <Moon
+    <Sun
       v-if="isDark"
       :size="16"
       class="text-[var(--color-accent)]"
     />
-    <Sun
+    <Moon
       v-else
       :size="16"
       class="text-[var(--color-accent)]"
