@@ -56,6 +56,8 @@ If there are no staged changes (docs-only release with nothing new to commit), s
 
 ### 4. Push main
 
+> **Note:** Pushing to main triggers automatic deployment to Cloudflare Pages via GitHub Actions.
+
 ```bash
 git push origin main
 ```
