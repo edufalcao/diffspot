@@ -30,3 +30,7 @@ data/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# vue-tsc declaration outputs (generated, emitted alongside source files)
+packages/vue/src/**/*.d.ts
+packages/vue/src/**/*.d.ts.map

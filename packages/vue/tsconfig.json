@@ -4,12 +4,11 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
     "sourceMap": true,
     "jsx": "preserve",
     "lib": ["ES2020", "DOM"],
-    "verbatimModuleSyntax": false
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "tests"]

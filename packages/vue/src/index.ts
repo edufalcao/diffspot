@@ -1,9 +1,7 @@
-// Components
+// Components — public surface
 export { default as DiffView } from './components/DiffView.vue';
 export { default as DiffSplitView } from './components/DiffSplitView.vue';
 export { default as DiffUnifiedView } from './components/DiffUnifiedView.vue';
-export { default as DiffLine } from './components/DiffLine.vue';
-export { default as DiffGutter } from './components/DiffGutter.vue';
 export { default as DiffMinimap } from './components/DiffMinimap.vue';
 export { default as DiffControls } from './components/DiffControls.vue';
 export { default as DiffStats } from './components/DiffStats.vue';

@@ -14,7 +14,7 @@ let worker: Worker | null = null;
 
 function getWorker(): Worker {
   if (!worker) {
-    worker = new Worker(new URL('../worker.ts', import.meta.url), { type: 'module' });
+    worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
   }
   return worker;
 }

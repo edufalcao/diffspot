@@ -33,7 +33,7 @@
     "src/theme.css"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && vue-tsc --declaration --emitDeclarationOnly --skipLibCheck --outDir dist",
     "test": "vitest run",
     "dev": "tsup --watch"
   },

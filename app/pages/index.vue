@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { ExportFormat } from '@diffspot/core';
+import { useDiff, useDiffOptions, useDiffNavigation, VIRTUAL_SCROLL_ITEM_HEIGHT } from '@diffspot/vue';
+import { useExport } from '~/composables/useExport';
 import { useSyntaxHighlight } from '~/composables/useSyntaxHighlight';
 
 const { leftText, rightText, language } = useEditorState();

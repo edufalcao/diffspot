@@ -7,8 +7,6 @@ describe('public api', () => {
     expect(mod.DiffView).toBeTruthy();
     expect(mod.DiffSplitView).toBeTruthy();
     expect(mod.DiffUnifiedView).toBeTruthy();
-    expect(mod.DiffLine).toBeTruthy();
-    expect(mod.DiffGutter).toBeTruthy();
     expect(mod.DiffMinimap).toBeTruthy();
     expect(mod.DiffControls).toBeTruthy();
     expect(mod.DiffStats).toBeTruthy();
