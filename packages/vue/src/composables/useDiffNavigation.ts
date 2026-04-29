@@ -28,9 +28,20 @@ export function useDiffNavigation(
     const el = getScrollContainer();
     if (!el) return;
 
-    const maxScroll = el.scrollHeight - el.clientHeight;
-    scrollRatio.value = maxScroll > 0 ? el.scrollTop / maxScroll : 0;
-    viewportRatio.value = el.scrollHeight > 0 ? el.clientHeight / el.scrollHeight : 1;
+    const totalLines = result.value.lines.length;
+
+    if (options?.itemHeight && totalLines > 0) {
+      // Virtual scroll mode: reference the actual total virtual height, not el.scrollHeight
+      // (el.scrollHeight only reflects the visible viewport, not the full virtual content)
+      const totalVirtualHeight = totalLines * options.itemHeight;
+      const maxScroll = totalVirtualHeight - el.clientHeight;
+      scrollRatio.value = maxScroll > 0 ? el.scrollTop / maxScroll : 0;
+      viewportRatio.value = Math.min(el.clientHeight / totalVirtualHeight, 1);
+    } else {
+      const maxScroll = el.scrollHeight - el.clientHeight;
+      scrollRatio.value = maxScroll > 0 ? el.scrollTop / maxScroll : 0;
+      viewportRatio.value = el.scrollHeight > 0 ? el.clientHeight / el.scrollHeight : 1;
+    }
 
     // Don't override currentChangeIndex during programmatic scrolls
     if (Date.now() < programmaticScrollUntil) return;
@@ -41,14 +52,14 @@ export function useDiffNavigation(
       return;
     }
 
-    const totalLines = result.value.lines.length;
     if (totalLines === 0) return;
 
     let middleLineIndex: number;
 
     if (options?.itemHeight) {
       // Virtual scroll mode: use proportional estimation
-      const ratio = el.scrollHeight > 0 ? (el.scrollTop + el.clientHeight / 2) / el.scrollHeight : 0;
+      const totalVirtualHeight = totalLines * options.itemHeight;
+      const ratio = totalVirtualHeight > 0 ? (el.scrollTop + el.clientHeight / 2) / totalVirtualHeight : 0;
       middleLineIndex = Math.floor(ratio * totalLines);
     } else {
       // DOM-based approach
@@ -84,10 +95,13 @@ export function useDiffNavigation(
 
     if (options?.itemHeight) {
       // Virtual scroll mode: use proportional scrolling
+      // Use total virtual height (totalLines * itemHeight), NOT el.scrollHeight
+      // (el.scrollHeight only reflects the visible viewport, not the full virtual content)
       const totalLines = result.value.lines.length;
+      const totalVirtualHeight = totalLines * options.itemHeight;
       const groupCenter = (group.startIndex + group.endIndex) / 2;
       const ratio = totalLines > 0 ? groupCenter / totalLines : 0;
-      const targetTop = ratio * el.scrollHeight - el.clientHeight / 2;
+      const targetTop = ratio * totalVirtualHeight - el.clientHeight / 2;
       el.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
       return;
     }

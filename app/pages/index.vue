@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { ExportFormat } from '@diffspot/core';
+import type { ExportFormat, DiffPrecision, DiffOptions } from '@diffspot/core';
 import { useDiff, useDiffOptions, useDiffNavigation, VIRTUAL_SCROLL_ITEM_HEIGHT } from '@diffspot/vue';
+import type { Ref, ComputedRef } from 'vue';
 import { useExport } from '~/composables/useExport';
 import { useSyntaxHighlight } from '~/composables/useSyntaxHighlight';
 
 const { leftText, rightText, language } = useEditorState();
-const { precision, ignoreWhitespace, ignoreCase, options } = useDiffOptions();
+const { precision, ignoreWhitespace, ignoreCase, options }: { precision: Ref<DiffPrecision>, ignoreWhitespace: Ref<boolean>, ignoreCase: Ref<boolean>, options: ComputedRef<DiffOptions> } = useDiffOptions();
 const { result, isComputing, compute } = useDiff(leftText, rightText, options);
 const { exportAs } = useExport();
 const { isFullscreen, toggleFullscreen, exitFullscreen } = useFullscreen();
