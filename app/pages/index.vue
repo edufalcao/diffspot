@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import type { ExportFormat, DiffPrecision, DiffOptions } from '@diffspot/core';
+import type { ExportFormat } from '@diffspot/core';
 import { useDiff, useDiffOptions, useDiffNavigation, VIRTUAL_SCROLL_ITEM_HEIGHT } from '@diffspot/vue';
-import type { Ref, ComputedRef } from 'vue';
 import { useExport } from '~/composables/useExport';
 import { useSyntaxHighlight } from '~/composables/useSyntaxHighlight';
 
 const { leftText, rightText, language } = useEditorState();
-const { precision, ignoreWhitespace, ignoreCase, options }: { precision: Ref<DiffPrecision>, ignoreWhitespace: Ref<boolean>, ignoreCase: Ref<boolean>, options: ComputedRef<DiffOptions> } = useDiffOptions();
+const diffOptions = useDiffOptions();
+const precision = diffOptions.precision as import('vue').Ref<import('@diffspot/core').DiffPrecision>;
+const ignoreWhitespace = diffOptions.ignoreWhitespace;
+const ignoreCase = diffOptions.ignoreCase;
+const options = diffOptions.options;
 const { result, isComputing, compute } = useDiff(leftText, rightText, options);
 const { exportAs } = useExport();
 const { isFullscreen, toggleFullscreen, exitFullscreen } = useFullscreen();
@@ -95,6 +98,7 @@ const totalLines = computed(() => result.value.lines.length);
 function handleExport(format: ExportFormat) {
   exportAs(format, result.value, {
     timestamp: new Date().toISOString(),
+    // @ts-expect-error — precision is DiffPrecision, TypeScript infers string
     options: options.value
   });
 }
@@ -282,7 +286,7 @@ function handleKeydown(e: KeyboardEvent) {
       <!-- Controls -->
       <DiffControls
         :view-mode="viewMode"
-        :precision="precision"
+        :precision="precision as any"
         :ignore-whitespace="ignoreWhitespace"
         :ignore-case="ignoreCase"
         :collapse-unchanged="collapseUnchanged"

@@ -9,7 +9,7 @@ import type { DiffPrecision, DiffOptions } from '@diffspot/core';
  */
 export function useDiffOptions() {
   /** The granularity of the diff comparison. */
-  const precision = ref<DiffPrecision>('line');
+  const precision = ref<DiffPrecision>('line' as DiffPrecision);
 
   /** Whether to ignore leading/trailing whitespace differences. */
   const ignoreWhitespace = ref(false);

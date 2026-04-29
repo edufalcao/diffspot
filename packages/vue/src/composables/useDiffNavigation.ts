@@ -1,6 +1,6 @@
 import { computed, ref, watch, nextTick, onBeforeUnmount, type Ref, type ComputedRef } from 'vue';
 import type { DiffResult } from '@diffspot/core';
-import { computeChangeGroups } from '@diffspot/core';
+import { computeChangeGroups, computeCollapsedRegions } from '@diffspot/core';
 
 export function useDiffNavigation(
   result: Ref<DiffResult> | ComputedRef<DiffResult>,
@@ -28,20 +28,15 @@ export function useDiffNavigation(
     const el = getScrollContainer();
     if (!el) return;
 
-    const totalLines = result.value.lines.length;
-
-    if (options?.itemHeight && totalLines > 0) {
-      // Virtual scroll mode: reference the actual total virtual height, not el.scrollHeight
-      // (el.scrollHeight only reflects the visible viewport, not the full virtual content)
-      const totalVirtualHeight = totalLines * options.itemHeight;
-      const maxScroll = totalVirtualHeight - el.clientHeight;
-      scrollRatio.value = maxScroll > 0 ? el.scrollTop / maxScroll : 0;
-      viewportRatio.value = Math.min(el.clientHeight / totalVirtualHeight, 1);
-    } else {
-      const maxScroll = el.scrollHeight - el.clientHeight;
-      scrollRatio.value = maxScroll > 0 ? el.scrollTop / maxScroll : 0;
-      viewportRatio.value = el.scrollHeight > 0 ? el.clientHeight / el.scrollHeight : 1;
-    }
+    // Always use el.scrollHeight as the source of truth for total scrollable height.
+    // This works correctly in all modes:
+    // - Non-virtual: el.scrollHeight = totalLines * lineHeight (accurate)
+    // - Virtual no-collapse: el.scrollHeight = totalLines * itemHeight (accurate)
+    // - Virtual + collapse: el.scrollHeight = displayItems.length * itemHeight (accurate for scroll)
+    const totalScrollHeight = el.scrollHeight;
+    const maxScroll = totalScrollHeight - el.clientHeight;
+    scrollRatio.value = maxScroll > 0 ? el.scrollTop / maxScroll : 0;
+    viewportRatio.value = totalScrollHeight > 0 ? el.clientHeight / totalScrollHeight : 1;
 
     // Don't override currentChangeIndex during programmatic scrolls
     if (Date.now() < programmaticScrollUntil) return;
@@ -52,23 +47,15 @@ export function useDiffNavigation(
       return;
     }
 
+    const totalLines = result.value.lines.length;
     if (totalLines === 0) return;
 
-    let middleLineIndex: number;
+    // Map scroll position (display-item space) back to original line index.
+    // scrollableRatio: what fraction of the scrollable content has been scrolled past
+    const scrollableRatio = el.scrollTop / totalScrollHeight;
+    const middleLineIndex = Math.floor(scrollableRatio * totalLines);
 
-    if (options?.itemHeight) {
-      // Virtual scroll mode: use proportional estimation
-      const totalVirtualHeight = totalLines * options.itemHeight;
-      const ratio = totalVirtualHeight > 0 ? (el.scrollTop + el.clientHeight / 2) / totalVirtualHeight : 0;
-      middleLineIndex = Math.floor(ratio * totalLines);
-    } else {
-      // DOM-based approach
-      const viewportMiddle = el.scrollTop + el.clientHeight / 2;
-      const lineHeight = el.scrollHeight / totalLines;
-      middleLineIndex = Math.floor(viewportMiddle / lineHeight);
-    }
-
-    // Find the closest change group to the middle of the viewport
+    // Find the closest change group to the estimated middle line
     let closestIdx = 0;
     let closestDist = Infinity;
 
@@ -94,15 +81,38 @@ export function useDiffNavigation(
     currentChangeIndex.value = index;
 
     if (options?.itemHeight) {
-      // Virtual scroll mode: use proportional scrolling
-      // Use total virtual height (totalLines * itemHeight), NOT el.scrollHeight
-      // (el.scrollHeight only reflects the visible viewport, not the full virtual content)
-      const totalLines = result.value.lines.length;
-      const totalVirtualHeight = totalLines * options.itemHeight;
-      const groupCenter = (group.startIndex + group.endIndex) / 2;
-      const ratio = totalLines > 0 ? groupCenter / totalLines : 0;
-      const targetTop = ratio * totalVirtualHeight - el.clientHeight / 2;
-      el.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+      // Virtual scroll mode: the container scrolls in display-item coordinate space.
+      // We need to find the display-item index that corresponds to group.startIndex
+      // (original line index), accounting for collapsed regions which insert
+      // additional display items between lines.
+      const itemHeight = options.itemHeight;
+      const collapsedRegions = computeCollapsedRegions(result.value.lines);
+      const regionMap = new Map<number, typeof collapsedRegions[0]>();
+      for (const region of collapsedRegions) {
+        regionMap.set(region.startIndex, region);
+      }
+
+      let displayItemIndex = 0;
+      for (let lineIdx = 0; lineIdx < result.value.lines.length; lineIdx++) {
+        if (lineIdx === group.startIndex) {
+          // Found the target — scroll to this display item position
+          el.scrollTo({ top: displayItemIndex * itemHeight, behavior: 'smooth' });
+          return;
+        }
+
+        const region = regionMap.get(lineIdx);
+        if (region && result.value.lines[lineIdx]!.type === 'unchanged') {
+          // This line is the start of a collapsed region — insert collapsed item,
+          // skip all region lines, then continue
+          displayItemIndex++; // collapsed indicator
+          lineIdx = region.endIndex; // skip to end of region (loop will ++)
+        } else {
+          displayItemIndex++; // normal line item
+        }
+      }
+
+      // Fallback: scroll to end
+      el.scrollTo({ top: el.scrollHeight - el.clientHeight, behavior: 'smooth' });
       return;
     }
 
