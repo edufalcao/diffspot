@@ -77,6 +77,7 @@ export function useDiffNavigation(
     if (!el || index < 0 || index >= changeGroups.value.length) return;
 
     const group = changeGroups.value[index]!;
+    console.log('[scrollToChange] called: index=', index, 'group=', group, 'options=', options, 'el.scrollHeight=', el.scrollHeight);
     programmaticScrollUntil = Date.now() + 500;
     currentChangeIndex.value = index;
 
@@ -96,6 +97,7 @@ export function useDiffNavigation(
       for (let lineIdx = 0; lineIdx < result.value.lines.length; lineIdx++) {
         if (lineIdx === group.startIndex) {
           // Found the target — scroll to this display item position
+          console.log('[scrollToChange] virtual mode: scroll to', displayItemIndex * itemHeight, 'px (displayItemIndex=', displayItemIndex, 'group.startIndex=', group.startIndex, ')');
           el.scrollTo({ top: displayItemIndex * itemHeight, behavior: 'smooth' });
           return;
         }
