@@ -191,11 +191,11 @@ function onRightScroll() {
 function onMinimapScrollTo(ratio: number) {
   const el = leftPanelRef.value;
   if (!el) return;
-  // Use el.scrollHeight as the coordinate space — it reflects the actual
-  // total scrollable height (displayItems.length * itemHeight in virtual mode).
-  // Using leftVs.totalHeight.value here would also work, but el.scrollHeight
-  // is guaranteed to match what updateScrollMetrics uses.
-  el.scrollTo({ top: ratio * el.scrollHeight, behavior: 'instant' });
+  // Scroll so the clicked minimap position ends up centered in the viewport.
+  // ratio * el.scrollHeight = the scroll position where the clicked point
+  // would be at the TOP of the viewport. Subtract clientHeight/2 to center it.
+  const centered = ratio * el.scrollHeight - el.clientHeight / 2;
+  el.scrollTo({ top: Math.max(0, Math.min(centered, el.scrollHeight - el.clientHeight)), behavior: 'instant' });
 }
 
 onMounted(() => {

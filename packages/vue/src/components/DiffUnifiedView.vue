@@ -113,9 +113,9 @@ const highlightedIndices = computed(() => {
 function onMinimapScrollTo(ratio: number) {
   const el = scrollContainerRef.value;
   if (!el) return;
-  // el.scrollHeight equals totalHeight.value here (both = displayItems.length * 26).
-  // Using el.scrollHeight keeps this consistent with updateScrollMetrics.
-  el.scrollTo({ top: ratio * el.scrollHeight, behavior: 'instant' });
+  // Center the clicked minimap position in the viewport.
+  const centered = ratio * el.scrollHeight - el.clientHeight / 2;
+  el.scrollTo({ top: Math.max(0, Math.min(centered, el.scrollHeight - el.clientHeight)), behavior: 'instant' });
 }
 
 defineExpose({
