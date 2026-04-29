@@ -41,35 +41,20 @@ export function useDiffNavigation(
     // Don't override currentChangeIndex during programmatic scrolls
     if (Date.now() < programmaticScrollUntil) return;
 
-    // Infer current change from scroll position
+    // Infer current change from scroll position.
+    // In virtual-scroll mode the scroll container scrolls in display-item coordinate
+    // space (el.scrollHeight = displayItems.length * itemHeight), NOT in line-index
+    // space. Use scrollRatio * changeGroups.length to map the viewport position
+    // to the correct change group — this works correctly for both virtual and
+    // DOM-based modes.
     if (changeGroups.value.length === 0) {
       currentChangeIndex.value = -1;
       return;
     }
 
-    const totalLines = result.value.lines.length;
-    if (totalLines === 0) return;
-
-    // Map scroll position (display-item space) back to original line index.
-    // scrollableRatio: what fraction of the scrollable content has been scrolled past
-    const scrollableRatio = el.scrollTop / totalScrollHeight;
-    const middleLineIndex = Math.floor(scrollableRatio * totalLines);
-
-    // Find the closest change group to the estimated middle line
-    let closestIdx = 0;
-    let closestDist = Infinity;
-
-    for (let i = 0; i < changeGroups.value.length; i++) {
-      const group = changeGroups.value[i]!;
-      const groupMiddle = (group.startIndex + group.endIndex) / 2;
-      const dist = Math.abs(groupMiddle - middleLineIndex);
-      if (dist < closestDist) {
-        closestDist = dist;
-        closestIdx = i;
-      }
-    }
-
-    currentChangeIndex.value = closestIdx;
+    const ratio = scrollRatio.value; // 0..1 fraction of the scrollable area
+    const idx = Math.round(ratio * (changeGroups.value.length - 1));
+    currentChangeIndex.value = Math.max(0, Math.min(idx, changeGroups.value.length - 1));
   }
 
   function scrollToChange(index: number) {
@@ -77,7 +62,6 @@ export function useDiffNavigation(
     if (!el || index < 0 || index >= changeGroups.value.length) return;
 
     const group = changeGroups.value[index]!;
-    console.log('[scrollToChange] called: index=', index, 'group=', group, 'options=', options, 'el.scrollHeight=', el.scrollHeight);
     programmaticScrollUntil = Date.now() + 500;
     currentChangeIndex.value = index;
 
@@ -97,7 +81,6 @@ export function useDiffNavigation(
       for (let lineIdx = 0; lineIdx < result.value.lines.length; lineIdx++) {
         if (lineIdx === group.startIndex) {
           // Found the target — scroll to this display item position
-          console.log('[scrollToChange] virtual mode: scroll to', displayItemIndex * itemHeight, 'px (displayItemIndex=', displayItemIndex, 'group.startIndex=', group.startIndex, ')');
           el.scrollTo({ top: displayItemIndex * itemHeight, behavior: 'smooth' });
           return;
         }
