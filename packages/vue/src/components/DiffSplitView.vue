@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import type { DiffLine, ChangeGroup, CollapsedRegion } from '@diffspot/core';
 import { computeCollapsedRegions } from '@diffspot/core';
-import { useVirtualScroll } from '../composables/useVirtualScroll';
+import { useVirtualScroll, VIRTUAL_SCROLL_ITEM_HEIGHT } from '../composables/useVirtualScroll';
 import DiffLineComponent from './DiffLine.vue';
 import DiffMinimap from './DiffMinimap.vue';
 
@@ -191,7 +191,11 @@ function onRightScroll() {
 function onMinimapScrollTo(ratio: number) {
   const el = leftPanelRef.value;
   if (!el) return;
-  const maxScroll = el.scrollHeight - el.clientHeight;
+  // Use total virtual height (totalItems * itemHeight) as max scroll,
+  // NOT el.scrollHeight (which only reflects the visible viewport in virtual scroll mode)
+  const totalItems = leftVs.totalHeight.value / VIRTUAL_SCROLL_ITEM_HEIGHT;
+  const totalVirtualHeight = totalItems * VIRTUAL_SCROLL_ITEM_HEIGHT;
+  const maxScroll = totalVirtualHeight - el.clientHeight;
   el.scrollTop = ratio * maxScroll;
 }
 
