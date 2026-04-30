@@ -70,6 +70,11 @@ export function useDiffNavigation(
       // We need to find the display-item index that corresponds to group.startIndex
       // (original line index), accounting for collapsed regions which insert
       // additional display items between lines.
+      //
+      // NOTE: the left panel (which is our scroll container) only shows removed +
+      // unchanged lines + collapsed indicators — NOT added lines. So we must only
+      // count display items that actually appear in the left panel, otherwise
+      // displayItemIndex will be inflated and scroll past the target.
       const itemHeight = options.itemHeight;
       const collapsedRegions = computeCollapsedRegions(result.value.lines);
       const regionMap = new Map<number, typeof collapsedRegions[0]>();
@@ -79,21 +84,25 @@ export function useDiffNavigation(
 
       let displayItemIndex = 0;
       for (let lineIdx = 0; lineIdx < result.value.lines.length; lineIdx++) {
+        const line = result.value.lines[lineIdx]!;
+        const region = regionMap.get(lineIdx);
+
         if (lineIdx === group.startIndex) {
           // Found the target — scroll to this display item position
           el.scrollTo({ top: displayItemIndex * itemHeight, behavior: 'smooth' });
           return;
         }
 
-        const region = regionMap.get(lineIdx);
-        if (region && result.value.lines[lineIdx]!.type === 'unchanged') {
-          // This line is the start of a collapsed region — insert collapsed item,
-          // skip all region lines, then continue
-          displayItemIndex++; // collapsed indicator
-          lineIdx = region.endIndex; // skip to end of region (loop will ++)
-        } else {
-          displayItemIndex++; // normal line item
+        if (region && line.type === 'unchanged') {
+          // Start of a collapsed region: the region adds one collapsed-indicator
+          // display item, and all lines inside are hidden.
+          displayItemIndex++;
+          lineIdx = region.endIndex; // skip to end (loop will ++ past it)
+        } else if (line.type === 'removed' || line.type === 'unchanged') {
+          // This line appears in the left panel (added lines do not).
+          displayItemIndex++;
         }
+        // else: added line — does not appear in left panel, skip.
       }
 
       // Fallback: scroll to end
