@@ -98,7 +98,6 @@ const totalLines = computed(() => result.value.lines.length);
 function handleExport(format: ExportFormat) {
   exportAs(format, result.value, {
     timestamp: new Date().toISOString(),
-    // @ts-expect-error — precision is DiffPrecision, TypeScript infers string
     options: options.value
   });
 }
@@ -273,87 +272,93 @@ function handleKeydown(e: KeyboardEvent) {
       </div>
     </Transition>
 
-    <!-- Diff output -->
-    <div
-      v-if="hasDiff"
-      ref="diffSectionRef"
-      :class="[
-        isFullscreen
-          ? 'fixed inset-0 z-50 flex flex-col bg-[var(--color-bg)] p-6 overflow-hidden'
-          : 'w-full max-w-6xl animate-slide-up space-y-4'
-      ]"
+    <!-- Diff output. In fullscreen, teleport to <body> to escape the page's
+         z-10 stacking context so the overlay renders above the sticky header. -->
+    <Teleport
+      to="body"
+      :disabled="!isFullscreen"
     >
-      <!-- Controls -->
-      <DiffControls
-        :view-mode="viewMode"
-        :precision="precision as any"
-        :ignore-whitespace="ignoreWhitespace"
-        :ignore-case="ignoreCase"
-        :collapse-unchanged="collapseUnchanged"
-        :hide-split-option="isMobile"
-        :is-fullscreen="isFullscreen"
-        :current-change-index="currentChangeIndex"
-        :total-changes="totalChanges"
-        :total-lines="totalLines"
-        @update:view-mode="viewMode = $event"
-        @update:precision="precision = $event"
-        @update:ignore-whitespace="ignoreWhitespace = $event"
-        @update:ignore-case="ignoreCase = $event"
-        @update:collapse-unchanged="collapseUnchanged = $event"
-        @export="handleExport"
-        @toggle-fullscreen="toggleFullscreen"
-        @prev-change="goToPrevChange"
-        @next-change="goToNextChange"
-      />
-
-      <template v-if="textsAreIdentical">
-        <div
-          class="text-center py-12 rounded-lg border border-[var(--color-border)]"
-          :class="isFullscreen ? 'flex-1 flex flex-col items-center justify-center' : ''"
-          style="background-color: var(--color-surface)"
-        >
-          <div
-            class="text-3xl mb-3"
-            style="color: var(--color-accent)"
-          >
-            =
-          </div>
-          <p
-            class="text-lg font-semibold mb-1"
-            style="font-family: var(--font-display); color: var(--color-text)"
-          >
-            No differences found
-          </p>
-          <p
-            class="text-sm"
-            style="font-family: var(--font-mono); color: var(--color-muted)"
-          >
-            {{ emptyDiffMessage }}
-          </p>
-        </div>
-      </template>
-      <template v-else>
-        <!-- Stats -->
-        <DiffStats
-          :additions="result.additions"
-          :removals="result.removals"
-          :unchanged="result.unchanged"
-          :class="isFullscreen ? 'flex-shrink-0' : ''"
-        />
-
-        <!-- Diff view -->
-        <DiffView
-          :result="result"
+      <div
+        v-if="hasDiff"
+        ref="diffSectionRef"
+        :class="[
+          isFullscreen
+            ? 'fixed inset-0 z-50 flex flex-col bg-[var(--color-bg)] p-6 overflow-hidden'
+            : 'w-full max-w-6xl animate-slide-up space-y-4'
+        ]"
+      >
+        <!-- Controls -->
+        <DiffControls
           :view-mode="viewMode"
-          :is-fullscreen="isFullscreen"
+          :precision="precision as any"
+          :ignore-whitespace="ignoreWhitespace"
+          :ignore-case="ignoreCase"
           :collapse-unchanged="collapseUnchanged"
+          :hide-split-option="isMobile"
+          :is-fullscreen="isFullscreen"
           :current-change-index="currentChangeIndex"
-          :change-groups="changeGroups"
-          :scroll-ratio="scrollRatio"
-          :viewport-ratio="viewportRatio"
-          @scroll-container-ready="onScrollContainerReady"
+          :total-changes="totalChanges"
+          :total-lines="totalLines"
+          @update:view-mode="viewMode = $event"
+          @update:precision="precision = $event"
+          @update:ignore-whitespace="ignoreWhitespace = $event"
+          @update:ignore-case="ignoreCase = $event"
+          @update:collapse-unchanged="collapseUnchanged = $event"
+          @export="handleExport"
+          @toggle-fullscreen="toggleFullscreen"
+          @prev-change="goToPrevChange"
+          @next-change="goToNextChange"
         />
-      </template>
-    </div>
+
+        <template v-if="textsAreIdentical">
+          <div
+            class="text-center py-12 rounded-lg border border-[var(--color-border)]"
+            :class="isFullscreen ? 'flex-1 flex flex-col items-center justify-center' : ''"
+            style="background-color: var(--color-surface)"
+          >
+            <div
+              class="text-3xl mb-3"
+              style="color: var(--color-accent)"
+            >
+              =
+            </div>
+            <p
+              class="text-lg font-semibold mb-1"
+              style="font-family: var(--font-display); color: var(--color-text)"
+            >
+              No differences found
+            </p>
+            <p
+              class="text-sm"
+              style="font-family: var(--font-mono); color: var(--color-muted)"
+            >
+              {{ emptyDiffMessage }}
+            </p>
+          </div>
+        </template>
+        <template v-else>
+          <!-- Stats -->
+          <DiffStats
+            :additions="result.additions"
+            :removals="result.removals"
+            :unchanged="result.unchanged"
+            :class="isFullscreen ? 'flex-shrink-0' : ''"
+          />
+
+          <!-- Diff view -->
+          <DiffView
+            :result="result"
+            :view-mode="viewMode"
+            :is-fullscreen="isFullscreen"
+            :collapse-unchanged="collapseUnchanged"
+            :current-change-index="currentChangeIndex"
+            :change-groups="changeGroups"
+            :scroll-ratio="scrollRatio"
+            :viewport-ratio="viewportRatio"
+            @scroll-container-ready="onScrollContainerReady"
+          />
+        </template>
+      </div>
+    </Teleport>
   </div>
 </template>
