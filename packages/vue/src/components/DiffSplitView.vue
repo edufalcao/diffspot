@@ -172,7 +172,13 @@ function syncScroll(source: HTMLElement, target: HTMLElement) {
       target.scrollTop = (source.scrollTop / sourceMax) * targetMax;
     }
     target.scrollLeft = source.scrollLeft;
-    isSyncing = false;
+    // The scroll event triggered by the writes above fires asynchronously.
+    // Hold the lock until the next frame so that the target's scroll handler
+    // sees isSyncing=true and skips the back-sync — otherwise the back-sync
+    // write to source.scrollTop cancels any in-progress smooth scroll on it.
+    requestAnimationFrame(() => {
+      isSyncing = false;
+    });
   });
 }
 
